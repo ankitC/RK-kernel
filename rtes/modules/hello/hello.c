@@ -1,14 +1,12 @@
 //Sample LKM
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/resource.h>
+#include <linux/sched.h>
+#include <asm/current.h>
 
 int init_module(void){
 
-	printk(KERN_INFO "Hello, world! I am a process %u with priority %d\n", \
-			getpid(), getpriority(PRIO_PROCESS,0);
+	printk(KERN_INFO "Hello, world! I am a process (PID %i) with (PRIORITY %u)\n", current->pid,  current->rt_priority);
 	return 0;
 
 }
