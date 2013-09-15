@@ -1,0 +1,1127 @@
+--------- beginning of /dev/log/main
+I/installd(  129): installd firing up
+E/btMacWriter(  131): Cannot open source file.
+E/btMacWriter(  131): Failed to copy bt adress from partition
+I/DEBUG   (  124): debuggerd: Feb  8 2013 22:05:59
+I/TEEKeyMaster(  130): C_GetInfo cryptokiVer=2.20 manufID=Trusted Logic flags=0 libDesc=PKCS#11 libVer=3.0
+I/Netd    (  123): Netd 1.0 starting
+W/InterfaceController(  123): Warning (Cannot load library: load_library(linker.cpp:745): library "/system/lib/libnetcmdiface.so" not found) while opening the net interface command library
+--------- beginning of /dev/log/system
+I/Vold    (  121): Vold 2.1 (the revenge) firing up
+I/Sensor Daemon(  132): Sensors-load-config: Service started, Version: 1.1
+D/gpsd    (  136): main()
+D/gpsd    (  136): argv[0] = '/system/bin/glgps'
+D/gpsd    (  136): argv[1] = '-c'
+D/gpsd    (  136): argv[2] = '/system/etc/gps/gpsconfig.xml'
+I/SurfaceFlinger(  125): SurfaceFlinger is starting
+I/SurfaceFlinger(  125): SurfaceFlinger's main thread ready to run. Initializing graphics H/W...
+D/libEGL  (  125): loaded /system/lib/egl/libEGL_tegra.so
+D/libEGL  (  125): loaded /system/lib/egl/libGLESv1_CM_tegra.so
+E/Sensor Daemon(  132): The source path of MPU6050_Config.ini is not exist.
+D/libEGL  (  125): loaded /system/lib/egl/libGLESv2_tegra.so
+D/MDnsDS  (  123): MDnsSdListener::Hander starting up
+D/MDnsDS  (  123): MDnsSdListener starting to monitor
+D/MDnsDS  (  123): Going to poll with pollCount 1
+I/mediaserver(  128): ServiceManager: 0x41b82e30
+I/AudioFlinger(  128): Using default 3000 mSec as standby time.
+I/CameraService(  128): CameraService started (pid=128)
+D/AndroidRuntime(  126): 
+D/AndroidRuntime(  126): >>>>>> AndroidRuntime START com.android.internal.os.ZygoteInit <<<<<<
+D/AndroidRuntime(  126): CheckJNI is OFF
+E/gralloc (  125): creating nvcap video capture service
+E/gralloc (  125): failed to load libnvcap_video.so (Cannot load library: load_library(linker.cpp:745): library "/system/lib/libnvcap_video.so" not found)
+E/gralloc (  125): Failed to create overlay for display 2
+E/gralloc (  125): Failed to create overlay for display 2
+E/gralloc (  125): Failed to create overlay for display 2
+I/gralloc (  125): using (fd=16)
+I/gralloc (  125): id           = tegra_fb
+I/gralloc (  125): xres         = 800 px
+I/gralloc (  125): yres         = 1280 px
+I/gralloc (  125): xres_virtual = 800 px
+I/gralloc (  125): yres_virtual = 2560 px
+I/gralloc (  125): bpp          = 32
+I/gralloc (  125): r            =  0:8
+I/gralloc (  125): g            =  8:8
+I/gralloc (  125): b            = 16:8
+I/gralloc (  125): smem_start   = 0xbec00000
+I/gralloc (  125): smem_len     = 0x00900000
+I/gralloc (  125): format       = 1
+I/gralloc (  125): stride       = 800
+I/gralloc (  125): width        = 104 mm (195.384613 dpi)
+I/gralloc (  125): height       = 162 mm (200.691360 dpi)
+I/gralloc (  125): refresh rate = 60.00 Hz
+I/SurfaceFlinger(  125): Using composer version 1.0
+W/SurfaceFlinger(  125): getting VSYNC period from fb HAL: 16667235
+W/SurfaceFlinger(  125): no suitable EGLConfig found, trying without EGL_FRAMEBUFFER_TARGET_ANDROID
+I/SurfaceFlinger(  125): EGL informations:
+I/SurfaceFlinger(  125): vendor    : Android
+I/SurfaceFlinger(  125): version   : 1.4 Android META-EGL
+I/SurfaceFlinger(  125): extensions: EGL_KHR_image EGL_KHR_image_base EGL_KHR_image_pixmap EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_renderbuffer_image EGL_KHR_fence_sync EGL_EXT_create_context_robustness EGL_NV_system_time EGL_ANDROID_image_native_buffer 
+I/SurfaceFlinger(  125): Client API: OpenGL_ES
+I/SurfaceFlinger(  125): EGLSurface: 8-8-8-8, config=0xcaf32c
+I/SurfaceFlinger(  125): OpenGL ES informations:
+I/SurfaceFlinger(  125): vendor    : NVIDIA Corporation
+I/SurfaceFlinger(  125): renderer  : NVIDIA AP
+I/SurfaceFlinger(  125): version   : OpenGL ES-CM 1.1
+I/SurfaceFlinger(  125): extensions: GL_EXT_bgra GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_s3tc GL_EXT_texture_format_BGRA8888 GL_EXT_unpack_subimage GL_EXT_debug_marker GL_EXT_debug_label GL_NV_texture_npot_2D_mipmap GL_OES_byte_coordinates GL_OES_compressed_ETC1_RGB8_texture GL_OES_compressed_paletted_texture GL_OES_draw_texture GL_OES_extended_matrix_palette GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_sync GL_OES_fbo_render_mipmap GL_OES_fixed_point GL_OES_framebuffer_object GL_OES_matrix_get GL_OES_matrix_palette GL_OES_point_size_array GL_OES_point_sprite GL_OES_query_matrix GL_OES_read_format GL_OES_rgb8_rgba8 GL_OES_single_precision GL_OES_stencil8 GL_OES_texture_cube_map GL_OES_vertex_half_float 
+I/SurfaceFlinger(  125): GL_MAX_TEXTURE_SIZE = 2048
+I/SurfaceFlinger(  125): GL_MAX_VIEWPORT_DIMS = 3839 x 3839
+D/SurfaceFlinger(  125): Screen acquired, type=0 flinger=0x415ab318
+I/hwcomposer(  125): Setting interactive mode: On
+I/AudioPolicyManagerBase(  128): loadAudioPolicyConfig() loaded /system/etc/audio_policy.conf
+I/AudioFlinger(  128): loadHwModule() Loaded primary audio interface from Grouper audio HW HAL (audio) handle 1
+I/AudioFlinger(  128): HAL output buffer size 512 frames, normal mix buffer size 1024 frames
+I/AudioMixer(  128): found effect "Multichannel Downmix To Stereo" from The Android Open Source Project
+E/MonoPipe(  128): Failed to fetch local time frequency when constructing a MonoPipe (res = -32).  getNextWriteTimestamp calls will be non-functional
+E/Sensor Daemon(  132): The source path of AMI306_Config.ini is not exist.
+D/libEGL  (  409): loaded /system/lib/egl/libEGL_tegra.so
+D/libEGL  (  409): loaded /system/lib/egl/libGLESv1_CM_tegra.so
+D/libEGL  (  409): loaded /system/lib/egl/libGLESv2_tegra.so
+D/dalvikvm(  126): Trying to load lib libjavacore.so 0x0
+D/dalvikvm(  126): Added shared lib libjavacore.so 0x0
+D/dalvikvm(  126): Trying to load lib libnativehelper.so 0x0
+D/dalvikvm(  126): Added shared lib libnativehelper.so 0x0
+I/SamplingProfilerIntegration(  126): Profiling disabled.
+I/Zygote  (  126): Preloading classes...
+D/dalvikvm(  126): GC_EXPLICIT freed 36K, 9% free 419K/460K, paused 0ms+1ms, total 3ms
+D/dalvikvm(  126): GC_EXPLICIT freed 4K, 5% free 489K/512K, paused 1ms+0ms, total 4ms
+D/dalvikvm(  126): Note: class Landroid/app/ActivityManagerNative; has 157 unimplemented (abstract) methods
+D/dalvikvm(  126): GC_EXPLICIT freed 21K, 5% free 529K/556K, paused 0ms+0ms, total 2ms
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 6% free 556K/588K, paused 0ms+1ms, total 3ms
+W/Zygote  (  126): Class not found for preloading: android.bluetooth.BluetoothAudioGateway
+W/Zygote  (  126): Class not found for preloading: android.bluetooth.HeadsetBase
+W/Zygote  (  126): Class not found for preloading: undroid.content.AbstractThreadedSyncAdapter$SyncThread
+D/dalvikvm(  126): GC_EXPLICIT freed 24K, 5% free 605K/632K, paused 0ms+1ms, total 4ms
+D/dalvikvm(  126): GC_EXPLICIT freed 26K, 5% free 633K/664K, paused 1ms+1ms, total 4ms
+D/dalvikvm(  126): GC_EXPLICIT freed 60K, 9% free 724K/788K, paused 0ms+0ms, total 3ms
+D/dalvikvm(  126): GC_EXPLICIT freed 31K, 5% free 750K/788K, paused 1ms+1ms, total 5ms
+D/TextLayoutCache(  126): Using debug level = 0 - Debug Enabled = 0
+D/dalvikvm(  126): GC_EXPLICIT freed 18K, 3% free 786K/808K, paused 1ms+1ms, total 5ms
+I/dalvikvm(  126): threadid=1: recursive native library load attempt (/system/lib/libmedia_jni.so)
+D/MtpDeviceJNI(  126): register_android_mtp_MtpDevice
+I/dalvikvm(  126): threadid=1: recursive native library load attempt (/system/lib/libmedia_jni.so)
+I/dalvikvm(  126): threadid=1: recursive native library load attempt (/system/lib/libmedia_jni.so)
+D/dalvikvm(  126): GC_EXPLICIT freed 15K, 3% free 829K/848K, paused 0ms+0ms, total 6ms
+D/dalvikvm(  126): GC_FOR_ALLOC freed 220K, 17% free 1122K/1344K, paused 7ms, total 7ms
+D/dalvikvm(  126): GC_EXPLICIT freed 275K, 18% free 1273K/1552K, paused 0ms+0ms, total 9ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 17% free 1299K/1552K, paused 1ms+0ms, total 8ms
+D/dalvikvm(  126): GC_EXPLICIT freed 11K, 13% free 1354K/1552K, paused 1ms+1ms, total 8ms
+W/Zygote  (  126): Class not found for preloading: android.server.BluetoothA2dpService
+W/Zygote  (  126): Class not found for preloading: android.server.BluetoothEventLoop
+W/Zygote  (  126): Class not found for preloading: android.server.BluetoothService
+D/TelephonyManager(  126): No /proc/cmdline exception=java.io.FileNotFoundException: /proc/cmdline: open failed: EACCES (Permission denied)
+D/TelephonyManager(  126): /proc/cmdline=
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 11% free 1417K/1584K, paused 1ms+1ms, total 12ms
+D/dalvikvm(  126): GC_EXPLICIT freed 47K, 3% free 1698K/1748K, paused 1ms+2ms, total 13ms
+W/Zygote  (  126): Class not found for preloading: android.util.LocaleUtil
+D/dalvikvm(  126): GC_EXPLICIT freed 36K, 3% free 1732K/1776K, paused 1ms+1ms, total 12ms
+D/dalvikvm(  126): GC_EXPLICIT freed 31K, 3% free 1755K/1792K, paused 1ms+1ms, total 13ms
+W/Zygote  (  126): Class not found for preloading: android.view.ViewRootImpl$ResizedInfo
+W/Zygote  (  126): Class not found for preloading: android.view.Window$LocalWindowManager
+W/Zygote  (  126): Class not found for preloading: android.view.WindowManagerImpl$CompatModeWrapper
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 2% free 1778K/1812K, paused 2ms+1ms, total 13ms
+I/dalvikvm(  126): threadid=1: recursive native library load attempt (/system/lib/libwebcore.so)
+D/dalvikvm(  126): No JNI_OnLoad found in /system/lib/libchromium_net.so 0x0, skipping init
+D/dalvikvm(  126): GC_EXPLICIT freed 21K, 2% free 1811K/1836K, paused 1ms+2ms, total 13ms
+D/dalvikvm(  126): GC_EXPLICIT freed 26K, 2% free 1839K/1868K, paused 1ms+1ms, total 13ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 2% free 1870K/1904K, paused 1ms+1ms, total 12ms
+D/dalvikvm(  126): GC_EXPLICIT freed 26K, 2% free 1897K/1928K, paused 1ms+1ms, total 12ms
+D/dalvikvm(  126): GC_EXPLICIT freed 31K, 2% free 1920K/1956K, paused 1ms+1ms, total 14ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 2% free 1946K/1980K, paused 1ms+2ms, total 13ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 2% free 1973K/2004K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 39K, 3% free 1990K/2032K, paused 1ms+1ms, total 13ms
+W/Zygote  (  126): Class not found for preloading: java.text.DecimalFormat$1
+D/dalvikvm(  126): GC_EXPLICIT freed 41K, 3% free 2004K/2048K, paused 1ms+1ms, total 15ms
+W/Zygote  (  126): Class not found for preloading: java.util.concurrent.FutureTask$Sync
+W/Zygote  (  126): Class not found for preloading: java.util.concurrent.atomic.UnsafeAccess
+W/Zygote  (  126): Class not found for preloading: java.util.concurrent.locks.UnsafeAccess
+D/dalvikvm(  126): GC_EXPLICIT freed 41K, 3% free 2017K/2064K, paused 1ms+1ms, total 14ms
+W/Zygote  (  126): Class not found for preloading: libcore.icu.ErrorCode
+I/System  (  126): Loaded time zone names for  in 166ms (163ms in ICU)
+I/System  (  126): Loaded time zone names for en_US in 103ms (100ms in ICU)
+D/dalvikvm(  126): GC_EXPLICIT freed 329K, 14% free 2101K/2436K, paused 1ms+2ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 15K, 12% free 2163K/2440K, paused 1ms+2ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 52K, 11% free 2195K/2440K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 10% free 2221K/2444K, paused 1ms+2ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 38K, 9% free 2237K/2444K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 32K, 8% free 2260K/2444K, paused 2ms+2ms, total 16ms
+I/Zygote  (  126): ...preloaded 2541 classes in 2223ms.
+D/dalvikvm(  126): GC_EXPLICIT freed 23K, 8% free 2265K/2444K, paused 2ms+1ms, total 17ms
+I/Zygote  (  126): Preloading resources...
+D/dalvikvm(  126): GC_EXPLICIT freed 34K, 9% free 2300K/2508K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2323K/2520K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2346K/2548K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2369K/2568K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2392K/2596K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2416K/2616K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2439K/2644K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 8% free 2469K/2664K, paused 2ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2492K/2692K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2515K/2712K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2539K/2732K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2562K/2760K, paused 2ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2585K/2780K, paused 1ms+1ms, total 15ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 2608K/2808K, paused 2ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 32K, 8% free 2635K/2840K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 8% free 2661K/2864K, paused 1ms+1ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 33K, 7% free 2692K/2892K, paused 2ms+1ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2715K/2916K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2739K/2936K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 7% free 2762K/2956K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2789K/2984K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2812K/3004K, paused 2ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 2835K/3024K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 33K, 7% free 2866K/3064K, paused 2ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 31K, 7% free 2891K/3088K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 7% free 2918K/3112K, paused 2ms+1ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 7% free 2944K/3136K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 7% free 2970K/3168K, paused 2ms+1ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 77K, 7% free 3044K/3272K, paused 1ms+1ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 78K, 7% free 3111K/3336K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 50K, 9% free 3150K/3432K, paused 1ms+1ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 8% free 3174K/3432K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 25K, 7% free 3203K/3432K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 40K, 7% free 3237K/3448K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 40K, 7% free 3267K/3484K, paused 2ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 73K, 8% free 3326K/3584K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_FOR_ALLOC freed <1K, 7% free 3947K/4208K, paused 18ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 621K, 19% free 3815K/4700K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 46K, 19% free 3853K/4700K, paused 1ms+2ms, total 16ms
+D/dalvikvm(  126): GC_EXPLICIT freed 51K, 18% free 3893K/4700K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 51K, 17% free 3933K/4700K, paused 1ms+1ms, total 16ms
+D/dalvikvm(  126): GC_FOR_ALLOC freed 523K, 15% free 4434K/5188K, paused 17ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 173K, 14% free 4481K/5188K, paused 1ms+1ms, total 17ms
+D/dalvikvm(  126): GC_FOR_ALLOC freed 7K, 14% free 4494K/5188K, paused 17ms, total 17ms
+D/dalvikvm(  126): GC_FOR_ALLOC freed <1K, 12% free 5518K/6216K, paused 29ms, total 29ms
+D/dalvikvm(  126): GC_EXPLICIT freed 3K, 12% free 5515K/6216K, paused 2ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 10% free 6540K/7244K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 10% free 6569K/7244K, paused 2ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 34K, 9% free 6596K/7244K, paused 2ms+1ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 33K, 9% free 6623K/7244K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 9% free 6651K/7244K, paused 1ms+1ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 8% free 6673K/7244K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 30K, 8% free 6700K/7244K, paused 2ms+1ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 8% free 6722K/7244K, paused 2ms+1ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 6748K/7244K, paused 2ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 7% free 6770K/7244K, paused 2ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 28K, 7% free 6794K/7244K, paused 1ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 38K, 6% free 6824K/7244K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 53K, 6% free 6866K/7244K, paused 1ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 34K, 5% free 6893K/7244K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 5% free 6915K/7244K, paused 1ms+1ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 38K, 5% free 6946K/7244K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 29K, 4% free 6972K/7244K, paused 1ms+2ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 4% free 6994K/7244K, paused 1ms+1ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 4% free 7017K/7244K, paused 1ms+1ms, total 17ms
+D/dalvikvm(  126): GC_EXPLICIT freed 37K, 3% free 7055K/7244K, paused 2ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 50K, 3% free 7094K/7284K, paused 2ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 48K, 3% free 7131K/7324K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 48K, 3% free 7171K/7364K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 48K, 3% free 7208K/7404K, paused 2ms+2ms, total 19ms
+D/dalvikvm(  126): GC_EXPLICIT freed 32K, 3% free 7249K/7404K, paused 1ms+2ms, total 21ms
+I/Zygote  (  126): ...preloaded 270 resources in 1573ms.
+D/dalvikvm(  126): GC_EXPLICIT freed 27K, 2% free 7275K/7404K, paused 1ms+3ms, total 18ms
+I/Zygote  (  126): ...preloaded 31 resources in 25ms.
+D/dalvikvm(  126): GC_EXPLICIT freed 9K, 2% free 7269K/7404K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed 2K, 2% free 7266K/7404K, paused 1ms+2ms, total 18ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 2% free 7266K/7404K, paused 1ms+2ms, total 18ms
+I/dalvikvm(  126): System server process 483 has been created
+I/Zygote  (  126): Accepting command socket connections
+E/BatteryService(  483): wirelessOnlinePath not found
+I/sysproc (  483): Entered system_init()
+I/sysproc (  483): ServiceManager: 0x63c05618
+D/SensorService(  483): nuSensorService starting...
+E/MPL-storeload(  483): Cannot open file "/data/inv_cal_data.bin" for read
+E/MPL-storeload(  483): Could not load cal file - aborting
+E/MPL-storeload(  483): Could not load the calibration data - error 107 - aborting
+I/Sensors (  483): accel config: (1078, -1100); (1077, -1078); (1098, -1211);
+I/Sensors (  483): HAL:Set accel bias through inv_set_accel_bias() by AccelLoadConfig().
+I/SensorService(  483): MPL Gyroscope
+I/SensorService(  483): MPL Accelerometer
+I/SensorService(  483): MPL Magnetic Field
+I/SensorService(  483): MPL Orientation
+I/SensorService(  483): MPL Rotation Vector
+I/SensorService(  483): MPL Linear Acceleration
+I/SensorService(  483): MPL Gravity
+I/SensorService(  483): Lite-On al3010 Ambient Light Sensor
+I/sysproc (  483): System server: starting Android runtime.
+I/sysproc (  483): System server: starting Android services.
+D/SensorService(  483): nuSensorService thread starting...
+I/sysproc (  483): System server: entering thread pool.
+I/installd(  129): new connection
+I/SystemServer(  483): Entered the Android system server!
+I/SystemServer(  483): Waiting for installd to be ready.
+I/Installer(  483): connecting...
+I/SystemServer(  483): Entropy Mixer
+I/SystemServer(  483): Power Manager
+I/SystemServer(  483): Activity Manager
+I/ActivityManager(  483): Memory class: 64
+W/UsageStats(  483): Usage stats version changed; dropping
+I/SystemServer(  483): Display Manager
+I/SystemServer(  483): Telephony Registry
+I/DisplayManagerService(  483): Display device added: DisplayDeviceInfo{"Built-in Screen": 800 x 1280, 59.997955 fps, density 213, 195.38461 x 200.69136 dpi, touch INTERNAL, FLAG_DEFAULT_DISPLAY, FLAG_ROTATES_WITH_CONTENT, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, rotation 0, type BUILT_IN, address null}
+I/SystemServer(  483): Scheduling Policy
+I/SystemServer(  483): Package Manager
+D/dalvikvm(  483): GC_CONCURRENT freed 181K, 4% free 7481K/7784K, paused 2ms+2ms, total 17ms
+D/dalvikvm(  483): GC_CONCURRENT freed 393K, 8% free 7520K/8104K, paused 2ms+2ms, total 16ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 12ms
+D/dalvikvm(  483): GC_CONCURRENT freed 327K, 7% free 7601K/8104K, paused 3ms+2ms, total 16ms
+D/dalvikvm(  483): GC_CONCURRENT freed 267K, 5% free 7847K/8236K, paused 3ms+4ms, total 31ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 5ms
+W/PackageParser(  483): No actions in intent filter at /system/app/Bluetooth.apk Binary XML file line #199
+W/ResourceType(  483): Failure getting entry for 0x7f0e0056 (t=13 e=86) in package 0 (error -75)
+W/ResourceType(  483): Failure getting entry for 0x7f0e0057 (t=13 e=87) in package 0 (error -75)
+W/Resources(  483): Converting to boolean: TypedValue{t=0x3/d=0x467 "true" a=2 r=0x7f0f0007}
+W/PackageParser(  483): No actions in intent filter at /system/app/Contacts.apk Binary XML file line #533
+I/AudioFlinger(  128): Using module 1 has the primary audio interface
+I/AudioFlinger(  128): AudioFlinger's thread 0x41b91fa8 ready to run
+I/audio_a2dp_hw(  128): adev_open:  adev_open in A2dp_hw module
+I/AudioFlinger(  128): loadHwModule() Loaded a2dp audio interface from A2DP Audio HW HAL (audio) handle 3
+I/AudioFlinger(  128): loadHwModule() Loaded usb audio interface from USB audio HW HAL (audio) handle 4
+I/AudioPolicyService(  128): Loaded audio policy from LEGACY Audio Policy HAL (audio_policy)
+D/dalvikvm(  483): GC_CONCURRENT freed 141K, 4% free 8127K/8392K, paused 3ms+5ms, total 26ms
+W/PackageParser(  483): Problem in package /system/app/Currents.apk:
+W/PackageParser(  483): Unknown element under <activity>: item at /system/app/Currents.apk Binary XML file line #151
+W/PackageParser(  483): Problem in package /system/app/Currents.apk:
+W/PackageParser(  483): Unknown element under <activity>: item at /system/app/Currents.apk Binary XML file line #152
+W/ResourceType(  483): Failure getting entry for 0x7f04001f (t=3 e=31) in package 0 (error -75)
+W/ResourceType(  483): Failure getting entry for 0x7f04001f (t=3 e=31) in package 0 (error -75)
+W/PackageParser(  483): Unknown element under <application>: permission at /system/app/GalleryGoogle.apk Binary XML file line #234
+W/PackageParser(  483): Unknown element under <application>: permission at /system/app/GalleryGoogle.apk Binary XML file line #237
+D/dalvikvm(  483): GC_CONCURRENT freed 240K, 5% free 8311K/8672K, paused 2ms+2ms, total 28ms
+W/PackageParser(  483): Unknown element under <manifest>: supports-gl-texture at /system/app/GoogleEarth.apk Binary XML file line #19
+D/dalvikvm(  483): GC_CONCURRENT freed 234K, 5% free 8502K/8860K, paused 5ms+4ms, total 29ms
+D/dalvikvm(  483): GC_CONCURRENT freed 154K, 4% free 8745K/9028K, paused 2ms+2ms, total 27ms
+D/dalvikvm(  483): GC_CONCURRENT freed 164K, 4% free 9054K/9348K, paused 13ms+3ms, total 46ms
+D/dalvikvm(  483): GC_CONCURRENT freed 198K, 4% free 9292K/9620K, paused 5ms+3ms, total 49ms
+D/PackageManager(  483): No files in app dir /vendor/app
+I/PackageManager(  483): Time to scan packages: 3.995 seconds
+W/PackageManager(  483): Unknown permission android.permission.ADD_SYSTEM_SERVICE in package com.android.phone
+W/PackageManager(  483): Unknown permission com.android.smspush.WAPPUSH_MANAGER_BIND in package com.android.phone
+W/PackageManager(  483): Unknown permission com.android.nfc.permission.NFCEE_ADMIN in package com.google.android.apps.walletnfcrel
+W/PackageManager(  483): Unknown permission com.android.vending.billing.IBillingAccountService.BIND2 in package com.google.android.gsf.login
+W/PackageManager(  483): Unknown permission com.android.gallery3d.permission.GALLERY_PROVIDER in package com.android.bluetooth
+W/PackageManager(  483): Not granting permission android.permission.DEVICE_POWER to package com.google.android.deskclock (protectionLevel=2 flags=0x8be45)
+W/PackageManager(  483): Unknown permission android.permission.READ_OWNER_DATA in package com.google.android.setupwizard
+W/PackageManager(  483): Unknown permission android.permission.WRITE_OWNER_DATA in package com.google.android.setupwizard
+W/PackageManager(  483): Unknown permission com.google.android.voicesearch.SHORTCUTS_ACCESS in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Unknown permission com.android.browser.permission.PRELOAD in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Unknown permission com.google.android.apps.googlevoice.permission.AUTO_SEND in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Not granting permission android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS to package com.android.vending (protectionLevel=2 flags=0xabe45)
+D/dalvikvm(  483): GC_CONCURRENT freed 311K, 5% free 9495K/9928K, paused 3ms+3ms, total 43ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 8ms
+W/PackageManager(  483): Not granting permission android.permission.ACCOUNT_MANAGER to package com.google.android.music (protectionLevel=2 flags=0x8be65)
+W/PackageManager(  483): Unknown permission com.android.providers.im.permission.READ_ONLY in package com.google.android.apps.maps
+W/PackageManager(  483): Not granting permission android.permission.READ_DREAM_STATE to package com.google.android.gsf (protectionLevel=2 flags=0x83e45)
+D/dalvikvm(  483): GC_EXPLICIT freed 362K, 7% free 9415K/10056K, paused 2ms+3ms, total 46ms
+I/SystemServer(  483): User Service
+I/SystemServer(  483): Account Manager
+I/SystemServer(  483): Content Manager
+I/SystemServer(  483): System Content Providers
+I/SystemServer(  483): Lights Service
+I/libsuspend(  483): Selected early suspend
+I/libsuspend(  483): Starting early suspend unblocker thread
+D/PermissionCache(  125): checking android.permission.ACCESS_SURFACE_FLINGER for uid=1000 => granted (353 us)
+D/SurfaceFlinger(  125): Screen acquired, type=0 flinger=0x415ab318
+D/SurfaceFlinger(  125):  screen was previously acquired
+D/AlarmManagerService(  483): Kernel timezone updated to 240 minutes west of GMT
+I/SystemServer(  483): Battery Service
+I/SystemServer(  483): Vibrator Service
+I/SystemServer(  483): Alarm Manager
+I/SystemServer(  483): Init Watchdog
+I/SystemServer(  483): Input Manager
+I/InputManager(  483): Initializing input manager, mUseDevInputEventForAudioJack=false
+I/SystemServer(  483): Window Manager
+D/NvOsDebugPrintf(  128): NvxLiteH264DecoderInit : Opening TVMR H264 block 
+D/NvOsDebugPrintf(  128): NvxLiteH264DecoderInit : Opening TVMR H264 block 
+D/dalvikvm(  483): GC_CONCURRENT freed 261K, 5% free 9594K/10056K, paused 3ms+2ms, total 40ms
+D/EventHub(  483): No input device configuration file found for device 'lid_input'.
+I/EventHub(  483): New device: id=1, fd=127, path='/dev/input/event1', name='lid_input', classes=0x80, configuration='', keyLayout='', keyCharacterMap='', builtinKeyboard=false, usingSuspendBlockIoctl=true, usingClockIoctl=false
+I/EventHub(  483): New device: id=2, fd=128, path='/dev/input/event0', name='elan-touchscreen', classes=0x14, configuration='/system/usr/idc/elan-touchscreen.idc', keyLayout='', keyCharacterMap='', builtinKeyboard=false, usingSuspendBlockIoctl=true, usingClockIoctl=false
+D/EventHub(  483): No input device configuration file found for device 'gpio-keys'.
+I/InputManager(  483): Starting input manager
+I/SystemServer(  483): Bluetooth Manager Service
+D/BluetoothManagerService(  483): Loading stored name and address
+D/BluetoothManagerService(  483): Stored bluetooth Name=Nexus 7,Address=10:BF:48:BF:78:8A
+I/EventHub(  483): New device: id=3, fd=129, path='/dev/input/event2', name='gpio-keys', classes=0x1, configuration='', keyLayout='/system/usr/keylayout/gpio-keys.kl', keyCharacterMap='/system/usr/keychars/Generic.kcm', builtinKeyboard=false, usingSuspendBlockIoctl=true, usingClockIoctl=false
+I/SystemServer(  483): Input Method Service
+W/InputMethodManagerService(  483): Couldn't create dir.: /data/system/inputmethod
+I/InputReader(  483): Device added: id=-1, name='Virtual', sources=0x00000301
+I/InputReader(  483): Device added: id=3, name='gpio-keys', sources=0x00000101
+I/InputReader(  483):   Touch device 'elan-touchscreen' could not query the properties of its associated display.  The device will be inoperable until the display size becomes available.
+I/InputReader(  483): Device added: id=2, name='elan-touchscreen', sources=0x00001002
+I/InputReader(  483): Device added: id=1, name='lid_input', sources=0x80000000
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 0, mode 1, display id 0
+I/SystemServer(  483): Accessibility Manager
+I/ActivityManager(  483): Config changes=15f8 {1.0 ?mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port ?uimode ?night finger -keyb/v/h -nav/h s.2}
+I/SystemServer(  483): Mount Service
+D/MountService(  483): got storage path: null description: Internal storage primary: false removable: false emulated: true mtpReserve: 100 allowMassStorage: false maxFileSize: 0
+D/MountService(  483): addVolumeLocked() StorageVolume [mStorageId=65537 mPath=/storage/emulated/0 mDescriptionId=17040613 mPrimary=true mRemovable=false mEmulated=true mMtpReserveSpace=100 mAllowMassStorage=false mMaxFileSize=0 mOwner=UserHandle{0}]
+I/SystemServer(  483): LockSettingsService
+I/SystemServer(  483): Device Policy
+I/SystemServer(  483): Status Bar
+I/PackageManager(  483): No secure containers on sdcard
+I/SystemServer(  483): Clipboard Service
+I/SystemServer(  483): NetworkManagement Service
+I/SystemServer(  483): Text Service Manager Service
+I/SystemServer(  483): NetworkStats Service
+W/PackageManager(  483): Unknown permission android.permission.ADD_SYSTEM_SERVICE in package com.android.phone
+W/PackageManager(  483): Unknown permission com.android.smspush.WAPPUSH_MANAGER_BIND in package com.android.phone
+W/PackageManager(  483): Unknown permission com.android.nfc.permission.NFCEE_ADMIN in package com.google.android.apps.walletnfcrel
+W/PackageManager(  483): Unknown permission com.android.vending.billing.IBillingAccountService.BIND2 in package com.google.android.gsf.login
+W/PackageManager(  483): Unknown permission com.android.gallery3d.permission.GALLERY_PROVIDER in package com.android.bluetooth
+W/PackageManager(  483): Not granting permission android.permission.DEVICE_POWER to package com.google.android.deskclock (protectionLevel=2 flags=0x88be45)
+I/SystemServer(  483): NetworkPolicy Service
+W/PackageManager(  483): Unknown permission android.permission.READ_OWNER_DATA in package com.google.android.setupwizard
+W/PackageManager(  483): Unknown permission android.permission.WRITE_OWNER_DATA in package com.google.android.setupwizard
+W/PackageManager(  483): Unknown permission com.google.android.voicesearch.SHORTCUTS_ACCESS in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Unknown permission com.android.browser.permission.PRELOAD in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Unknown permission com.google.android.apps.googlevoice.permission.AUTO_SEND in package com.google.android.googlequicksearchbox
+W/PackageManager(  483): Not granting permission android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS to package com.android.vending (protectionLevel=2 flags=0x8abe45)
+W/PackageManager(  483): Not granting permission android.permission.ACCOUNT_MANAGER to package com.google.android.music (protectionLevel=2 flags=0x88be65)
+W/PackageManager(  483): Unknown permission com.android.providers.im.permission.READ_ONLY in package com.google.android.apps.maps
+W/PackageManager(  483): Not granting permission android.permission.READ_DREAM_STATE to package com.google.android.gsf (protectionLevel=2 flags=0x883e45)
+I/SystemServer(  483): Wi-Fi P2pService
+D/dalvikvm(  483): GC_CONCURRENT freed 359K, 5% free 9793K/10284K, paused 3ms+3ms, total 35ms
+I/SystemServer(  483): Wi-Fi Service
+I/SystemServer(  483): Connectivity Service
+D/ConnectivityService(  483): ConnectivityService starting up
+E/ConnectivityService(  483): Ignoring protectedNetwork 10
+E/ConnectivityService(  483): Ignoring protectedNetwork 11
+E/ConnectivityService(  483): Ignoring protectedNetwork 12
+D/BluetoothTethering(  483): startMonitoring: target: Handler (com.android.server.ConnectivityService$NetworkStateTrackerHandler) {427d68e0}
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.BluetoothAdapter$1@42834ee0:true
+D/BluetoothManagerService(  483): Message: 30
+D/BluetoothPan(  483): BluetoothPan() call bindService
+W/ContextImpl(  483): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.bluetooth.BluetoothPan.<init>:141 android.bluetooth.BluetoothAdapter.getProfileProxy:1164 android.bluetooth.BluetoothTetheringDataTracker.startMonitoring:110 com.android.server.ConnectivityService.<init>:523 
+D/BluetoothPan(  483): BluetoothPan(), bindService called
+D/SoftapController(  123): Softap fwReload - Ok
+D/WifiWatchdogStateMachine(  483): Disabling poor network avoidance for wi-fi only device
+I/WifiService(  483): WifiService starting up with Wi-Fi enabled
+D/WifiService(  483): setWifiEnabled: true pid=483, uid=1000
+I/SystemServer(  483): Network Service Discovery Service
+D/NsdService(  483): Network service discovery enabled true
+I/SystemServer(  483): Throttle Service
+D/CommandListener(  123): Setting iface cfg
+D/CommandListener(  123): Trying to bring down wlan0
+I/SystemServer(  483): UpdateLock Service
+I/SystemServer(  483): Notification Manager
+I/SystemServer(  483): Device Storage Monitor
+I/SystemServer(  483): Location Manager
+I/SystemServer(  483): Country Detector
+I/SystemServer(  483): Search Service
+I/SystemServer(  483): DropBox Service
+I/SystemServer(  483): Wallpaper Service
+I/SystemServer(  483): Audio Service
+D/dalvikvm(  483): GC_CONCURRENT freed 419K, 6% free 9993K/10536K, paused 3ms+5ms, total 43ms
+V/AudioService(  483): monitoring device orientation
+I/wpa_supplicant(  560): Successfully initialized wpa_supplicant
+I/wpa_supplicant(  560): rfkill: Cannot open RFKILL control device
+I/SystemServer(  483): Dock Observer
+I/SystemServer(  483): Wired Accessory Manager
+I/SystemServer(  483): USB Service
+I/SystemServer(  483): Serial Service
+I/SystemServer(  483): Twilight Service
+I/SystemServer(  483): UI Mode Manager Service
+I/SystemServer(  483): Backup Service
+V/BackupManagerService(  483): No ancestral data
+I/BackupManagerService(  483): Found stale backup journal, scheduling
+I/BackupManagerService(  483):   android
+I/BackupManagerService(  483):   com.android.nfc
+I/BackupManagerService(  483):   com.android.providers.settings
+I/BackupManagerService(  483):   com.android.providers.userdictionary
+I/BackupManagerService(  483):   com.android.sharedstoragebackup
+I/BackupManagerService(  483):   com.android.vending
+I/BackupManagerService(  483):   com.google.android.calendar
+I/BackupManagerService(  483):   com.google.android.gm
+I/BackupManagerService(  483):   com.google.android.inputmethod.latin
+I/BackupManagerService(  483):   com.google.android.marvin.talkback
+I/BackupManagerService(  483): Backup enabled => false
+I/SystemServer(  483): AppWidget Service
+I/SystemServer(  483): Recognition Service
+I/SystemServer(  483): DiskStats Service
+I/SystemServer(  483): SamplingProfiler Service
+I/SystemServer(  483): NetworkTimeUpdateService
+I/SystemServer(  483): CommonTimeManagementService
+I/SystemServer(  483): CertBlacklister
+I/SystemServer(  483): Dreams Service
+I/WindowManager(  483): SAFE MODE not enabled
+D/dalvikvm(  483): JIT started for system_server
+I/ActivityManager(  483): System now ready
+I/Zygote  (  483): Process: zygote socket opened
+I/SystemServer(  483): Making services ready
+I/ActivityManager(  483): Start proc com.android.systemui for service com.android.systemui/.SystemUIService: pid=572 uid=10050 gids={50050, 1028, 1015, 3002, 3001}
+D/NetworkManagementService(  483): enabling bandwidth control
+W/MountService(  483): Duplicate state transition (mounted -> mounted) for /storage/emulated/0
+D/dalvikvm(  483): GC_CONCURRENT freed 424K, 6% free 10237K/10792K, paused 6ms+5ms, total 91ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 26ms
+D/dalvikvm(  483): GC_FOR_ALLOC freed 157K, 7% free 10329K/11048K, paused 44ms, total 44ms
+I/keystore(  130): uid: 1000 action: e -> 7 state: 3 -> 3 retry: 4
+D/SystemUIService(  572): loading: class com.android.systemui.statusbar.phone.PhoneStatusBar
+D/SystemUIService(  572): running: com.android.systemui.statusbar.phone.PhoneStatusBar@425a4000
+I/StatusBarManagerService(  483): registerStatusBar bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@42860740
+I/keystore(  130): uid: 1000 action: e -> 7 state: 3 -> 3 retry: 4
+D/dalvikvm(  572): GC_CONCURRENT freed 188K, 4% free 7503K/7812K, paused 4ms+2ms, total 29ms
+I/ActivityManager(  483): Config changes=200 {1.0 ?mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port finger -keyb/v/h -nav/h s.3}
+W/InputMethodManagerService(  483): Ignoring setImeWindowStatus of uid 1000 token: null
+D/dalvikvm(  483): GC_FOR_ALLOC freed 285K, 5% free 10655K/11180K, paused 38ms, total 38ms
+I/ActivityManager(  483): Start proc android.process.media for broadcast com.android.providers.media/.MtpReceiver: pid=641 uid=10014 gids={50014, 1015, 1023, 1024, 1028, 2001, 3003, 3007}
+D/dalvikvm(  572): GC_FOR_ALLOC freed 201K, 6% free 7668K/8088K, paused 21ms, total 22ms
+D/dalvikvm(  572): GC_FOR_ALLOC freed 176K, 6% free 7804K/8252K, paused 24ms, total 25ms
+D/dalvikvm(  483): GC_FOR_ALLOC freed 296K, 7% free 10831K/11624K, paused 46ms, total 46ms
+I/ActivityManager(  483): Start proc com.google.android.inputmethod.latin for service com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME: pid=653 uid=10032 gids={50032, 1028}
+D/dalvikvm(  572): GC_FOR_ALLOC freed 176K, 6% free 8011K/8436K, paused 21ms, total 21ms
+I/LocationBlacklist(  483): whitelist: [com.google.android.gms]
+I/LocationBlacklist(  483): blacklist: [com.google., com.semaphoremobile.zagat.android]
+I/wpa_supplicant(  560): rfkill: Cannot open RFKILL control device
+I/CommonTimeManagementService(  483): No common time service detected on this platform.  Common time services will be unavailable.
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000020
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000010
+I/ActivityManager(  483): Start proc com.nuance.xt9.input for added application com.nuance.xt9.input: pid=671 uid=10059 gids={50059, 1028}
+I/ActivityManager(  483): Start proc com.android.phone for added application com.android.phone: pid=676 uid=1001 gids={41001, 3002, 3001, 3003, 1015, 1028}
+W/ThrottleService(  483): unable to find stats for iface rmnet0
+I/LatinIME(  653): Hardware accelerated drawing: true
+I/ActivityManager(  483): Start proc com.android.nfc for added application com.android.nfc: pid=698 uid=1027 gids={41027, 3002, 3001, 1015, 1028}
+I/ActivityManager(  483): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000000 cmp=com.android.launcher/com.android.launcher2.Launcher} from pid 0
+D/libgps  (  483): gps_proxy_get_gps_interface()
+D/libgps  (  483): proxy_gps_get_extension()
+D/libgps  (  483): proxy_gps_get_extension()
+D/libgps  (  483): proxy_gps_get_extension()
+D/libgps  (  483): proxy_gps_get_extension()
+D/libgps  (  483): proxy_gps_get_extension()
+I/ActivityManager(  483): Start proc com.android.launcher for activity com.android.launcher/com.android.launcher2.Launcher: pid=727 uid=10033 gids={50033, 1028}
+E/WifiConfigStore(  483): Error parsing configurationjava.io.FileNotFoundException: /data/misc/wifi/ipconfig.txt: open failed: ENOENT (No such file or directory)
+D/CommandListener(  123): Setting iface cfg
+D/CommandListener(  123): Trying to bring up p2p0
+I/Choreographer(  483): Skipped 39 frames!  The application may be doing too much work on its main thread.
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.IBluetoothManagerCallback$Stub$Proxy@429cf118:true
+V/TAG     (  483): bug 7643792: fitSystemWindows([0,0][0,0])
+D/dalvikvm(  572): GC_CONCURRENT freed 281K, 5% free 8230K/8636K, paused 3ms+2ms, total 32ms
+D/dalvikvm(  572): WAIT_FOR_CONCURRENT_GC blocked 19ms
+I/NfcService(  698): Starting NFC service
+D/dalvikvm(  483): GC_CONCURRENT freed 524K, 6% free 11199K/11852K, paused 4ms+7ms, total 97ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 50ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 37ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 33ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 42ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 41ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 40ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 41ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 28ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 3ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 3ms
+V/TAG     (  483): bug 7643792: fitSystemWindows([0,0][0,0])
+D/libEGL  (  483): loaded /system/lib/egl/libEGL_tegra.so
+W/InputAttributes(  653): No editor info for this field. Bug?
+I/ActivityManager(  483): Start proc com.google.process.location for service com.google.android.location/.NetworkLocationService: pid=747 uid=10021 gids={50021, 3003, 1007, 1028, 1015, 2001, 3006}
+D/dalvikvm(  653): GC_CONCURRENT freed 256K, 5% free 7427K/7788K, paused 2ms+2ms, total 45ms
+W/TelephonyProvider(  676): onCreate: confFile=/system/etc/apns-conf.xml oldCheckSum=-1
+D/NFCJNI  (  698): NFC Service : loading JNI
+D/TelephonyManager(  676): getLteOnCdmaMode=0 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/libEGL  (  483): loaded /system/lib/egl/libGLESv1_CM_tegra.so
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.IBluetoothManagerCallback$Stub$Proxy@42867168:true
+D/dalvikvm(  572): GC_CONCURRENT freed 333K, 6% free 8384K/8840K, paused 4ms+4ms, total 50ms
+I/ActivityManager(  483): Start proc com.android.location.fused for service com.android.location.fused/.FusedLocationService: pid=767 uid=10018 gids={50018, 1028}
+D/libEGL  (  483): loaded /system/lib/egl/libGLESv2_tegra.so
+D/dalvikvm(  126): GC_EXPLICIT freed 36K, 3% free 7279K/7436K, paused 2ms+2ms, total 33ms
+D/OpenGLRenderer(  483): Enabling debug mode 0
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7436K, paused 1ms+2ms, total 25ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7436K, paused 2ms+2ms, total 21ms
+I/ActivityManager(  483): Start proc com.google.android.inputmethod.latin.dictionarypack for content provider com.google.android.inputmethod.latin.dictionarypack/.DictionaryProvider: pid=782 uid=10031 gids={50031, 3003, 1015, 1028}
+I/ActivityManager(  483): Start proc android.process.acore for content provider com.android.providers.userdictionary/.UserDictionaryProvider: pid=795 uid=10000 gids={50000, 3003, 1015, 1028}
+D/TelephonyManager(  676): getLteOnCdmaMode=0 curVal=-1 product_type='' lteOnCdmaProductType=''
+I/DownloadManager(  641): in removeSpuriousFiles
+I/ActivityManager(  483): Start proc com.android.nfc:handover for service com.android.nfc/.handover.HandoverService: pid=809 uid=1027 gids={41027, 3002, 3001, 1015, 1028}
+D/TelephonyManager(  676): getLteOnCdmaMode=0 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): starting MTP server in MTP mode
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+W/Settings(  676): Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+W/Settings(  676): Setting auto_time has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only global URI.
+D/PhoneStatusBar(  572): disable: < expand icons alerts ticker system_info back home recent clock search >
+W/Settings(  676): Setting auto_time_zone has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only global URI.
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.IBluetoothManagerCallback$Stub$Proxy@429a1828:true
+D/libgps  (  483): proxy_gps_init()
+D/libgps  (  483): proxy_gps_create_thread_cb()
+D/libgps  (  483): proxy_gps_xtra_init()
+D/libgps  (  483): proxy_agps_init()
+D/libgps  (  483): proxy_gps_ni_init()
+D/libgps  (  483): proxy_agps_ril_init()
+W/ActivityManager(  483): Unable to start service Intent { act=com.android.internal.telephony.IWapPushManager } U=0: not found
+D/libgps  (  483): proxy_gps_set_capabilities_cb()
+D/GpsLocationProvider(  483): set_capabilities_callback: 6
+D/TelephonyManager(  676): getLteOnCdmaMode=0 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/CallManager(  676): registerPhone(GSM Handler (com.android.internal.telephony.PhoneProxy) {425c2088})
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.IBluetoothManagerCallback$Stub$Proxy@429abdb8:true
+I/NfceeAccess(  698): read 1 signature(s) for NFCEE access
+W/Settings(  698): Setting airplane_mode_radios has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+W/Settings(  698): Setting airplane_mode_toggleable_radios has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+V/TAG     (  483): bug 7643792: fitSystemWindows([0,33][0,0])
+D/BluetoothManagerService(  483): Message: 30
+D/BluetoothManagerService(  483): Message: 300
+D/BluetoothManagerService(  483): MESSAGE_USER_SWITCHED
+D/dalvikvm(  698): GC_CONCURRENT freed 268K, 5% free 7506K/7896K, paused 2ms+35ms, total 84ms
+D/NfcService(  698): checking on firmware download
+W/Settings(  698): Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+D/NfcService(  698): NFC is on. Doing normal stuff
+I/NfcService(  698): Enabling NFC
+I/ActivityManager(  483): Start proc com.google.process.gapps for content provider com.google.android.gsf/.settings.GoogleSettingsProvider: pid=849 uid=10021 gids={50021, 3003, 1007, 1028, 1015, 2001, 3006}
+I/wpa_supplicant(  560): wlan0: Trying to associate with 00:1a:1e:91:1f:e0 (SSID='CMU' freq=2412 MHz)
+D/NFCJNI  (  698): Start Initialization
+D/dalvikvm(  572): GC_CONCURRENT freed 245K, 5% free 8610K/8980K, paused 2ms+4ms, total 44ms
+D/dalvikvm(  572): WAIT_FOR_CONCURRENT_GC blocked 42ms
+D/dalvikvm(  676): GC_CONCURRENT freed 168K, 4% free 7529K/7820K, paused 3ms+2ms, total 51ms
+D/DebugService(  676): DebugService DebugService:
+D/TelephonyDebugService(  676): TelephonyDebugService()
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothAdapter(  572): 1113527120: getState() :  mService = null. Returning STATE_OFF
+D/dalvikvm(  795): GC_CONCURRENT freed 198K, 5% free 7489K/7812K, paused 4ms+15ms, total 70ms
+D/SystemUIService(  572): loading: class com.android.systemui.power.PowerUI
+D/SystemUIService(  572): running: com.android.systemui.power.PowerUI@426f9b48
+D/SystemUIService(  572): loading: class com.android.systemui.media.RingtonePlayer
+D/SystemUIService(  572): running: com.android.systemui.media.RingtonePlayer@426fa8b0
+D/dalvikvm(  727): GC_CONCURRENT freed 190K, 5% free 7572K/7892K, paused 2ms+18ms, total 95ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 81ms
+D/BluetoothManagerService(  483): Message: 30
+E/BluetoothPhoneService(  676): Could not get a handle on Connection object for the call
+W/CallNotifier(  676): Got onMwiChanged() on non-voice-capable device! Ignoring...
+I/PhoneApp(  676): Headset phone created, binding local service.
+D/dalvikvm(  572): GC_CONCURRENT freed 291K, 5% free 8806K/9220K, paused 4ms+5ms, total 48ms
+I/Choreographer(  572): Skipped 63 frames!  The application may be doing too much work on its main thread.
+I/wpa_supplicant(  560): wlan0: Associated with 00:1a:1e:91:1f:e0
+I/wpa_supplicant(  560): wlan0: CTRL-EVENT-CONNECTED - Connection to 00:1a:1e:91:1f:e0 completed (auth) [id=0 id_str=]
+D/libEGL  (  572): loaded /system/lib/egl/libEGL_tegra.so
+D/libEGL  (  572): loaded /system/lib/egl/libGLESv1_CM_tegra.so
+D/libEGL  (  572): loaded /system/lib/egl/libGLESv2_tegra.so
+D/OpenGLRenderer(  572): Enabling debug mode 0
+D/PhoneStatusBar(  572): disable: < expand icons alerts ticker system_info BACK* HOME* RECENT* clock search >
+I/ActivityManager(  483): Start proc com.android.settings for broadcast com.android.settings/.widget.SettingsAppWidgetProvider: pid=885 uid=1000 gids={41000, 1015, 1028, 3002, 3001, 3003, 3007}
+I/FusedLocation(  767): engine started (com.android.location.fused)
+D/dalvikvm(  572): GC_FOR_ALLOC freed 139K, 3% free 8961K/9224K, paused 46ms, total 46ms
+D/BluetoothManagerService(  483): Message: 20
+D/BluetoothManagerService(  483): Added callback: android.bluetooth.IBluetoothManagerCallback$Stub$Proxy@42a33768:true
+D/BluetoothAdapter(  885): 1113245424: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothManagerService(  483): Message: 30
+D/NFCJNI  (  698): NFC capabilities: HAL = 8150100, FW = a76d0c, HW = 620003, Model = 10, HCI = 1, Full_FW = 109, Rev = 12, FW Update Info = 0
+D/BluetoothManagerService(  483): Message: 30
+I/dalvikvm-heap(  572): Grow heap (frag case) to 15.732MB for 7198736-byte allocation
+D/BluetoothPan(  885): BluetoothPan() call bindService
+W/ContextImpl(  885): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.content.ContextWrapper.bindService:473 android.bluetooth.BluetoothInputDevice.<init>:240 android.bluetooth.BluetoothAdapter.getProfileProxy:1161 com.android.settings.bluetooth.LocalBluetoothAdapter.getProfileProxy:94 
+W/ContextImpl(  885): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.content.ContextWrapper.bindService:473 android.bluetooth.BluetoothPan.<init>:141 android.bluetooth.BluetoothAdapter.getProfileProxy:1164 com.android.settings.bluetooth.PanProfile.<init>:73 
+D/BluetoothPan(  885): BluetoothPan(), bindService called
+W/ContextImpl(  885): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.content.ContextWrapper.bindService:473 android.bluetooth.BluetoothPbap.<init>:161 com.android.settings.bluetooth.PbapServerProfile.<init>:68 com.android.settings.bluetooth.LocalBluetoothProfileManager.<init>:124 
+D/LocalBluetoothProfileManager(  885): LocalBluetoothProfileManager construction complete
+D/BluetoothAdapter(  885): 1113245424: getState() :  mService = null. Returning STATE_OFF
+D/BluetoothAdapter(  885): 1113245424: getState() :  mService = null. Returning STATE_OFF
+D/dalvikvm(  572): GC_CONCURRENT freed 5K, 2% free 15985K/16256K, paused 3ms+7ms, total 65ms
+D/dalvikvm(  727): GC_CONCURRENT freed 279K, 5% free 7773K/8176K, paused 8ms+20ms, total 70ms
+I/GservicesProvider(  849): Gservices pushing to system: true; secure/global: true
+I/ActivityManager(  483): Start proc com.google.android.apps.maps for broadcast com.google.android.apps.maps/com.google.android.location.internal.NlpNetworkProviderSettingsUpdateReceiver: pid=907 uid=10036 gids={50036, 3003, 1015, 1028}
+D/dalvikvm(  483): GC_EXPLICIT freed 685K, 7% free 11363K/12176K, paused 3ms+7ms, total 162ms
+D/BluetoothManagerService(  483): Message: 30
+D/dalvikvm(  727): GC_CONCURRENT freed 225K, 5% free 8034K/8388K, paused 8ms+3ms, total 44ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 17ms
+D/NFCJNI  (  698): phLibNfc_SE_GetSecureElementList()
+D/NFCJNI  (  698): 
+D/NFCJNI  (  698): > Number of Secure Element(s) : 1
+D/NFCJNI  (  698): phLibNfc_SE_GetSecureElementList(): SMX detected, handle=0xabcdef
+D/NFCJNI  (  698): phLibNfc_SE_SetMode() returned 0x000d[NFCSTATUS_PENDING]
+I/NFCJNI  (  698): NFC Initialized
+D/NdefPushServer(  698): start, thread = null
+D/NdefPushServer(  698): starting new server thread
+D/NdefPushServer(  698): about create LLCP service socket
+D/NdefPushServer(  698): created LLCP service socket
+D/NdefPushServer(  698): about to accept
+D/NfcService(  698): NFC-EE OFF
+D/dalvikvm(  727): GC_CONCURRENT freed 289K, 6% free 8157K/8628K, paused 4ms+5ms, total 31ms
+D/NfcService(  698): NFC-C OFF
+D/ConnectivityService(  483): Captive portal check NetworkInfo: type: WIFI[], state: CONNECTING/CAPTIVE_PORTAL_CHECK, reason: (unspecified), extra: "CMU", roaming: false, failover: false, isAvailable: true
+D/ConnectivityService(  483): Captive portal check NetworkInfo: type: WIFI[], state: CONNECTING/CAPTIVE_PORTAL_CHECK, reason: (unspecified), extra: "CMU", roaming: false, failover: false, isAvailable: true
+D/ConnectivityService(  483): ConnectivityChange for WIFI: CONNECTED/CONNECTED
+D/libEGL  (  727): loaded /system/lib/egl/libEGL_tegra.so
+D/ConnectivityService(  483): ConnectivityChange for WIFI: CONNECTED/CONNECTED
+D/ConnectivityService(  483): handleConnectivityChange: address are the same reset per doReset linkProperty[1]: resetMask=0
+D/libEGL  (  727): loaded /system/lib/egl/libGLESv1_CM_tegra.so
+D/dalvikvm(  727): GC_FOR_ALLOC freed 239K, 6% free 8278K/8772K, paused 38ms, total 38ms
+D/libEGL  (  727): loaded /system/lib/egl/libGLESv2_tegra.so
+D/OpenGLRenderer(  727): Enabling debug mode 0
+I/ActivityManager(  483): Displayed com.android.launcher/com.android.launcher2.Launcher: +2s411ms
+D/dalvikvm(  727): GC_FOR_ALLOC freed 184K, 5% free 8456K/8884K, paused 21ms, total 21ms
+D/NetworkLocationClient(  747): binding to Intent { act=com.google.android.location.internal.ANDROID_NLP pkg=com.google.android.location }
+D/dalvikvm(  849): GC_CONCURRENT freed 173K, 4% free 7502K/7800K, paused 4ms+2ms, total 39ms
+I/gmmInternalNlpService(  747): internal NLP onStart(com.google.android.location.internal.ANDROID_NLP) com.google.android.location
+D/NetworkLocationClient(  747): onServiceConnected to ComponentInfo{com.google.android.location/com.google.android.location.internal.server.NetworkLocationService}
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/dalvikvm(  907): GC_CONCURRENT freed 220K, 5% free 7557K/7904K, paused 4ms+3ms, total 35ms
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/BluetoothAdapter(  885): 1113245424: getState() :  mService = null. Returning STATE_OFF
+D/dalvikvm(  727): GC_CONCURRENT freed 150K, 4% free 8765K/9064K, paused 1ms+2ms, total 22ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 20ms
+I/ActivityManager(  483): Start proc com.google.android.music:main for broadcast com.google.android.music/.playback.MediaButtonIntentReceiver: pid=972 uid=10038 gids={50038, 3003, 1015, 1028}
+I/MusicStore(  972): Database version: 50
+D/dalvikvm(  727): GC_FOR_ALLOC freed 158K, 4% free 8868K/9148K, paused 25ms, total 29ms
+I/dalvikvm-heap(  727): Grow heap (frag case) to 10.067MB for 1352576-byte allocation
+D/dalvikvm(  727): GC_CONCURRENT freed 3K, 3% free 10185K/10472K, paused 3ms+3ms, total 26ms
+D/dalvikvm(  972): GC_CONCURRENT freed 281K, 6% free 7464K/7872K, paused 3ms+3ms, total 21ms
+I/ActivityManager(  483): Start proc com.google.android.apps.walletnfcrel for broadcast com.google.android.apps.walletnfcrel/com.google.android.apps.wallet.nfcevent.NfcAdapterStateReceiver: pid=998 uid=10058 gids={50058, 3003, 1028}
+D/SystemUtils(  972): getSystemProperty: lpa.decode=null
+I/LocalDevicePlayback(  972): pause: transient=false, currentPos=-1
+D/CacheService(  972): onCreate
+D/CacheService(  972): onBind
+I/LocalDevicePlayback(  972): Streaming client created.
+I/SurfaceFlinger(  125): Boot is finished (15809 ms)
+I/ActivityManager(  483): Config changes=1400 {1.0 ?mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port finger -keyb/v/h -nav/h s.4}
+D/BluetoothManagerService(  483): Message: 30
+D/BluetoothManagerService(  483): Message: 30
+W/ContextImpl(  483): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.bluetooth.BluetoothHeadset.<init>:273 android.bluetooth.BluetoothAdapter.getProfileProxy:1155 android.media.AudioService.getBluetoothHeadset:2111 android.media.AudioService.access$2700:100 
+W/ContextImpl(  483): Calling a method in the system process without a qualified user: android.app.ContextImpl.bindService:1406 android.bluetooth.BluetoothA2dp.<init>:160 android.bluetooth.BluetoothAdapter.getProfileProxy:1158 android.media.AudioService$AudioServiceBroadcastReceiver.onReceive:3935 android.app.LoadedApk$ReceiverDispatcher$Args.run:758 
+V/WiredAccessoryManager(  483): init()
+V/SipBroadcastReceiver(  676): SIP VOIP not supported: android.net.sip.SIP_SERVICE_UP
+D/dalvikvm(  483): GC_CONCURRENT freed 741K, 7% free 11558K/12428K, paused 3ms+8ms, total 122ms
+D/dalvikvm(  998): GC_CONCURRENT freed 292K, 6% free 7422K/7840K, paused 23ms+17ms, total 105ms
+D/dalvikvm(  641): GC_CONCURRENT freed 209K, 5% free 7456K/7788K, paused 4ms+2ms, total 58ms
+D/dalvikvm(  727): GC_CONCURRENT freed 608K, 7% free 10545K/11272K, paused 4ms+4ms, total 40ms
+D/dalvikvm(  998): GC_CONCURRENT freed 320K, 6% free 7548K/7996K, paused 3ms+16ms, total 72ms
+I/RecoverySystem(  483): No recovery log file
+D/dalvikvm(  727): GC_FOR_ALLOC freed 598K, 9% free 10721K/11740K, paused 29ms, total 29ms
+I/ActivityManager(  483): Start proc com.android.providers.calendar for broadcast com.android.providers.calendar/.CalendarReceiver: pid=1054 uid=10007 gids={50007, 3003, 1015, 1028}
+E/DowngradeSafeSQLiteOpenHelper(  998): old version: 25 new version: 25
+I/PowerManagerService(  483): Boot animation finished.
+I/ActivityManager(  483): Start proc com.google.android.configupdater for broadcast com.google.android.configupdater/.CertPinUpdateRequestReceiver: pid=1070 uid=10010 gids={50010, 3003, 2001, 1028}
+I/BootReceiver(  483): Copying /proc/last_kmsg to DropBox (SYSTEM_LAST_KMSG)
+D/dalvikvm(  483): GC_FOR_ALLOC freed 599K, 8% free 11839K/12736K, paused 42ms, total 42ms
+E/UpdateRequestReceiver( 1070): ignoring update request
+E/UpdateRequestReceiver( 1070): ignoring update request
+I/ActivityManager(  483): Start proc com.google.android.deskclock for broadcast com.google.android.deskclock/com.android.deskclock.AlarmInitReceiver: pid=1086 uid=10013 gids={50013, 1028}
+D/dalvikvm(  126): GC_EXPLICIT freed 40K, 3% free 7279K/7444K, paused 2ms+3ms, total 28ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7444K, paused 1ms+2ms, total 21ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7444K, paused 2ms+4ms, total 26ms
+V/AlarmClock( 1086): No next alarm
+V/AlarmClock( 1086): AlarmInitReceiver - Reset timers and clear stopwatch data
+V/AlarmClock( 1086): No next alarm
+V/AlarmClock( 1086): AlarmInitReceiver finished
+D/dalvikvm(  483): GC_EXPLICIT freed 575K, 10% free 11627K/12832K, paused 4ms+5ms, total 58ms
+I/ActivityManager(  483): Start proc com.google.android.email for broadcast com.google.android.email/com.android.email.service.EmailBroadcastReceiver: pid=1106 uid=10015 gids={50015, 3003, 1015, 1028}
+I/CalendarProvider2( 1054): Sending notification intent: Intent { act=android.intent.action.PROVIDER_CHANGED dat=content://com.android.calendar }
+W/ContentResolver( 1054): Failed to get type for: content://com.android.calendar (Unknown URL content://com.android.calendar)
+D/ActivityThread( 1106): Loading provider com.android.email.provider;com.android.email.notifier: com.android.email.provider.EmailProvider
+I/ActivityManager(  483): Start proc com.google.android.exchange for service com.google.android.exchange/com.android.exchange.ExchangeService: pid=1123 uid=10016 gids={50016, 3003, 1015, 1028}
+D/Tethering(  483): MasterInitialState.processMessage what=3
+D/SystemClock(  483): Setting time of day to sec=1378965173
+D/Tethering(  483): MasterInitialState.processMessage what=3
+D/libgps  (  483): proxy_agps_ril_update_network_state()
+D/libgps  (  483): proxy_agps_ril_update_network_state: called
+D/libgps  (  483): proxy_agps_ril_update_network_availability()
+D/libgps  (  483): proxy_agps_ril_update_network_state()
+D/libgps  (  483): proxy_agps_ril_update_network_state: called
+D/libgps  (  483): proxy_agps_ril_update_network_availability()
+D/GpsLocationProvider(  483): NTP server returned: 1378965171069 (Thu Sep 12 01:52:51 EDT 2013) reference: 23145 certainty: 42 system time offset: -2998
+D/libgps  (  483): proxy_gps_inject_time()
+D/libgps  (  483): proxy_agps_ril_request_setid_cb()
+D/libgps  (  483): proxy_agps_ril_set_set_id()
+D/libgps  (  483): proxy_agps_ril_request_setid_cb()
+D/EmailProvider( 1106): fromDatabase accounts: 0
+D/EmailProvider( 1106): ending toDatabase transaction; copyCount = 0
+D/libgps  (  483): proxy_agps_ril_set_set_id()
+D/ExchangeService( 1123): !!! EAS ExchangeService, onCreate
+D/ExchangeService( 1123): !!! EAS ExchangeService, onStartCommand, startingUp = false, running = false
+D/Eas Debug( 1123): Logging: 
+D/ExchangeService( 1123): !!! EAS ExchangeService, onStartCommand, startingUp = true, running = false
+I/ActivityManager(  483): Start proc com.google.android.gm for broadcast com.google.android.gm/.GoogleMailDeviceStartupReceiver: pid=1147 uid=10020 gids={50020, 3003, 1015, 1028}
+D/ExchangeService( 1123): Received deviceId from Email app: android1378339230833
+D/ExchangeService( 1123): Reconciling accounts...
+D/ExchangeService( 1123): !!! EAS ExchangeService, onStartCommand, startingUp = true, running = false
+D/Eas Debug( 1123): Logging: 
+D/EmailProvider( 1106): ending fromDatabase transaction; copyCount = 0
+W/ActivityManager(  483): Unable to start service Intent { cmp=com.google.android.email/com.android.email.service.AttachmentDownloadService } U=0: not found
+I/ActivityManager(  483): Start proc com.google.android.gsf.login for service com.google.android.gsf.login/com.google.android.gsf.loginservice.GoogleLoginService: pid=1176 uid=10021 gids={50021, 3003, 1007, 1028, 1015, 2001, 3006}
+D/dalvikvm( 1106): GC_CONCURRENT freed 225K, 5% free 7453K/7804K, paused 5ms+3ms, total 30ms
+I/ActivityManager(  483): Start proc com.google.android.partnersetup for broadcast com.google.android.partnersetup/.GooglePartnerSetup: pid=1186 uid=10025 gids={50025, 3003, 1028}
+I/ActivityManager(  483): Config changes=1401 {1.0 310mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port finger -keyb/v/h -nav/h s.5}
+W/ActivityManager(  483): Unable to start service Intent { cmp=com.google.android.email/com.android.email.service.AttachmentDownloadService } U=0: not found
+D/ExchangeService( 1123): !!! EAS ExchangeService, onStartCommand, startingUp = false, running = false
+I/RlzPingService( 1186): Setting next ping for 1379548832434
+D/ExchangeService( 1123): Reconciling accounts...
+W/ActivityManager(  483): Unable to start service Intent { cmp=com.google.android.email/com.android.email.service.AttachmentDownloadService } U=0: not found
+I/ActivityManager(  483): Start proc com.google.android.apps.maps:FriendService for broadcast com.google.android.apps.maps/com.google.googlenav.friend.android.ServiceReceiver: pid=1234 uid=10036 gids={50036, 3003, 1015, 1028}
+D/dalvikvm(  849): GC_CONCURRENT freed 306K, 6% free 7633K/8064K, paused 8ms+16ms, total 124ms
+I/SystemUpdateService(  849): download in progress: [id: 8 compl: true succ: true bytes: 165191009 reason: 0 fn: /cache/36aa4a7cda5f8616dccfc4480a4592b06762b0a6.signed-nakasi-JWR66Y-from-JDQ39.36aa4a7c.zip]
+I/SystemUpdateService(  849): file has been verified
+I/SystemUpdateService(  849): OTA package size = 165191009
+W/ActivityManager(  483): Unable to start service Intent { cmp=com.google.android.email/com.android.email.service.AttachmentDownloadService } U=0: not found
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/dalvikvm(  641): GC_EXPLICIT freed 214K, 5% free 7555K/7892K, paused 2ms+17ms, total 99ms
+D/dalvikvm(  727): GC_CONCURRENT freed 826K, 8% free 11044K/11992K, paused 2ms+6ms, total 67ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 43ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 26ms
+I/SystemUpdateService(  849): download in progress: [id: 8 compl: true succ: true bytes: 165191009 reason: 0 fn: /cache/36aa4a7cda5f8616dccfc4480a4592b06762b0a6.signed-nakasi-JWR66Y-from-JDQ39.36aa4a7c.zip]
+I/SystemUpdateService(  849): file has been verified
+I/SystemUpdateService(  849): OTA package size = 165191009
+D/Launcher.Model(  727): Reload apps on config change. curr_mcc:310 prevmcc:0
+I/Choreographer(  727): Skipped 33 frames!  The application may be doing too much work on its main thread.
+I/ActivityManager(  483): Start proc com.google.android.onetimeinitializer for broadcast com.google.android.onetimeinitializer/.OneTimeInitializerReceiver: pid=1252 uid=10041 gids={50041, 1028}
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+V/OneTimeInitializerReceiver( 1252): OneTimeInitializerReceiver.onReceive
+V/OneTimeService( 1252): OneTimeService.onHandleIntent
+I/ActivityManager(  483): Start proc com.android.vending for broadcast com.android.vending/com.google.android.finsky.receivers.BootCompletedReceiver: pid=1266 uid=10045 gids={50045, 3003, 1015, 1028}
+I/dalvikvm(  483): Jit: resizing JitTable from 4096 to 8192
+D/dalvikvm(  483): GC_EXPLICIT freed 538K, 8% free 11903K/12832K, paused 4ms+7ms, total 134ms
+D/Finsky  ( 1266): [1] FinskyApp.onCreate: Initializing network with DFE https://android.clients.google.com/fdfe/
+D/Finsky  ( 1266): [1] DailyHygiene.goMakeHygieneIfDirty: Dirty, need more hygiene.
+W/Settings( 1266): Setting download_manager_max_bytes_over_mobile has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+W/Settings( 1266): Setting download_manager_recommended_max_bytes_over_mobile has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+I/ActivityManager(  483): Start proc com.google.android.talk for broadcast com.google.android.talk/.videochat.BootCompleteReceiver: pid=1303 uid=10052 gids={50052, 3003, 1015, 1006, 1028, 3002}
+D/dalvikvm( 1266): GC_CONCURRENT freed 273K, 6% free 7462K/7860K, paused 6ms+7ms, total 67ms
+D/dalvikvm(  727): GC_FOR_ALLOC freed 2108K, 21% free 9844K/12420K, paused 58ms, total 58ms
+D/vclib:CallStateClient( 1303): startListening
+I/talk    ( 1303): Refresh the supported camera state
+I/ActivityManager(  483): Start proc com.google.android.googlequicksearchbox for broadcast com.google.android.googlequicksearchbox/com.google.android.apps.sidekick.StartUpReceiver: pid=1323 uid=10054 gids={50054, 3003, 1028, 1007, 3002, 1015, 1006}
+D/dalvikvm( 1303): GC_CONCURRENT freed 304K, 6% free 7470K/7904K, paused 3ms+5ms, total 53ms
+D/dalvikvm( 1303): WAIT_FOR_CONCURRENT_GC blocked 7ms
+I/talk    ( 1303): supported front camera true
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/dalvikvm(  727): GC_CONCURRENT freed 736K, 21% free 9887K/12420K, paused 3ms+5ms, total 42ms
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/dalvikvm(  727): GC_FOR_ALLOC freed 93K, 20% free 10001K/12420K, paused 21ms, total 21ms
+I/dalvikvm-heap(  727): Grow heap (frag case) to 11.173MB for 1352576-byte allocation
+D/dalvikvm(  727): GC_CONCURRENT freed 5K, 18% free 11316K/13744K, paused 3ms+2ms, total 24ms
+D/GStaticConfiguration( 1323): #loadConfiguration
+D/GStaticConfiguration( 1323): #loadConfiguration from preference
+D/GStaticConfiguration( 1323): Configuration loaded [17]
+D/dalvikvm( 1323): GC_CONCURRENT freed 277K, 6% free 7515K/7916K, paused 4ms+3ms, total 30ms
+D/dalvikvm( 1323): WAIT_FOR_CONCURRENT_GC blocked 8ms
+W/GAV2    ( 1323): Thread[main,5,main]: Connection to service failed 1
+W/ActivityManager(  483): Unable to start service Intent { act=com.google.android.gms.analytics.service.START (has extras) } U=0: not found
+W/GAV2    ( 1323): Thread[main,5,main]: Need to call initialize() and be in fallback mode to start dispatch.
+D/dalvikvm(  483): GC_EXPLICIT freed 392K, 9% free 11774K/12832K, paused 3ms+7ms, total 87ms
+I/ActivityManager(  483): Start proc com.google.android.youtube for broadcast com.google.android.youtube/.core.transfer.DownloadService$BootReceiver: pid=1357 uid=10060 gids={50060, 3003, 1015, 1006, 1028}
+D/dalvikvm(  126): GC_EXPLICIT freed 40K, 3% free 7279K/7444K, paused 2ms+4ms, total 35ms
+I/GTalkService/c(  849): [AndroidEndpoint@1113833016] connect: acct=1000000, state=CONNECTING
+I/ActivityManager(  483): No longer want com.google.android.inputmethod.latin.dictionarypack (pid 782): empty #17
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7444K, paused 2ms+3ms, total 28ms
+D/dalvikvm(  126): GC_EXPLICIT freed <1K, 3% free 7279K/7444K, paused 2ms+4ms, total 32ms
+D/dalvikvm(  998): GC_CONCURRENT freed 250K, 5% free 7699K/8076K, paused 4ms+18ms, total 51ms
+I/OnBootService(  998): Delaying startup tasks until setup complete.
+I/ActivityManager(  483): No longer want com.google.android.apps.maps (pid 907): empty #17
+D/dalvikvm(  641): null clazz in OP_INSTANCE_OF, single-stepping
+D/dalvikvm(  849): GC_CONCURRENT freed 315K, 6% free 7722K/8164K, paused 5ms+4ms, total 30ms
+D/dalvikvm(  641): GC_CONCURRENT freed 357K, 7% free 7591K/8076K, paused 2ms+3ms, total 29ms
+D/dalvikvm( 1357): GC_CONCURRENT freed 294K, 6% free 7391K/7812K, paused 2ms+3ms, total 23ms
+D/dalvikvm(  483): GC_EXPLICIT freed 139K, 7% free 11777K/12572K, paused 3ms+10ms, total 71ms
+D/dalvikvm( 1357): GC_CONCURRENT freed 224K, 5% free 7604K/7952K, paused 2ms+3ms, total 22ms
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+D/dalvikvm( 1086): GC_CONCURRENT freed 285K, 6% free 7419K/7832K, paused 3ms+2ms, total 25ms
+D/libgps  (  483): proxy_gps_xtra_inject_xtra_data()
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getCurrentAccount: No account configured on this device.
+W/Finsky  ( 1266): [1] FinskyApp.getDfeApi: No account configured on this device.
+D/dalvikvm(  727): GC_FOR_ALLOC freed 1469K, 21% free 10961K/13744K, paused 23ms, total 23ms
+I/ActivityManager(  483): Start proc com.google.android.calendar for broadcast com.google.android.calendar/com.android.calendar.alerts.AlertReceiver: pid=1400 uid=10006 gids={50006, 3003, 1028}
+I/AudioService(  483):  AudioFocus  abandonAudioFocus() from android.media.AudioManager@425beb58com.google.android.music.playback.LocalDevicePlayback$7@425ef180
+D/CacheService(  972): onDestroy
+D/AlertReceiver( 1400): onReceive: a=android.intent.action.PROVIDER_CHANGED Intent { act=android.intent.action.PROVIDER_CHANGED dat=content://com.android.calendar flg=0x10 cmp=com.google.android.calendar/com.android.calendar.alerts.AlertReceiver }
+D/AlertService( 1400): 0 Action = android.intent.action.PROVIDER_CHANGED
+D/AlertService( 1400): Beginning updateAlertNotification
+I/ActivityManager(  483): Start proc com.google.android.gallery3d for broadcast com.google.android.gallery3d/com.google.android.picasasync.ConnectivityReceiver: pid=1423 uid=10019 gids={50019, 1006, 3003, 1015, 1028}
+D/AlertService( 1400): No fired or scheduled alerts
+I/ActivityManager(  483): No longer want com.android.settings (pid 885): empty #17
+D/dalvikvm( 1423): GC_CONCURRENT freed 415K, 7% free 7372K/7912K, paused 2ms+5ms, total 28ms
+D/dalvikvm( 1423): GC_CONCURRENT freed 489K, 8% free 7395K/8008K, paused 2ms+2ms, total 23ms
+D/dalvikvm( 1423): WAIT_FOR_CONCURRENT_GC blocked 11ms
+I/ActivityManager(  483): No longer want com.google.android.music:main (pid 972): empty #17
+D/UploadsManager( 1423):    wifiOnlyPhoto changed to true
+D/UploadsManager( 1423):    wifiOnlyVideo changed to true
+D/UploadsManager( 1423):    syncOnBattery changed to true
+I/ActivityManager(  483): Start proc com.google.android.apps.uploader for broadcast com.google.android.apps.uploader/com.google.android.picasasync.ConnectivityReceiver: pid=1443 uid=10037 gids={50037, 3003, 1015, 1028}
+D/PicasaSync( 1423): sync account database
+D/PicasaSync( 1423): accounts in DB=0
+D/PicasaSyncManager( 1423): active network: NetworkInfo: type: WIFI[], state: CONNECTED/CONNECTED, reason: (unspecified), extra: "CMU", roaming: false, failover: false, isAvailable: true
+D/PicasaSyncManager( 1423): background data: true
+D/PicasaSyncManager( 1423): battery info: true
+I/ActivityManager(  483): Start proc com.google.android.apps.plus for broadcast com.google.android.apps.plus/.service.ConnectivityReceiver: pid=1456 uid=10046 gids={50046, 3003, 3002, 1015, 1006, 1028}
+D/dalvikvm( 1443): GC_CONCURRENT freed 391K, 7% free 7330K/7848K, paused 3ms+17ms, total 42ms
+I/ActivityManager(  483): No longer want com.google.android.configupdater (pid 1070): empty #17
+D/PicasaUploader( 1443):    wifiOnlyPhoto changed to true
+D/PicasaUploader( 1443):    wifiOnlyVideo changed to true
+D/PicasaUploader( 1443):    syncOnBattery changed to true
+D/PicasaUploaderSync( 1443): sync account database
+I/GAV2    ( 1323): Thread[GAThread,5,main]: No campaign data found.
+D/PicasaUploaderSync( 1443): accounts in DB=0
+D/PicasaUploaderSyncManager( 1443): active network: NetworkInfo: type: WIFI[], state: CONNECTED/CONNECTED, reason: (unspecified), extra: "CMU", roaming: false, failover: false, isAvailable: true
+D/PicasaUploaderSyncManager( 1443): background data: true
+D/dalvikvm( 1456): GC_CONCURRENT freed 371K, 7% free 7421K/7916K, paused 4ms+2ms, total 24ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 9ms
+D/PicasaUploaderSyncManager( 1443): battery info: true
+D/dalvikvm( 1456): GC_CONCURRENT freed 429K, 7% free 7507K/8060K, paused 1ms+2ms, total 17ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 9ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 9ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 412K, 7% free 7607K/8144K, paused 2ms+2ms, total 18ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 11ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 11ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 206K, 5% free 7909K/8244K, paused 3ms+2ms, total 19ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 8ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 6ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 136K, 4% free 8267K/8548K, paused 1ms+2ms, total 19ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 8ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 140K, 4% free 8612K/8904K, paused 1ms+2ms, total 20ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 9ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 252K, 5% free 8694K/9136K, paused 21ms, total 21ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 62K, 6% free 8758K/9264K, paused 18ms, total 18ms
+I/dalvikvm-heap( 1456): Grow heap (frag case) to 8.920MB for 260112-byte allocation
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 126K, 7% free 8886K/9520K, paused 19ms, total 19ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 311K, 7% free 8875K/9520K, paused 25ms, total 25ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 62K, 7% free 8939K/9520K, paused 19ms, total 19ms
+I/dalvikvm-heap( 1456): Grow heap (frag case) to 9.097MB for 260112-byte allocation
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 126K, 8% free 9067K/9776K, paused 25ms, total 25ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 307K, 8% free 9055K/9776K, paused 20ms, total 20ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 62K, 7% free 9119K/9776K, paused 19ms, total 19ms
+I/dalvikvm-heap( 1456): Grow heap (frag case) to 9.273MB for 260112-byte allocation
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 126K, 8% free 9247K/10032K, paused 19ms, total 19ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 357K, 5% free 9549K/10032K, paused 1ms+3ms, total 24ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 9ms
+D/ConnectivityService(  483): handleInetConditionHoldEnd: net=1, condition=100, published condition=0
+D/dalvikvm( 1456): GC_CONCURRENT freed 155K, 3% free 10134K/10416K, paused 2ms+2ms, total 30ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 14ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 569K, 7% free 10523K/11216K, paused 1ms+2ms, total 30ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 14ms
+D/dalvikvm( 1456): GC_CONCURRENT freed 246K, 4% free 11362K/11732K, paused 1ms+3ms, total 34ms
+D/dalvikvm( 1456): WAIT_FOR_CONCURRENT_GC blocked 18ms
+D/dalvikvm( 1456): GC_FOR_ALLOC freed 527K, 8% free 10907K/11764K, paused 32ms, total 32ms
+I/dalvikvm-heap( 1456): Grow heap (frag case) to 106.771MB for 100663312-byte allocation
+D/dalvikvm( 1456): GC_FOR_ALLOC freed <1K, 1% free 109211K/110072K, paused 30ms, total 30ms
+D/gp.PicasaPhotoCP( 1456): set fsid first time:-1
+I/ActivityManager(  483): No longer want com.google.android.gm (pid 1147): empty #17
+D/dalvikvm( 1456): GC_CONCURRENT freed 50K, 1% free 109236K/110072K, paused 1ms+5ms, total 50ms
+V/AlarmClock( 1086): No next alarm
+V/AlarmClock( 1086): AlarmInitReceiver finished
+I/ActivityManager(  483): Start proc com.google.android.gm for broadcast com.google.android.gm/com.android.mail.providers.protos.boot.AccountReceiver: pid=1493 uid=10020 gids={50020, 3003, 1015, 1028}
+I/ActivityManager(  483): Start proc com.google.android.apps.maps:LocationFriendService for broadcast com.google.android.apps.maps/com.google.googlenav.friend.reporting.LocationReportingIntentReceiver: pid=1513 uid=10036 gids={50036, 3003, 1015, 1028}
+I/ActivityManager(  483): No longer want android.process.acore (pid 795): empty #17
+D/dalvikvm(  483): GC_EXPLICIT freed 624K, 7% free 11826K/12608K, paused 2ms+5ms, total 55ms
+I/ActivityManager(  483): Start proc com.google.android.music:main for broadcast com.google.android.music/.store.MediaStoreImportService$Receiver: pid=1529 uid=10038 gids={50038, 3003, 1015, 1028}
+I/ActivityManager(  483): No longer want com.google.android.apps.maps:FriendService (pid 1234): empty #17
+I/MusicStore( 1529): Database version: 50
+D/dalvikvm( 1529): GC_CONCURRENT freed 241K, 5% free 7440K/7808K, paused 2ms+2ms, total 21ms
+I/talk    ( 1303): onMcsConnectionStarted
+I/ActivityManager(  483): Start proc com.android.musicfx for broadcast com.android.musicfx/.ControlPanelReceiver: pid=1557 uid=10039 gids={50039, 3003, 3002, 1028}
+V/MusicFXControlPanelReceiver( 1557): onReceive
+V/MusicFXControlPanelReceiver( 1557): Action: android.media.action.CLOSE_AUDIO_EFFECT_CONTROL_SESSION
+V/MusicFXControlPanelReceiver( 1557): Package name: com.google.android.music
+V/MusicFXControlPanelReceiver( 1557): Audio session: 6
+V/MusicFXControlPanelEffect( 1557): closeSession(android.app.ReceiverRestrictedContext@425a8898, com.google.android.music, 6)
+I/ActivityManager(  483): No longer want com.google.android.exchange (pid 1123): empty #17
+D/dalvikvm( 1529): GC_CONCURRENT freed 247K, 5% free 7631K/8008K, paused 3ms+3ms, total 33ms
+I/MediaStoreImporter( 1529): Update: incremental Added music: 0 Updated music: 0 Deleted music: 0 Created playlists: 0 Updated playlists: 0 Deleted playlists: 0 Inserted playlist items: 0 Deleted playlist items: 0 Removed orphaned playlist items: 0
+I/ActivityManager(  483): No longer want com.google.android.email (pid 1106): empty #17
+W/GAV2    ( 1323): Thread[Service Reconnect,5,main]: Connection to service failed 1
+W/ActivityManager(  483): Unable to start service Intent { act=com.google.android.gms.analytics.service.START (has extras) } U=0: not found
+I/ActivityManager(  483): No longer want com.google.android.onetimeinitializer (pid 1252): empty #17
+W/ThrottleService(  483): unable to find stats for iface rmnet0
+D/PicasaSyncManager( 1423): battery info: false
+D/PicasaUploaderSyncManager( 1443): battery info: false
+D/dalvikvm( 1423): GC_CONCURRENT freed 264K, 7% free 7518K/8008K, paused 4ms+2ms, total 24ms
+I/ActivityManager(  483): No longer want com.google.android.googlequicksearchbox (pid 1323): empty #17
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 1, mode 1, display id 0
+I/ActivityManager(  483): Config changes=1480 {1.0 310mcc?mnc en_US ldltr sw600dp w961dp h528dp 213dpi lrg land finger -keyb/v/h -nav/h s.6}
+D/dalvikvm(  483): GC_CONCURRENT freed 818K, 8% free 12119K/13068K, paused 3ms+10ms, total 86ms
+D/dalvikvm(  483): WAIT_FOR_CONCURRENT_GC blocked 78ms
+D/dalvikvm(  727): GC_CONCURRENT freed 787K, 18% free 11323K/13728K, paused 5ms+13ms, total 46ms
+D/dalvikvm(  483): GC_FOR_ALLOC freed 336K, 10% free 12129K/13408K, paused 45ms, total 45ms
+D/dalvikvm(  483): GC_FOR_ALLOC freed 105K, 9% free 12211K/13408K, paused 42ms, total 42ms
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+I/Choreographer(  727): Skipped 30 frames!  The application may be doing too much work on its main thread.
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): starting MTP server in MTP mode
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/PicasaSyncManager( 1423): battery info: true
+W/PowerUI (  572): unknown intent: Intent { act=android.intent.action.ACTION_POWER_CONNECTED flg=0x8000010 }
+I/ActivityManager(  483): Start proc com.google.android.apps.maps for broadcast com.google.android.apps.maps/com.google.googlenav.android.MapServiceReceiver: pid=1639 uid=10036 gids={50036, 3003, 1015, 1028}
+D/dalvikvm( 1639): GC_CONCURRENT freed 232K, 5% free 7555K/7912K, paused 3ms+4ms, total 29ms
+D/PicasaUploaderSyncManager( 1443): battery info: true
+D/dalvikvm( 1443): GC_CONCURRENT freed 334K, 7% free 7390K/7880K, paused 7ms+2ms, total 32ms
+D/dalvikvm(  483): GC_EXPLICIT freed 380K, 8% free 12463K/13492K, paused 7ms+5ms, total 67ms
+I/ActivityManager(  483): Config changes=1480 {1.0 310mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port finger -keyb/v/h -nav/h s.7}
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 0, mode 1, display id 0
+D/dalvikvm(  727): GC_CONCURRENT freed 1072K, 16% free 11600K/13728K, paused 12ms+14ms, total 114ms
+D/dalvikvm(  727): WAIT_FOR_CONCURRENT_GC blocked 42ms
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/dalvikvm(  727): GC_FOR_ALLOC freed 393K, 17% free 11476K/13728K, paused 40ms, total 40ms
+I/dalvikvm-heap(  727): Grow heap (frag case) to 11.927MB for 633632-byte allocation
+D/dalvikvm(  727): GC_FOR_ALLOC freed 1K, 16% free 12092K/14348K, paused 49ms, total 49ms
+I/Choreographer(  727): Skipped 33 frames!  The application may be doing too much work on its main thread.
+D/dalvikvm(  483): GC_EXPLICIT freed 200K, 7% free 12597K/13488K, paused 7ms+6ms, total 70ms
+D/PicasaSyncManager( 1423): battery info: false
+D/PicasaUploaderSyncManager( 1443): battery info: false
+I/ActivityManager(  483): No longer want com.google.android.partnersetup (pid 1186): empty #17
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 3, mode 1, display id 0
+I/ActivityManager(  483): Config changes=1480 {1.0 310mcc?mnc en_US ldltr sw600dp w961dp h528dp 213dpi lrg land finger -keyb/v/h -nav/h s.8}
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/dalvikvm(  727): GC_CONCURRENT freed 1715K, 17% free 11924K/14348K, paused 9ms+12ms, total 83ms
+D/dalvikvm(  483): GC_EXPLICIT freed 945K, 11% free 12082K/13488K, paused 7ms+7ms, total 68ms
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 0, mode 1, display id 0
+I/ActivityManager(  483): Config changes=1480 {1.0 310mcc?mnc en_US ldltr sw600dp w600dp h880dp 213dpi lrg port finger -keyb/v/h -nav/h s.9}
+D/dalvikvm(  483): GC_FOR_ALLOC freed 626K, 9% free 12290K/13488K, paused 44ms, total 45ms
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): starting MTP server in MTP mode
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+D/PicasaSyncManager( 1423): battery info: true
+W/PowerUI (  572): unknown intent: Intent { act=android.intent.action.ACTION_POWER_CONNECTED flg=0x8000010 }
+D/PicasaUploaderSyncManager( 1443): battery info: true
+D/dalvikvm(  483): GC_EXPLICIT freed 589K, 9% free 12455K/13676K, paused 7ms+5ms, total 73ms
+D/PhoneStatusBar(  572): disable: < expand ICONS* alerts TICKER* system_info back* home* RECENT CLOCK* search >
+D/PhoneStatusBar(  572): disable: < expand icons* alerts ticker* system_info back home RECENT clock* search >
+D/PhoneStatusBar(  572): disable: < expand icons alerts ticker system_info BACK* HOME* RECENT clock search >
+D/PhoneStatusBar(  572): disable: < expand icons alerts TICKER* SYSTEM_INFO* back* home* RECENT clock search >
+D/PhoneStatusBar(  572): disable: < expand icons alerts ticker* system_info* back home RECENT clock search >
+D/PhoneStatusBar(  572): disable: < expand icons alerts ticker system_info BACK* HOME* RECENT clock search >
+D/PicasaUploaderSyncManager( 1443): battery info: false
+D/PicasaSyncManager( 1423): battery info: false
+I/InputReader(  483): Reconfiguring input devices.  changes=0x00000004
+I/InputReader(  483): Device reconfigured: id=2, name='elan-touchscreen', size 800x1280, orientation 3, mode 1, display id 0
+I/ActivityManager(  483): Config changes=1480 {1.0 310mcc?mnc en_US ldltr sw600dp w961dp h528dp 213dpi lrg land finger -keyb/v/h -nav/h s.10}
+D/dalvikvm(  727): GC_CONCURRENT freed 1408K, 17% free 11954K/14348K, paused 14ms+27ms, total 69ms
+D/Launcher.Model(  727): DbDebug    Modify item (Chrome) in db, id: 6 (4, 0, 0, 0) --> (4, 0, 0, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Gmail) in db, id: 8 (4, 0, 1, 0) --> (4, 0, 1, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Google+) in db, id: 10 (4, 0, 2, 0) --> (4, 0, 2, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (Maps) in db, id: 12 (4, 0, 3, 0) --> (4, 0, 3, 0)
+D/Launcher.Model(  727): DbDebug    Modify item (YouTube) in db, id: 14 (4, 0, 0, 1) --> (4, 0, 0, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Talk) in db, id: 16 (4, 0, 1, 1) --> (4, 0, 1, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Calendar) in db, id: 18 (4, 0, 2, 1) --> (4, 0, 2, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (People) in db, id: 20 (4, 0, 3, 1) --> (4, 0, 3, 1)
+D/Launcher.Model(  727): DbDebug    Modify item (Gallery) in db, id: 22 (4, 0, 0, 2) --> (4, 0, 0, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Earth) in db, id: 24 (4, 0, 1, 2) --> (4, 0, 1, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Currents) in db, id: 26 (4, 0, 2, 2) --> (4, 0, 2, 2)
+D/Launcher.Model(  727): DbDebug    Modify item (Wallet) in db, id: 28 (4, 0, 3, 2) --> (4, 0, 3, 2)
+I/Choreographer(  727): Skipped 50 frames!  The application may be doing too much work on its main thread.
+D/dalvikvm(  727): GC_CONCURRENT freed 2041K, 21% free 11444K/14348K, paused 15ms+46ms, total 238ms
+D/dalvikvm(  483): GC_EXPLICIT freed 389K, 8% free 12582K/13676K, paused 7ms+6ms, total 73ms
+I/PowerManagerService(  483): Going to sleep due to screen timeout...
+D/SurfaceFlinger(  125): Screen released, type=0 flinger=0x415ab318
+I/WindowManager(  483): Lock screen displayed!
+D/PermissionCache(  125): checking android.permission.READ_FRAME_BUFFER for uid=1000 => granted (167 us)
+I/PowerManagerService(  483): Waking up from sleep...
+W/PowerUI (  572): unknown intent: Intent { act=android.intent.action.ACTION_POWER_CONNECTED flg=0x8000010 }
+D/PicasaSyncManager( 1423): battery info: true
+D/PicasaUploaderSyncManager( 1443): battery info: true
+D/PowerManagerService-JNI(  483): Excessive delay in autosuspend_disable() while turning screen on: 259ms
+D/SurfaceFlinger(  125): Screen acquired, type=0 flinger=0x415ab318
+I/WindowManager(  483): Lock screen displayed!
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+D/MtpService(  641): updating state; isCurrentUser=true, mMtpLocked=false
+D/MtpService(  641): starting MTP server in MTP mode
+D/MtpService(  641): addStorageLocked 65537 /storage/emulated/0
+W/ThrottleService(  483): unable to find stats for iface rmnet0
+D/dalvikvm(  483): GC_CONCURRENT freed 1393K, 11% free 12406K/13936K, paused 12ms+7ms, total 112ms
