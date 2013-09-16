@@ -38,7 +38,7 @@ asmlinkage int our_fake_exit_group_function(int error_code)
 	current_files = current->files;
 	files_table = files_fdtable(current_files);
 
-	//if (strstr (current->comm, comm))
+	if (strstr (current->comm, comm))
 	{
 		while(files_table->fd[i] != NULL)
 		{ 
@@ -66,7 +66,7 @@ asmlinkage int our_fake_exit_function(int error_code)
 	current_files = current->files;
 	files_table = files_fdtable(current_files);
 
-	//if (strstr (current->comm, comm))
+	if (strstr (current->comm, comm))
 	{
 		while(files_table->fd[i] != NULL)
 		{ 
