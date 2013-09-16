@@ -27,11 +27,10 @@ SYSCALL_DEFINE1(list_processes, char*, user_buffer)
 	char* null_char= "\0";
 	int num_processes = 0;
 
-	
 	read_lock(&tasklist_lock);
 	for_each_process (task)
 		num_processes++;
-	
+
 	if((kernel_buffer=kmalloc(num_processes * LINELENGTH, \
 			GFP_KERNEL)) == NULL)
 	{
@@ -47,12 +46,12 @@ SYSCALL_DEFINE1(list_processes, char*, user_buffer)
 			   	task->prio, task->comm);
 	}
 	read_unlock(&tasklist_lock);
-	
-	sprintf(kernel_buffer,null_char);
+
+	sprintf(kernel_buffer,"%s%s", kernel_buffer, null_char);
 
 	bytes_remaining = copy_to_user(user_buffer, kernel_buffer, \
 				strlen(kernel_buffer) );
 	kfree(kernel_buffer);
-	
+
 	return bytes_remaining;
 }
