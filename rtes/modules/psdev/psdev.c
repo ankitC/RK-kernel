@@ -23,9 +23,9 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 #define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
 #define BUF_LEN 20000		/* Max length of the message from the device */
 
-/* 
- *  * Global variables are declared as static, so are global within the file. 
- *   */
+/*
+ ** Global variables are declared as static, so are global within the file.
+ **/
 
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  

@@ -403,7 +403,7 @@
 #define __NR_sendmmsg			(__NR_SYSCALL_BASE+374)
 #define __NR_setns			(__NR_SYSCALL_BASE+375)
 #define __NR_calc			(__NR_SYSCALL_BASE+376)
-
+#define __NR_count_processes (__NR_SYSCALL_BASE+377)
 /*
  * The following SWIs are ARM private.
  */
