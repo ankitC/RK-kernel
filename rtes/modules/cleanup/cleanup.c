@@ -85,6 +85,7 @@ int init_module(void)
 
 	/*store reference to the original sys_exit call*/
 	original_sys_exit = (void *) sys_call_table[__NR_exit];
+	original_sys_exit_group = (void *) sys_call_table[__NR_exit_group];
 
 	/*manipulate sys_call_table to call our fake exit
 	 *     function instead*/
