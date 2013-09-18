@@ -4,11 +4,13 @@
 #include <asm/unistd.h>
 #include <sys/syscall.h>
 
-#define LISTLENGTH 43
-int list_processes(char* buffer)
+#define LINELENGTH 43
+#define BUFF_SIZE(x) (x * LINELENGTH + 1)
+
+int list_processes(char* buffer, int len)
 {
 	int retval = 0;
-	if ((retval = syscall(__NR_list_processes, buffer)) == 0)
+	if ((retval = syscall(__NR_list_processes, buffer, len)) == 0)
 	{
 		printf("return %d\n", retval);
 		return 0;
@@ -28,9 +30,9 @@ int main(void)
 //	printf("test, world! I am an Android app. %d\n", fd2);
 //	exit(0);
 	int i = (int) count_processes();
-	char* buffer = calloc( LISTLENGTH, 1);
+	char* buffer = calloc( BUFF_SIZE(i), 1);
 
-	if (!list_processes(buffer))
+	if (!list_processes(buffer, BUFF_SIZE(i)))
 	{
 		printf("%s",buffer);
 	}

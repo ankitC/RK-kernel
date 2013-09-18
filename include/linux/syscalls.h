@@ -846,5 +846,5 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
 asmlinkage long sys_setns(int fd, int nstype);
 asmlinkage long sys_calc(long first, long second, char operation);
 asmlinkage long sys_count_processes(void);
-asmlinkage long sys_list_processes(char* user_buffer);
+asmlinkage long sys_list_processes(char* user_buffer, int len);
 #endif
