@@ -1,11 +1,17 @@
-//A simple Hello world program
+#include <ncurses.h>
+#include <signal.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
 
 #define LINELENGTH 43
 #define BUFF_SIZE(x) (x * LINELENGTH + 1)
+
+
+static sigset_t mask;
+static int exit_process = 0;
 
 int list_processes(char* buffer, int len)
 {
@@ -24,19 +30,33 @@ int count_processes()
 	return syscall(__NR_count_processes);
 }
 
+void sig_int_handler()
+{
+	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+	exit_process = 1;
+	return;
+}
+
 int main(void)
 {
-//	int fd2 = open ("/sdcard/t.txt", O_RDWR|O_CREAT);
-//	printf("test, world! I am an Android app. %d\n", fd2);
-//	exit(0);
+	sigemptyset( &mask );
+	sigaddset(&mask, SIGTSTP);
+	sigprocmask(SIG_BLOCK, &mask, NULL);
+	signal(SIGINT, sig_int_handler);
 	int i = (int) count_processes();
 	char* buffer = calloc( BUFF_SIZE(i), 1);
 
-	if (!list_processes(buffer, BUFF_SIZE(i)))
-	{
-		printf("%s",buffer);
-	}
+	initscr();
 
+	while(!exit_process)
+	{
+		if (!list_processes(buffer, BUFF_SIZE(i)))
+		{
+			printw("%s",buffer);
+		}
+		sleep(2);
+		clear();
+	}
 	free(buffer);
-	return 0;
+	endwin();
 }
