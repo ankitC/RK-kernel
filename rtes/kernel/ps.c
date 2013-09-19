@@ -9,8 +9,15 @@
 #define LINELENGTH 43
 #define BUFF_SIZE(x) (x * LINELENGTH + 1)
 
+/*typedef struct node
+{
+	int pid;
+	int prio;
+	char name[32];
+	NODE* next;
 
-
+} NODE;
+*/
 SYSCALL_DEFINE0(count_processes)
 {
 	unsigned short num_processes = 0;
@@ -30,6 +37,7 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	char* null_char= "\0";
 	int num_processes = 0;
 	int kernel_buffer_len;
+//	NODE* curr = NULL:
 
 	read_lock(&tasklist_lock);
 	for_each_process (task)
@@ -43,10 +51,17 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	}
 
 	kernel_buffer_len = num_processes * LINELENGTH;
+
 	sprintf(kernel_buffer,"pid\tpr\tname\n");
 
 	for_each_process (task)
 	{
+	/*	curr = kmalloc( sizeof(NODE), GFP_KERNEL);
+		curr->pid = task->pid;
+		curr->prio = task->prio;
+		strcpy( curr->name, task->comm);
+
+		add_linked*/
 		sprintf(kernel_buffer, "%s %i\t%i\t%s\n", kernel_buffer, task->pid,\
 			   	task->prio, task->comm);
 	}
