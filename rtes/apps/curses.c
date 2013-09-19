@@ -55,6 +55,7 @@ int main(void)
 			printw("%s",buffer);
 		}
 		sleep(2);
+		clear();
 	}
 	free(buffer);
 	endwin();
