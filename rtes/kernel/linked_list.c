@@ -1,4 +1,5 @@
-add_node(NODE** head, NODE* curr1)
+/*Our custom linked list*/
+void add_node(NODE** head, NODE* curr1)
 {
 	NODE* curr2 = *head;
 
@@ -33,7 +34,7 @@ add_node(NODE** head, NODE* curr1)
 	}
 }
 
-delete_linked_list (NODE** head)
+void delete_linked_list (NODE** head)
 {
 	NODE* curr = *head;
 
