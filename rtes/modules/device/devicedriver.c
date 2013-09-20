@@ -1,6 +1,6 @@
 /*
- *  chardev.c: Creates a read-only char device that says how many times
- *  you've read from the dev file
+ *  devicedriver.c: A simple loadable kernel module which gives the 
+ *  information about the processes when read from.
  */
 
 #include <linux/kernel.h>
@@ -10,8 +10,20 @@
 #include <asm/current.h>
 #include <asm/uaccess.h>	/* for put_user */
 
+
+#define SUCCESS 0
+#define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
+#define BUF_LEN 80		/* Max length of the message from the device */
+
+#define DRIVER_AUTHOR "Team_11"
+#define DRIVER_DESC   "Char Device Driver Loadable Kernel module"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR(DRIVER_AUTHOR);	
+MODULE_DESCRIPTION(DRIVER_DESC);	
+
 /*  
- *  Prototypes - this would normally go in a .h file
+ *  Prototypes for the driver
  */
 int init_module(void);
 void cleanup_module(void);
@@ -19,14 +31,6 @@ static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
-
-#define SUCCESS 0
-#define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
-#define BUF_LEN 80		/* Max length of the message from the device */
-
-/* 
- * Global variables are declared as static, so are global within the file. 
- */
 
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  
@@ -45,36 +49,33 @@ static struct file_operations fops = {
  * This function is called when the module is loaded
  */
 int init_module(void)
-{
-        Major = register_chrdev(0, DEVICE_NAME, &fops);
+{	
+	/*
+	 * Dynamically finding an available Major number for 
+	 * installing the device
+	 */
+    Major = register_chrdev(0, DEVICE_NAME, &fops);
 
 	if (Major < 0) {
 	  printk(KERN_ALERT "Registering char device failed with %d\n", Major);
 	  return Major;
 	}
 
-	printk(KERN_INFO "I was assigned major number %d. To talk to\n", Major);
-	printk(KERN_INFO "the driver, create a dev file with\n");
+	printk(KERN_INFO "Create a dev file with\n");
 	printk(KERN_INFO "'mknod /dev/%s c %d 0'.\n", DEVICE_NAME, Major);
-	printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-	printk(KERN_INFO "the device file.\n");
-	printk(KERN_INFO "Remove the device file and module when done.\n");
 
 	return SUCCESS;
 }
 
-/*
- * This function is called when the module is unloaded
- */
 void cleanup_module(void)
 {
 	/* 
 	 * Unregister the device 
 	 */
 	unregister_chrdev(Major, DEVICE_NAME);
-	/*if (ret < 0)
+	if (ret < 0)
 		printk(KERN_ALERT "Error in unregister_chrdev: %d\n", ret);
-*/
+
 }
 
 /*
@@ -82,8 +83,7 @@ void cleanup_module(void)
  */
 
 /* 
- * Called when a process tries to open the device file, like
- * "cat /dev/mycharfile"
+ * Making the message for the client whenever the device is opened.
  */
 static int device_open(struct inode *inode, struct file *file)
 {

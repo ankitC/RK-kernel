@@ -1,17 +1,30 @@
 /*
- *  *  chardev.c: Creates a read-only char device that says how many times
- *   *  you've read from the dev file
- *    */
+ *  psdev.c: A simple loadable kernel module which gives the 
+ *  information about the processes when read from.
+ */
 
 #include <linux/kernel.h>
-#include <linux/sched.h>
 #include <linux/module.h>
 #include <linux/fs.h>
+#include <linux/sched.h>
+#include <asm/current.h>
 #include <asm/uaccess.h>	/* for put_user */
 
+
+#define SUCCESS 0
+#define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
+#define BUF_LEN 20000		/* Max length of the message from the device */
+
+#define DRIVER_AUTHOR "Team_11"
+#define DRIVER_DESC   "Char Device Driver Loadable Kernel module"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR(DRIVER_AUTHOR);	
+MODULE_DESCRIPTION(DRIVER_DESC);	
+
 /*  
- *   *  Prototypes - this would normally go in a .h file
- *    */
+ *  Prototypes for the driver
+ */
 int init_module(void);
 void cleanup_module(void);
 static int device_open(struct inode *, struct file *);
@@ -19,18 +32,10 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
-#define SUCCESS 0
-#define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
-#define BUF_LEN 20000		/* Max length of the message from the device */
-
-/*
- ** Global variables are declared as static, so are global within the file.
- **/
-
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  
-							 * Used to prevent multiple access to device */
-static char msg[BUF_LEN];	/* The msg the device will give when asked */
+				 * Used to prevent multiple access to device */
+static char *msg;	/* The msg the device will give when asked */
 static char *msg_Ptr;
 
 static struct file_operations fops = {
@@ -40,47 +45,43 @@ static struct file_operations fops = {
 	.release = device_release
 };
 
+
 /*
- *  * This function is called when the module is loaded
- *   */
+ * This function is called when the module is loaded
+ */
 int init_module(void)
-{
-	Major = register_chrdev(0, DEVICE_NAME, &fops);
+{	
+	/*
+	 * Dynamically finding an available Major number for 
+	 * installing the device
+	 */
+    Major = register_chrdev(0, DEVICE_NAME, &fops);
 
 	if (Major < 0) {
-		printk(KERN_ALERT "Registering char device failed with %d\n", Major);
-		return Major;
+	  printk(KERN_ALERT "Registering char device failed with %d\n", Major);
+	  return Major;
 	}
 
-	printk(KERN_INFO "I was assigned major number %d. To talk to\n", Major);
-	printk(KERN_INFO "the driver, create a dev file with\n");
+	printk(KERN_INFO "Create a dev file with\n");
 	printk(KERN_INFO "'mknod /dev/%s c %d 0'.\n", DEVICE_NAME, Major);
-	printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-	printk(KERN_INFO "the device file.\n");
-	printk(KERN_INFO "Remove the device file and module when done.\n");
 
 	return SUCCESS;
 }
 
-/*
- *  * This function is called when the module is unloaded
- *   */
 void cleanup_module(void)
 {
 	/* 
-	 *	 * Unregister the device 
-	 *		 */
+	 * Unregister the device 
+	 */
 	unregister_chrdev(Major, DEVICE_NAME);
+	if (ret < 0)
+		printk(KERN_ALERT "Error in unregister_dev: %d\n", ret);
+
 }
 
-/*
- *  * Methods
- *   */
-
 /* 
- *  * Called when a process tries to open the device file, like
- *   * "cat /dev/mycharfile"
- *    */
+ *  * Called when a process tries to open the device file.
+ */
 static int device_open(struct inode *inode, struct file *file)
 {
 
@@ -89,13 +90,19 @@ static int device_open(struct inode *inode, struct file *file)
 		return -EBUSY;
 
 	Device_Open++;
-
+	msg = kmalloc(BUF_LEN, GFP_KERNELs);
+	char* null_char= "\0";
 	sprintf(msg,"pid\tpr\tname\n");
 
+	/*Reading the task list*/
+	read_lock(&tasklist_lock);
 	for_each_process (task)
 	{
-		sprintf(msg, "%s %i\t%i\t%s\n", msg, task->pid, task->prio, task->comm);
+		sprintf(msg, "%s %d\t%d\t%s\n", msg, task->pid, task->prio, task->comm);
 	}
+	read_unlock(&tasklist_lock);
+
+	sprintf(kernel_buffer,"%s%s", kernel_buffer, null_char);
 	msg_Ptr = msg;
 	try_module_get(THIS_MODULE);
 
@@ -104,52 +111,49 @@ static int device_open(struct inode *inode, struct file *file)
 
 /* 
  *  * Called when a process closes the device file.
- *   */
+ */
 static int device_release(struct inode *inode, struct file *file)
 {
-	Device_Open--;		/* We're now ready for our next caller */
-
+	Device_Open--;
+	kfree(msg);
 	/* 
-	 *	 * Decrement the usage count, or else once you opened the file, you'll
-	 *		 * never get get rid of the module. 
-	 *			 */
+	 *	* Decrement the usage count, or else once you opened the file.
+	 */
 	module_put(THIS_MODULE);
 
-	return 0;
+	return SUCCESS;
 }
 
 /* 
  *  * Called when a process, which already opened the dev file, attempts to
- *   * read from it.
- *    */
-static ssize_t device_read(struct file *filp,	/* see include/linux/fs.h   */
+ *  * read from it.
+ */
+static ssize_t device_read(struct file *filp,
 		char *buffer,	/* buffer to fill with data */
 		size_t length,	/* length of the buffer     */
 		loff_t * offset)
 {
 	/*
-	 *	 * Number of bytes actually written to the buffer 
-	 *		 */
+	 *	 * Number of bytes written to the buffer 
+	 */
 	int bytes_read = 0;
 
 	/*
-	 *	 * If we're at the end of the message, 
-	 *		 * return 0 signifying end of file 
-	 *			 */
+	 *  If we're at the end of the message, 
+	 *  return 0 signifying end of file 
+	 */
 	if (*msg_Ptr == 0)
 		return 0;
 
 	/* 
-	 *	 * Actually put the data into the buffer 
-	 *		 */
+	 *	 Write the data to the buffer.
+	 */
 	while (length && *msg_Ptr) {
 
 		/* 
-		 *		 * The buffer is in the user data segment, not the kernel 
-		 *				 * segment so "*" assignment won't work.  We have to use 
-		 *						 * put_user which copies data from the kernel data segment to
-		 *								 * the user data segment. 
-		 *										 */
+		 * Using the put_user instead of copy_to
+		 * to copy a character at a time.
+		 */
 		put_user(*(msg_Ptr++), buffer++);
 
 		length--;
@@ -157,18 +161,19 @@ static ssize_t device_read(struct file *filp,	/* see include/linux/fs.h   */
 	}
 
 	/* 
-	 *	 * Most read functions return the number of bytes put into the buffer
-	 *		 */
+	 *	 *return the number of bytes put into the buffer
+	 */
 	return bytes_read;
 }
 
 /*  
- *   * Called when a process writes to dev file: echo "hi" > /dev/hello 
- *    */
-	static ssize_t
+ *   * Called when a process writes to dev file,
+ *	 * since we do not do anything, we print the message to 
+ *	 * the kernel and return.
+ */
+static ssize_t
 device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 {
 	printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
 	return -EINVAL;
 }
-
