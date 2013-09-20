@@ -1,4 +1,4 @@
-#include <ncurses.h>
+#include "/home/ankit/ncurses/usr/include/ncurses.h"
 #include <signal.h>
 #include <stdio.h>
 #include <sys/types.h>

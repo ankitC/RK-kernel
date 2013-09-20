@@ -34,7 +34,7 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	int kernel_buffer_len = 0;
 	TASK_NODE* curr; 
 
-	printk( KERN_DEBUG "Entering in.\n");
+//	printk( KERN_DEBUG "Entering in.\n");
 
 	read_lock(&tasklist_lock);
 	for_each_process (task)
@@ -58,12 +58,12 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 		curr->prio = task->prio;
 		curr->next = NULL;
 		strcpy( curr->name, task->comm);
-		printk(KERN_INFO "Adding node\n");
+//		printk(KERN_INFO "Adding node\n");
 		add_node(&list, curr);
 	//	kfree(curr);
 	}
 	read_unlock(&tasklist_lock);
-	printk(KERN_INFO "Added all nodes\n");
+//	printk(KERN_INFO "Added all nodes\n");
 	curr=list;
 	while(curr->next!=NULL)
 	{
