@@ -31,6 +31,7 @@ static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
+static ssize_t device_seek(struct file *, int len);
 
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  
@@ -42,7 +43,8 @@ static struct file_operations fops = {
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
-	.release = device_release
+	.release = device_release,
+	.seek = device_seek
 };
 
 
@@ -90,7 +92,7 @@ static int device_open(struct inode *inode, struct file *file)
 		return -EBUSY;
 
 	Device_Open++;
-	msg = kmalloc(BUF_LEN, GFP_KERNELs);
+	msg = kmalloc(BUF_LEN, GFP_KERNEL);
 	char* null_char= "\0";
 	sprintf(msg,"pid\tpr\tname\n");
 
@@ -175,5 +177,12 @@ static ssize_t
 device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 {
 	printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
+	return -EINVAL;
+}
+
+static ssize_t
+device_seek(struct file *filep, const int pos)
+{
+	printk(KERN_ALERT "Seek called, but not supported.\n");
 	return -EINVAL;
 }
