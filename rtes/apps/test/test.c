@@ -1,5 +1,7 @@
 //A simple Hello world program
 #include <stdio.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
@@ -26,10 +28,10 @@ int count_processes()
 
 int main(void)
 {
-//	int fd2 = open ("/sdcard/t.txt", O_RDWR|O_CREAT);
-//	printf("test, world! I am an Android app. %d\n", fd2);
-//	exit(0);
-	int i = (int) count_processes();
+	int fd2 = open ("/sdcard/t.txt", O_RDWR|O_CREAT);
+	printf("test, world! I am an Android app. %d\n", fd2);
+	exit(0);
+/*	int i = (int) count_processes();
 	char* buffer = calloc( BUFF_SIZE(i), 1);
 
 	if (!list_processes(buffer, BUFF_SIZE(i)))
@@ -37,6 +39,6 @@ int main(void)
 		printf("%s",buffer);
 	}
 
-	free(buffer);
+	free(buffer);*/
 	return 0;
 }

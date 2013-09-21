@@ -1,6 +1,6 @@
 #include <linux/init.h>
 #include <linux/module.h> 
-#include<linux/sched.h>
+#include <linux/sched.h>
 #include <linux/rcupdate.h>
 #include <linux/fdtable.h>
 #include <linux/fs.h> 
@@ -11,7 +11,7 @@
 #include <linux/kernel.h>
 #include <asm/unistd.h>
 #include <asm/current.h>
-
+#include <linux/syscalls.h>
 
 MODULE_LICENSE("GPL");
 
@@ -19,9 +19,27 @@ static char* comm = "";
 module_param(comm, charp, 0);
 MODULE_PARM_DESC(mystring, "A character string");
 
-unsigned long **sys_call_table = (unsigned long **) 0xc000ec84;
+unsigned long **sys_call_table = NULL;
 asmlinkage int (*original_sys_exit)(int);
 asmlinkage int (*original_sys_exit_group)(int);
+
+static unsigned long **aquire_sys_call_table(void)
+{
+	unsigned long int offset = PAGE_OFFSET;
+	unsigned long **sct;
+
+	while (offset < ULLONG_MAX) {
+		sct = (unsigned long **)offset;
+
+		if (sct[__NR_close] == (unsigned long *) sys_close) 
+			return sct;
+
+		offset += sizeof(void *);
+	}
+
+	return NULL;
+}
+
 
 asmlinkage int our_fake_exit_group_function(int error_code)
 {
@@ -82,7 +100,7 @@ asmlinkage int our_fake_exit_function(int error_code)
 
 int init_module(void)
 {
-
+	sys_call_table = aquire_sys_call_table();
 	/*store reference to the original sys_exit call*/
 	original_sys_exit = (void *) sys_call_table[__NR_exit];
 	original_sys_exit_group = (void *) sys_call_table[__NR_exit_group];
