@@ -11,18 +11,26 @@ float calc(float num1, float num2, char operation)
 	float result = 0;
 	long first = num1 * SCALE;
 	long second = num2 * SCALE;
-	int retval = syscall(__NR_calc, first, second, operation) ;
-		
+	long retval = syscall(__NR_calc, first, second, operation) ;
+
 	switch(operation){
 
 		case '+':
+			if ((retval - second) != first)
+				printf("Overflow occured\n");
 		case '-':
+			if ((retval + second) != first)
+				printf("Overflow occured\n");
 			result = ((float) retval) / SCALE;
 			break;
 		case '*':
+			if ((retval / second != first)
+				printf("Overflow occured\n");
 			result = ((float) retval) / (SCALE * SCALE);
 			break;
 		case '/':
+			if ((retval != second * first)
+				printf("Overflow occured\n");
 			result = retval;
 			break;
 		default:
