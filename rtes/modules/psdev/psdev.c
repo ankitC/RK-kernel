@@ -7,22 +7,22 @@
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
 #include <asm/current.h>
 #include <asm/uaccess.h>	/* for put_user */
 
-
 #define SUCCESS 0
 #define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
-#define BUF_LEN 20000		/* Max length of the message from the device */
+#define BUF_LEN 4096		/* Max length of the message from the device */
 
 #define DRIVER_AUTHOR "Team_11"
 #define DRIVER_DESC   "Char Device Driver Loadable Kernel module"
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR(DRIVER_AUTHOR);	
-MODULE_DESCRIPTION(DRIVER_DESC);	
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);
 
-/*  
+/*
  *  Prototypes for the driver
  */
 int init_module(void);
@@ -31,7 +31,7 @@ static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
-static ssize_t device_seek(struct file *, int len);
+static loff_t device_seek(struct file *, loff_t, int);
 
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  
@@ -44,7 +44,7 @@ static struct file_operations fops = {
 	.write = device_write,
 	.open = device_open,
 	.release = device_release,
-	.seek = device_seek
+	.llseek = device_seek,
 };
 
 
@@ -52,9 +52,9 @@ static struct file_operations fops = {
  * This function is called when the module is loaded
  */
 int init_module(void)
-{	
+{
 	/*
-	 * Dynamically finding an available Major number for 
+	 * Dynamically finding an available Major number for
 	 * installing the device
 	 */
     Major = register_chrdev(0, DEVICE_NAME, &fops);
@@ -76,9 +76,6 @@ void cleanup_module(void)
 	 * Unregister the device 
 	 */
 	unregister_chrdev(Major, DEVICE_NAME);
-	if (ret < 0)
-		printk(KERN_ALERT "Error in unregister_dev: %d\n", ret);
-
 }
 
 /* 
@@ -88,23 +85,25 @@ static int device_open(struct inode *inode, struct file *file)
 {
 
 	struct task_struct *task;
+	char* null_char= '\0';
+
 	if (Device_Open)
 		return -EBUSY;
 
 	Device_Open++;
 	msg = kmalloc(BUF_LEN, GFP_KERNEL);
-	char* null_char= "\0";
 	sprintf(msg,"pid\tpr\tname\n");
 
 	/*Reading the task list*/
 	read_lock(&tasklist_lock);
+
 	for_each_process (task)
 	{
 		sprintf(msg, "%s %d\t%d\t%s\n", msg, task->pid, task->prio, task->comm);
 	}
-	read_unlock(&tasklist_lock);
 
-	sprintf(kernel_buffer,"%s%s", kernel_buffer, null_char);
+	read_unlock(&tasklist_lock);
+	sprintf(msg,"%s%s", msg, null_char);
 	msg_Ptr = msg;
 	try_module_get(THIS_MODULE);
 
@@ -139,7 +138,6 @@ static ssize_t device_read(struct file *filp,
 	 *	 * Number of bytes written to the buffer 
 	 */
 	int bytes_read = 0;
-
 	/*
 	 *  If we're at the end of the message, 
 	 *  return 0 signifying end of file 
@@ -180,8 +178,8 @@ device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 	return -EINVAL;
 }
 
-static ssize_t
-device_seek(struct file *filep, const int pos)
+static loff_t
+device_seek(struct file *filep, loff_t pos, int len)
 {
 	printk(KERN_ALERT "Seek called, but not supported.\n");
 	return -EINVAL;

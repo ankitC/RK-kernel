@@ -26,30 +26,15 @@ SYSCALL_DEFINE0(count_processes)
 
 SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 {
-	static char *kernel_buffer;
-	struct task_struct *task;
+	static char *kernel_buffer = NULL;
+	struct task_struct *task = NULL;
 	unsigned long bytes_remaining = 0;
 	char* null_char= "\0";
 	int num_processes = 0;
 	int kernel_buffer_len = 0;
-	TASK_NODE* curr; 
-
-//	printk( KERN_DEBUG "Entering in.\n");
+	TASK_NODE* curr = NULL;
 
 	read_lock(&tasklist_lock);
-	for_each_process (task)
-		num_processes++;
-
-	if((kernel_buffer=kmalloc( BUFF_SIZE(num_processes), \
-			GFP_KERNEL)) == NULL)
-	{
-		printk( KERN_DEBUG "Kmalloc error.\n");
-		return -1;
-	}
-
-	//kernel_buffer_len = num_processes * LINELENGTH;
-
-	sprintf(kernel_buffer,"pid\tpr\tname\n");
 
 	for_each_process (task)
 	{
@@ -58,12 +43,23 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 		curr->prio = task->prio;
 		curr->next = NULL;
 		strcpy( curr->name, task->comm);
-//		printk(KERN_INFO "Adding node\n");
 		add_node(&list, curr);
-	//	kfree(curr);
+		num_processes++;
 	}
+
 	read_unlock(&tasklist_lock);
-//	printk(KERN_INFO "Added all nodes\n");
+
+	if((kernel_buffer=kmalloc( BUFF_SIZE(num_processes), \
+			GFP_KERNEL)) == NULL)
+	{
+		printk( KERN_DEBUG "Kmalloc error.\n");
+		return -1;
+	}
+
+
+	sprintf(kernel_buffer,"pid\tpr\tname\n");
+
+
 	curr=list;
 	while(curr->next!=NULL)
 	{
