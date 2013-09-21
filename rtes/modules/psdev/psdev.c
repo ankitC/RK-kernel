@@ -75,6 +75,7 @@ void cleanup_module(void)
 	/* 
 	 * Unregister the device 
 	 */
+	printk(KERN_DEBUG "Cleaning up the module.\n");
 	unregister_chrdev(Major, DEVICE_NAME);
 }
 
