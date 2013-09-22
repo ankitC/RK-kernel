@@ -1,6 +1,7 @@
 #include <linux/kernel.h>
 #include <linux/linkage.h>
 #include <linux/syscalls.h>
+#include <errno.h>
 
 /*asmlinkage int sys_calc(long first, long second, char operation){
 
@@ -24,6 +25,8 @@ SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)
 			result = first * second;
 			break;
 		case '/':
+			if (second == 0)
+				errno = EDOM;
 			result = first / second;
 			break;
 		default:
