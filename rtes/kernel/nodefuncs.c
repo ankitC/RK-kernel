@@ -3,6 +3,9 @@
 #include <linux/kernel.h>
 #include <linux/nodefuncs.h>
 #include <linux/fs.h>
+
+#define D(x) x
+
 void add_node(TASK_NODE** head, TASK_NODE* curr1)
 {
 	TASK_NODE* curr2 = *head;
@@ -15,7 +18,7 @@ void add_node(TASK_NODE** head, TASK_NODE* curr1)
 
 	if (*head == NULL)
 	{	
-		printk(KERN_INFO "Head Created");
+		D(printk(KERN_INFO "Head Created"));
 		*head = curr1;
 	}
 	else
@@ -24,7 +27,7 @@ void add_node(TASK_NODE** head, TASK_NODE* curr1)
 		{
 			curr1->next = curr2;
 			*head = curr1;
-			printk(KERN_INFO "Node Added");
+			D(printk(KERN_INFO "Node Added"));
 		}
 		else
 		{

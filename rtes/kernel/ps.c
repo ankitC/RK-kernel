@@ -33,6 +33,7 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	int num_processes = 0;
 	int kernel_buffer_len = 0;
 	TASK_NODE* curr = NULL;
+	list=NULL;
 
 	read_lock(&tasklist_lock);
 
