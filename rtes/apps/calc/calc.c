@@ -34,7 +34,11 @@ float calc(float num1, float num2, char operation)
 			result = ((float) retval) / (SCALE * SCALE);
 			break;
 		case '/':
-			//Handler Overflow and Divide by 0
+			if (errno ==  EDOM){
+				printf("DIVIDE BY ZERO\n");
+				break;
+			}
+			//Handler Overflow
 			result = retval;
 			break;
 		default:
