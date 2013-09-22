@@ -6,6 +6,7 @@
 
 #define D(x) x
 
+/*Addind a node in a sorted order of descending priorities*/
 void add_node(TASK_NODE** head, TASK_NODE* curr1)
 {
 	TASK_NODE* curr2 = *head;
@@ -17,7 +18,7 @@ void add_node(TASK_NODE** head, TASK_NODE* curr1)
 	}
 
 	if (*head == NULL)
-	{	
+	{
 		D(printk(KERN_INFO "Head Created"));
 		*head = curr1;
 	}
@@ -35,7 +36,7 @@ void add_node(TASK_NODE** head, TASK_NODE* curr1)
 				temp=curr2;
 				curr2= curr2->next;
 			}
-			
+
 			if(curr2)
 			{
 				curr1->next = curr2;
@@ -45,6 +46,7 @@ void add_node(TASK_NODE** head, TASK_NODE* curr1)
 	}
 }
 
+/*Delete the constructed linked list*/
 void delete_linked_list (TASK_NODE** head)
 {
 	TASK_NODE* curr = *head;
