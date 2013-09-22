@@ -4,8 +4,8 @@
 #include <linux/sched.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
+#include <linux/nodefuncs.h>
 #include <asm/uaccess.h>
-#include "linked_list.h"
 
 #define LINELENGTH 43
 #define BUFF_SIZE(x) (x * LINELENGTH + 1)

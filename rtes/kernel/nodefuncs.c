@@ -1,17 +1,8 @@
 /*Our custom linked list*/
 
 #include <linux/kernel.h>
-
-typedef struct task_node
-{
-	int pid;
-	int prio;
-	char name[32];
-	struct task_node* next;
-
-}TASK_NODE;
-
-
+#include <linux/nodefuncs.h>
+#include <linux/fs.h>
 void add_node(TASK_NODE** head, TASK_NODE* curr1)
 {
 	TASK_NODE* curr2 = *head;
