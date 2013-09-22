@@ -16,21 +16,29 @@ float calc(float num1, float num2, char operation)
 	switch(operation){
 
 		case '+':
-			if ((retval - second) != first)
+			if ((retval - second) != first){
 				printf("Overflow occured\n");
+				break;
+			}
+			result = ((float) retval) / SCALE;
+			break;
 		case '-':
-			if ((retval + second) != first)
+			if ((retval + second) != first){
 				printf("Overflow occured\n");
+				break;
+			}
 			result = ((float) retval) / SCALE;
 			break;
 		case '*':
-			if ((retval / second != first)
-				printf("Overflow occured\n");
+			//Handle Overflow
 			result = ((float) retval) / (SCALE * SCALE);
 			break;
 		case '/':
-			if ((retval != second * first)
-				printf("Overflow occured\n");
+			if (errno ==  EDOM){
+				printf("DIVIDE BY ZERO\n");
+				break;
+			}
+			//Handler Overflow
 			result = retval;
 			break;
 		default:
