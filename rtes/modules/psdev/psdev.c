@@ -11,7 +11,7 @@
 #include <linux/slab.h>
 #include <asm/current.h>
 #include <asm/uaccess.h>	/* for put_user */
-
+#define D(x) x
 #define SUCCESS 0
 #define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
 #define BUF_LEN 4096		/* Max length of the message from the device */
@@ -88,11 +88,14 @@ static int device_open(struct inode *inode, struct file *file)
 {
 
 	struct task_struct *task;
-	char* null_char= '\0';
 
+	D(printk(KERN_ALERT "opening the device.\n"));
 	mutex_lock(&device_mutex);
 	if (Device_Open)
+	{
+		mutex_unlock(&device_mutex);
 		return -EBUSY;
+	}
 
 	mutex_unlock(&device_mutex);
 	Device_Open++;
@@ -120,6 +123,7 @@ static int device_open(struct inode *inode, struct file *file)
  */
 static int device_release(struct inode *inode, struct file *file)
 {
+	D(printk(KERN_ALERT "releasin the device.\n"));
 	mutex_lock(&device_mutex);
 	Device_Open--;
 	mutex_unlock(&device_mutex);
@@ -145,6 +149,7 @@ static ssize_t device_read(struct file *filp,
 	 *	 * Number of bytes written to the buffer 
 	 */
 	int bytes_read = 0;
+	D(printk(KERN_ALERT "reading from device.\n"));
 	/*
 	 *  If we're at the end of the message, 
 	 *  return 0 signifying end of file 
