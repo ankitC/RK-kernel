@@ -9,13 +9,15 @@
 
 #define LINELENGTH 43
 #define BUFF_SIZE(x) (x * LINELENGTH + 1)
-#define d(x) x
+#define D(x) x
 
-static TASK_NODE* list;
-
-SYSCALL_DEFINE0(count_processes)
+/*
+ * Iterates through the existing processes in the system
+ * and returns the total number of processes
+ */
+unsigned int do_count_processes(void)
 {
-	unsigned short num_processes = 0;
+	unsigned int num_processes = 0;
 	struct task_struct *task;
 
 	read_lock(&tasklist_lock);
@@ -26,9 +28,14 @@ SYSCALL_DEFINE0(count_processes)
 	return num_processes;
 }
 
-SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
+/*
+ * The syscall copies the PIDs, priorities and names of the
+ * currently running processes to user space memory.
+ */
+unsigned long do_list_processes(char* user_buffer, int len)
 {
 	static char *kernel_buffer = NULL;
+	TASK_NODE* list = NULL;
 	struct task_struct *task = NULL;
 	unsigned long bytes_remaining = 0;
 	char* null_char= "\0";
@@ -37,7 +44,7 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	TASK_NODE* curr = NULL;
 	list=NULL;
 
-	/*Locking the data structure*/
+	//Locking the data structure
 	read_lock(&tasklist_lock);
 
 	for_each_process (task)
@@ -52,7 +59,7 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	}
 
 	read_unlock(&tasklist_lock);
-	/*End of data structure access*/
+	//End of data structure access
 
 	if((kernel_buffer=kmalloc( BUFF_SIZE(num_processes), \
 			GFP_KERNEL)) == NULL)
@@ -65,16 +72,19 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	sprintf(kernel_buffer,"pid\tpr\tname\n");
 
 
-	curr=list;
+	curr = list;
+
 	while(curr->next!=NULL)
 	{
 		sprintf(kernel_buffer, "%s %i\t%i\t%s\n", kernel_buffer, curr->pid,\
 				curr->prio, curr->name);
 		curr=curr->next;
 	}
-	d(printk(KERN_INFO "Made the message\n"));
+
+	D(printk(KERN_INFO "Made the message\n"));
 	delete_linked_list(&list);
-	d(printk(KERN_INFO "finished deleting\n"));
+	D(printk(KERN_INFO "finished deleting\n"));
+
 	sprintf(kernel_buffer,"%s%s", kernel_buffer, null_char);
 	kernel_buffer_len = strlen(kernel_buffer);
 
@@ -84,4 +94,20 @@ SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
 	kfree(kernel_buffer);
 
 	return bytes_remaining;
+}
+
+/*
+ *System call definition for count processes
+ */
+SYSCALL_DEFINE0(count_processes)
+{
+	return do_count_processes();
+}
+
+/*
+ *System call definition for list processes
+ */
+SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)
+{
+	return do_list_processes(user_buffer, len);
 }
