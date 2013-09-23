@@ -3,6 +3,7 @@
  *  information about the processes when read from.
  */
 
+#include <linux/mutex.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/fs.h>
@@ -32,6 +33,7 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 static loff_t device_seek(struct file *, loff_t, int);
+struct mutex device_mutex;
 
 static int Major;		/* Major number assigned to our device driver */
 static int Device_Open = 0;	/* Is device open?  
@@ -58,7 +60,7 @@ int init_module(void)
 	 * installing the device
 	 */
     Major = register_chrdev(0, DEVICE_NAME, &fops);
-
+	mutex_init(&device_mutex);
 	if (Major < 0) {
 	  printk(KERN_ALERT "Registering char device failed with %d\n", Major);
 	  return Major;
@@ -72,9 +74,9 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-	/* 
-	 * Unregister the device 
-	 */
+
+	//Unregister the device /
+	mutex_destroy(&device_mutex);
 	printk(KERN_DEBUG "Cleaning up the module.\n");
 	unregister_chrdev(Major, DEVICE_NAME);
 }
@@ -88,9 +90,11 @@ static int device_open(struct inode *inode, struct file *file)
 	struct task_struct *task;
 	char* null_char= '\0';
 
+	mutex_lock(&device_mutex);
 	if (Device_Open)
 		return -EBUSY;
 
+	mutex_unlock(&device_mutex);
 	Device_Open++;
 	msg = kmalloc(BUF_LEN, GFP_KERNEL);
 	sprintf(msg,"pid\tpr\tname\n");
@@ -116,7 +120,9 @@ static int device_open(struct inode *inode, struct file *file)
  */
 static int device_release(struct inode *inode, struct file *file)
 {
+	mutex_lock(&device_mutex);
 	Device_Open--;
+	mutex_unlock(&device_mutex);
 	kfree(msg);
 	/* 
 	 *	* Decrement the usage count, or else once you opened the file.
@@ -143,8 +149,11 @@ static ssize_t device_read(struct file *filp,
 	 *  If we're at the end of the message, 
 	 *  return 0 signifying end of file 
 	 */
+	mutex_lock(&device_mutex);
 	if (*msg_Ptr == 0)
+	{
 		return 0;
+	}
 
 	/* 
 	 *	 Write the data to the buffer.
@@ -164,6 +173,7 @@ static ssize_t device_read(struct file *filp,
 	/* 
 	 *	 *return the number of bytes put into the buffer
 	 */
+	mutex_unlock(&device_mutex);
 	return bytes_read;
 }
 
