@@ -108,7 +108,7 @@ static int device_open(struct inode *inode, struct file *file)
 	}
 
 	read_unlock(&tasklist_lock);
-	sprintf(msg,"%s%s", msg, null_char);
+//	sprintf(msg,"%s%s", msg, null_char);
 	msg_Ptr = msg;
 	try_module_get(THIS_MODULE);
 
@@ -152,6 +152,7 @@ static ssize_t device_read(struct file *filp,
 	mutex_lock(&device_mutex);
 	if (*msg_Ptr == 0)
 	{
+		mutex_unlock(&device_mutex);
 		return 0;
 	}
 
