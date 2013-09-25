@@ -16,13 +16,14 @@
 static sigset_t mask;
 static int exit_process = 0;
 
+
 int list_processes(char* buffer, int len)
 {
 	int retval = 0;
-	if ((retval = syscall(__NR_list_processes, buffer, len)) == 0)
-		return 0;
-	else
-		return -1;
+	retval = syscall(__NR_list_processes, buffer, len);
+
+		printf("Number of bytes returned= %d\n", retval);
+		return retval;
 }
 
 int count_processes()
@@ -49,7 +50,7 @@ int main(void) {
 	
 	int i = (int) count_processes();
 	char* buffer = calloc( BUFF_SIZE(i), 1);
-
+	int retval=0;
 	/*  Initialize ncurses  */
 	if ( (mainwin = initscr()) == NULL ) {
 		fprintf(stderr, "Error initialising ncurses.\n");
@@ -58,13 +59,13 @@ int main(void) {
 	
 	while(!exit_process)
 	{
-		if (!list_processes(buffer, BUFF_SIZE(i)))
+		if ((retval = list_processes(buffer, BUFF_SIZE(i)) > 0))
 		{
 			printw("%s",buffer);
 		}
 
 		refresh();
-		sleep(1);
+		sleep(2);
 		clear();
 	}
 
