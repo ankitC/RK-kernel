@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
+#include <errno.h>
 
 #define SCALE 1000
+#define FIXED_SCALE 10000
 
 /*Wrapper for calc*/
 float calc(float num1, float num2, char operation)
@@ -16,30 +18,36 @@ float calc(float num1, float num2, char operation)
 	switch(operation){
 
 		case '+':
-			if ((retval - second) != first){
+			if (retval == 0xDEADBEEF){
 				printf("Overflow occured\n");
 				break;
 			}
 			result = ((float) retval) / SCALE;
 			break;
 		case '-':
-			if ((retval + second) != first){
+			if (retval == 0xDEADBEEF){
 				printf("Overflow occured\n");
 				break;
 			}
 			result = ((float) retval) / SCALE;
 			break;
 		case '*':
-			//Handle Overflow
+			if (retval == 0xDEADBEEF){
+				printf("Overflow occured\n");
+				break;
+			}
 			result = ((float) retval) / (SCALE * SCALE);
 			break;
 		case '/':
-			if (errno ==  EDOM){
+			if (second ==  0){
 				printf("DIVIDE BY ZERO\n");
 				break;
 			}
-			//Handler Overflow
-			result = retval;
+			if (retval == 0xDEADBEEF){
+				printf("Overflow occured\n");
+				break;
+			}
+			result = ((float) retval) / FIXED_SCALE;
 			break;
 		default:
 			printf("Operation not supported\n");
