@@ -1,4 +1,4 @@
-//A simple Hello world program
+//A ps driver
 #include <stdio.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -25,10 +25,14 @@ int count_processes()
 
 int main(void)
 {
-	int fd2 = open ("/sdcard/t.txt", O_RDWR|O_CREAT);
-	printf("test, world! I am an Android app. %d\n", fd2);
+	//int fd2 = open ("/sdcard/t.txt", O_RDWR|O_CREAT);
+	//printf("test, world! I am an Android app. %d\n", fd2);
 	int i = (int) count_processes();
+	//int i=1;
 	char* buffer = calloc( BUFF_SIZE(i), 1);
+//	char* buffer=NULL;
+//	buffer=130;
+//	int i=5;
 	int retval=0;
 	if ((retval=list_processes(buffer, BUFF_SIZE(i)))>0)
 	{
