@@ -11,6 +11,7 @@
 #include <linux/slab.h>
 #include <asm/current.h>
 #include <asm/uaccess.h>	/* for put_user */
+
 #define D(x) x
 #define SUCCESS 0
 #define DEVICE_NAME "psdev"	/* Dev name as it appears in /proc/devices   */
@@ -77,7 +78,7 @@ void cleanup_module(void)
 
 	//Unregister the device /
 	mutex_destroy(&device_mutex);
-	printk(KERN_DEBUG "Cleaning up the module.\n");
+	D(printk(KERN_INFO "Cleaning up the module.\n"));
 	unregister_chrdev(Major, DEVICE_NAME);
 }
 
@@ -89,7 +90,7 @@ static int device_open(struct inode *inode, struct file *file)
 
 	struct task_struct *task;
 
-	D(printk(KERN_ALERT "opening the device.\n"));
+	D(printk(KERN_INFO "opening the device.\n"));
 	mutex_lock(&device_mutex);
 	if (Device_Open)
 	{
@@ -123,7 +124,7 @@ static int device_open(struct inode *inode, struct file *file)
  */
 static int device_release(struct inode *inode, struct file *file)
 {
-	D(printk(KERN_ALERT "releasin the device.\n"));
+	D(printk(KERN_INFO "Releasing the psdev device.\n"));
 	mutex_lock(&device_mutex);
 	Device_Open--;
 	mutex_unlock(&device_mutex);
@@ -149,12 +150,20 @@ static ssize_t device_read(struct file *filp,
 	 *	 * Number of bytes written to the buffer 
 	 */
 	int bytes_read = 0;
-	D(printk(KERN_ALERT "reading from device.\n"));
+	D(printk(KERN_INFO "reading from device.\n"));
 	/*
 	 *  If we're at the end of the message, 
 	 *  return 0 signifying end of file 
 	 */
 	mutex_lock(&device_mutex);
+	
+	if (!access_ok(VERIFY_WRITE, buffer, length))
+	{
+		mutex_unlock(&device_mutex);
+		D(printk(KERN_ALERT "Invalid pointer from the user.\n"));
+		return -1;
+	}
+
 	if (*msg_Ptr == 0)
 	{
 		mutex_unlock(&device_mutex);
@@ -191,13 +200,13 @@ static ssize_t device_read(struct file *filp,
 static ssize_t
 device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 {
-	printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
+	D(printk(KERN_INFO "Sorry, this operation isn't supported.\n"));
 	return -EINVAL;
 }
 
 static loff_t
 device_seek(struct file *filep, loff_t pos, int len)
 {
-	printk(KERN_ALERT "Seek called, but not supported.\n");
+	D(printk(KERN_INFO "Seek called, but not supported.\n"));
 	return -EINVAL;
 }
