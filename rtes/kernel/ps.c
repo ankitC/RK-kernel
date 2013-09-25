@@ -93,7 +93,12 @@ unsigned long do_list_processes(char* user_buffer, int len)
 
 	kfree(kernel_buffer);
 
-	return bytes_remaining;
+	if(bytes_remaining !=0)
+		return -EFAULT;
+	else if(len <= kernel_buffer_len)
+		return len;
+	else
+		return kernel_buffer_len;
 }
 
 /*
