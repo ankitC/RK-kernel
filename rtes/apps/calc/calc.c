@@ -61,7 +61,7 @@ void main(int argc, char** argv){
 	float num1, num2;
 	float result = 0;
 	char op;
-	
+
 	num1 = atof(argv[1]);
 	num2 = atof(argv[3]);
 	op = *argv[2];
