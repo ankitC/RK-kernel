@@ -13,7 +13,14 @@
 #include <asm/current.h>
 #include <linux/syscalls.h>
 
+#define DRIVER_AUTHOR "Team_11"
+#define DRIVER_DESC   "Cleanup module"
+#define D(x) x
+
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);
+
 
 static char* comm = "";
 module_param(comm, charp, 0);
@@ -51,24 +58,26 @@ asmlinkage int our_fake_exit_group_function(int error_code)
 	char *cwd;
 	char *buf = (char *)kmalloc(GFP_KERNEL,100*sizeof(char));
 
-	printk(KERN_ALERT "INSIDE FAKE EXIT_GROUP");
-	printk(KERN_ALERT "Name of the current task  %s\n", current->comm);
+	D(printk(KERN_INFO "INSIDE FAKE EXIT_GROUP"));
+	D(printk(KERN_INFO "Name of the current task  %s\n", current->comm));
 	current_files = current->files;
 	files_table = files_fdtable(current_files);
 
 	if (strstr (current->comm, comm))
 	{
-		while(files_table->fd[i] != NULL)
-		{ 
-			files_path = files_table->fd[i]->f_path;
-			cwd = d_path(&files_path,buf,100*sizeof(char));
-
-			printk(KERN_ALERT "Open file with fd %d  %s", i, cwd);
-
+		while(i < files_table->max_fds)
+		{
+			if(files_table->fd[i] != NULL)
+			{
+				files_path = files_table->fd[i]->f_path;
+				cwd = d_path(&files_path,buf,100*sizeof(char));
+				printk(KERN_ALERT "Open file with fd %d  %s ", i, cwd);
+			}
 			i++;
 		}/*call original sys_exit and return its value*/}
 	return original_sys_exit_group(error_code);
 }
+
 asmlinkage int our_fake_exit_function(int error_code)
 {
 
@@ -79,20 +88,21 @@ asmlinkage int our_fake_exit_function(int error_code)
 	char *cwd;
 	char *buf = (char *)kmalloc(GFP_KERNEL,100*sizeof(char));
 
-	printk(KERN_ALERT "INSIDE FAKE EXIT");
-	printk(KERN_ALERT "Name of the current task  %s\n", current->comm);
+	D(printk(KERN_INFO "INSIDE FAKE EXIT"));
+	D(printk(KERN_INFO "Name of the current task  %s\n", current->comm));
 	current_files = current->files;
 	files_table = files_fdtable(current_files);
 
 	if (strstr (current->comm, comm))
 	{
-		while(files_table->fd[i] != NULL)
-		{ 
-			files_path = files_table->fd[i]->f_path;
-			cwd = d_path(&files_path,buf,100*sizeof(char));
-
-			printk(KERN_ALERT "Open file with fd %d  %s", i, cwd);
-
+		while(i < files_table->max_fds)
+		{
+			if(files_table->fd[i] != NULL)
+			{
+				files_path = files_table->fd[i]->f_path;
+				cwd = d_path(&files_path,buf,100*sizeof(char));
+				printk(KERN_ALERT "Open file with fd %d  %s ", i, cwd);
+			}
 			i++;
 		}/*call original sys_exit and return its value*/}
 	return original_sys_exit(error_code);
