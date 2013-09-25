@@ -6,7 +6,6 @@
 
 int main(void)
 {
-
 	printf("Hello, world! I am an Android app.\n");
 	return 0;
 }
