@@ -405,6 +405,8 @@
 #define __NR_calc			(__NR_SYSCALL_BASE+376)
 #define __NR_count_processes (__NR_SYSCALL_BASE+377)
 #define __NR_list_processes	(__NR_SYSCALL_BASE+378)
+#define __NR_set_reserve	(__NR_SYSCALL_BASE+379)
+#define __NR_cancel_reserve	(__NR_SYSCALL_BASE+380)
 /*
  * The following SWIs are ARM private.
  */

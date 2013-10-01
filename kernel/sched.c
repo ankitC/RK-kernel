@@ -4254,6 +4254,26 @@ pick_next_task(struct rq *rq)
 
 	BUG(); /* the idle class will always have a runnable task */
 }
+/*
+ * function to check whether the spent_budget of the process 
+ */
+static inline void check_reservation(struct task_struct *prev)
+{
+	if (prev->reserve_process == NULL)
+		return;
+	else
+	{
+		prev->reserve_process->spent_budget = timespec_add(prev->reserve_process->spent_budget, ns_to_timespec(prev->stime - prev->reserve_process->prev_stime));
+		prev->reserve_process->spent_budget = timespec_add(prev->reserve_process->spent_budget, ns_to_timespec(prev->utime - prev->reserve_process->prev_utime));
+		prev->reserve_process->prev_stime = prev->stime;
+		prev->reserve_process->prev_utime = prev->utime;
+	
+		if (timespec_compare(&prev->reserve_process->spent_budget, &prev->reserve_process->C ))
+		{
+			printk(KERN_INFO "Budget overspent\n");
+		}	
+	}
+}
 
 /*
  * __schedule() is the main scheduler function.

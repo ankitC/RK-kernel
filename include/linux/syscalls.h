@@ -847,4 +847,7 @@ asmlinkage long sys_setns(int fd, int nstype);
 asmlinkage long sys_calc(long first, long second, char operation);
 asmlinkage long sys_count_processes(void);
 asmlinkage long sys_list_processes(char* user_buffer, int len);
+asmlinkage long sys_set_reserve(pid_t pid, struct timespec C, struct timespec T, \
+					  unsigned int rt_priority);
+asmlinkage long sys_cancel_reserve(pid_t pid);
 #endif

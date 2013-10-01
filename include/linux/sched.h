@@ -90,7 +90,7 @@ struct sched_param {
 #include <linux/task_io_accounting.h>
 #include <linux/latencytop.h>
 #include <linux/cred.h>
-
+#include <linux/reserve_framework.h>
 #include <asm/processor.h>
 
 struct exec_domain;
@@ -1345,6 +1345,8 @@ struct task_struct {
 
 	cputime_t utime, stime, utimescaled, stimescaled;
 	cputime_t gtime;
+
+	struct reserve_obj *reserve_process;  
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
 	cputime_t prev_utime, prev_stime;
 #endif
