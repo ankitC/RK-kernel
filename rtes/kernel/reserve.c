@@ -40,7 +40,12 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		read_unlock(&tasklist_lock);
 
 	}
-	
+
+	if (task->reserve_process == NULL)
+	{
+		task->reserve_process = (struct reserve_obj *) kmalloc(sizeof\
+				(struct reserve_obj), GFP_KERNEL);
+	}
 	task->reserve_process->C = C;
 	task->reserve_process->T = T;
 	task->reserve_process->spent_budget.tv_sec = 0;

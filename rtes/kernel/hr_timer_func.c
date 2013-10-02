@@ -25,7 +25,7 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	current->reserve_process->spent_budget.tv_sec = 0;
 	current->reserve_process->spent_budget.tv_nsec = 0;
 
-	ktime_t forward_time = ktime_set( 0, timespec_to_ns((const struct timespec)current->reserve_process->T);
+	ktime_t forward_time = ktime_set( 0, timespec_to_ns(&current->reserve_process->T));
 	ktime_t curr_time = ktime_get();
 
 	hrtimer_forward(timer, curr_time, forward_time);
