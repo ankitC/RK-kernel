@@ -19,20 +19,27 @@ int main(char **argc, char** argv)
 
 	pid_t pid = getpid();
 
+	printf("In user pid=%u\n", pid);
 	struct timespec ctime;
-	ctime.tv_sec = 0;
-	ctime.tv_nsec = 25000000; /*25ms*/
+	ctime.tv_sec = 1;
+	ctime.tv_nsec = 250000000; /*25ms*/
 
 	struct timespec ttime;
-	ttime.tv_sec = 0;
-	ttime.tv_nsec = 100000000; /*100ms*/
+	ttime.tv_sec = 2;
+	ttime.tv_nsec = 10000000; /*100ms*/
 
 	unsigned int prio = 120;
 
-	//syscall(__NR_set_reserve, pid, ctime, ttime, prio );
+	if(!syscall(__NR_set_reserve, pid, ctime, ttime, prio ))
+		printf("in back user\n");
 
-	while(1){
-		waitfor(25);
+int  n = 0;	
+	while(n++ < 10){
+		int i, result=0;
+		for(i=0; i<100000; i++){
+			result=result+i;
+		}
+		waitfor(2000);
 	}
 	return 1;
 }

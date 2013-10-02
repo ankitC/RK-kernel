@@ -1346,7 +1346,7 @@ struct task_struct {
 	cputime_t utime, stime, utimescaled, stimescaled;
 	cputime_t gtime;
 
-	struct reserve_obj *reserve_process;  
+	struct reserve_obj* reserve_process;  
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
 	cputime_t prev_utime, prev_stime;
 #endif
