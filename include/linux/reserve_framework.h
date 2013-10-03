@@ -7,6 +7,7 @@
 
 struct reserve_obj
 {
+	char name[20];
 	cputime_t prev_stime;
 	cputime_t prev_utime;
 	pid_t pid;
