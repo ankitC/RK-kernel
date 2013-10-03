@@ -25,7 +25,7 @@ int main(char **argc, char** argv)
 	ctime.tv_nsec = 250000000; /*25ms*/
 
 	struct timespec ttime;
-	ttime.tv_sec = 2;
+	ttime.tv_sec = 5;
 	ttime.tv_nsec = 10000000; /*100ms*/
 
 	unsigned int prio = 120;
@@ -34,13 +34,18 @@ int main(char **argc, char** argv)
 		printf("in back user\n");
 
 int  n = 0;	
-	while(n++ < 10){
-		int i, result=0;
-		for(i=0; i<100000; i++){
-			result=result+i;
-		}
-		waitfor(2000);
+int a=5000;	
+while(n < 10){
+		//waitfor(2000);
+	while(a--);
+		//sleep(3);
+		printf("n=%d\n",n);
+		n++;
+		a=500;
 	}
+
+	syscall(__NR_cancel_reserve, pid );
+		printf("Finished the cancel.\n");
 	return 1;
 }
 

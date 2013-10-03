@@ -50,8 +50,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process->T = T;
 	task->reserve_process->spent_budget.tv_sec = 0;
 	task->reserve_process->spent_budget.tv_nsec = 0;
+	task->reserve_process->prev_setime = 11;
 	task->reserve_process->hr_timer = *(init_hrtimer(T));
-
+	task->reserve_process->pid = pid;
+	task->reserve_process->prev_stime = 10;
+	task->reserve_process->prev_utime = 14;
 
 	printk(KERN_INFO "set all reserves pid=%u\n", pid);
 	return 0;
