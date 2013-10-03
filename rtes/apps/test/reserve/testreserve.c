@@ -36,9 +36,9 @@ int main(char **argc, char** argv)
 int  n = 0;	
 int a=5000;	
 while(n < 10){
-		//waitfor(2000);
+		waitfor(2000);
 	while(a--);
-		//sleep(3);
+		sleep(3);
 		printf("n=%d\n",n);
 		n++;
 		a=500;

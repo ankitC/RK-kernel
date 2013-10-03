@@ -19,7 +19,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
 	printk(KERN_INFO "in set resrve\n");
-	struct task_struct *task;
+	struct task_struct *task = NULL;
 
 	if (pid == 0)
 	{
@@ -39,24 +39,29 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		}
 		read_unlock(&tasklist_lock);
 
+		if (!task)
+			return -1;
 	}
 
-	if (task->reserve_process == NULL)
-	{
+	//if (task->reserve_process == NULL)
+//	{
 		task->reserve_process = (struct reserve_obj *) kmalloc(sizeof\
 				(struct reserve_obj), GFP_KERNEL);
-	}
-	strcpy(task->reserve_process->name, "gruop1 1");
+//	}
+	//else
+//	{
+//		do_cancel_reserve(pid);
+//	}
+	strcpy(task->reserve_process->name, "gruop11");
+
+	task->reserve_process->pid = pid;
+	task->reserve_process->monitored_process = task;
 	task->reserve_process->C = C;
 	task->reserve_process->T = T;
 	task->reserve_process->spent_budget.tv_sec = 0;
 	task->reserve_process->spent_budget.tv_nsec = 0;
-	task->reserve_process->prev_setime = 11;
-	task->reserve_process->pid = pid;
-	task->reserve_process->prev_stime = 10;
-	task->reserve_process->prev_utime = 14;
-
 	init_hrtimer(task->reserve_process);
+	task->reserve_process->prev_setime = 11;
 	printk(KERN_INFO "set all reserves pid=%u\n", pid);
 	return 0;
 }
