@@ -43,25 +43,18 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			return -1;
 	}
 
-	//if (task->reserve_process == NULL)
-//	{
-		task->reserve_process = (struct reserve_obj *) kmalloc(sizeof\
-				(struct reserve_obj), GFP_KERNEL);
-//	}
-	//else
-//	{
-//		do_cancel_reserve(pid);
-//	}
-	strcpy(task->reserve_process->name, "gruop11");
+	if (task->under_reservation)
+		cleanup_hrtimer(&task->reserve_process.hr_timer);
 
-	task->reserve_process->pid = pid;
-	task->reserve_process->monitored_process = task;
-	task->reserve_process->C = C;
-	task->reserve_process->T = T;
-	task->reserve_process->spent_budget.tv_sec = 0;
-	task->reserve_process->spent_budget.tv_nsec = 0;
-	init_hrtimer(task->reserve_process);
-	task->reserve_process->prev_setime = 11;
+	strcpy(task->reserve_process.name, "gruop11");
+
+	task->under_reservation = 1;
+	task->reserve_process.pid = pid;
+	task->reserve_process.monitored_process = task;
+	task->reserve_process.C = C;
+	task->reserve_process.T = T;
+	task->reserve_process.spent_budget = C;
+	init_hrtimer(&task->reserve_process);
 	printk(KERN_INFO "set all reserves pid=%u\n", pid);
 	return 0;
 }
@@ -90,8 +83,7 @@ unsigned long do_cancel_reserve(pid_t pid)
 		read_unlock(&tasklist_lock);
 	}
 
-	cleanup_hrtimer(&task->reserve_process->hr_timer);
-	task->reserve_process = NULL;
+	cleanup_hrtimer(&task->reserve_process.hr_timer);
 	return 0;
 }
 

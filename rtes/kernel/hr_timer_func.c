@@ -14,30 +14,24 @@ struct hrtimer *hr;
 
 static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 {
-	pid_t pid;
 	struct reserve_obj* reservation_detail=container_of(timer,\
 		   	struct reserve_obj, hr_timer);
 
-	pid = reservation_detail->pid;
-
-
-	printk(KERN_INFO "my_hrtimer_callback pid %d\n", \
-			reservation_detail->pid);
-	//current->reserve_process->spent_budget.tv_sec = 0;
-	//current->reserve_process->spent_budget.tv_nsec = 0;
+	ktime_t forward_time, curr_time;
 	printk(KERN_INFO "name: %s pid: %u prevtime %llu \n Runtime=%llu\n"\
-			,reservation_detail->name, pid,\
+			,reservation_detail->name, reservation_detail->pid,\
 			reservation_detail->prev_setime, \
 			( reservation_detail->monitored_process->se.sum_exec_runtime - \
 			  reservation_detail->prev_setime));
 
-	reservation_detail->prev_setime = reservation_detail->monitored_process->\
-									  se.sum_exec_runtime;
+	printk(KERN_INFO "Budget spent %llu", timespec_to_ns(&reservation_detail->spent_budget));
 
-	ktime_t forward_time = ktime_set(reservation_detail->T.tv_sec\
+	reservation_detail->spent_budget = reservation_detail->C;
+
+	forward_time = ktime_set(reservation_detail->T.tv_sec\
 	, reservation_detail->T.tv_nsec);
 
-	ktime_t curr_time = ktime_get();
+	curr_time = ktime_get();
 
 	hrtimer_forward(timer, curr_time, forward_time);
 		return HRTIMER_RESTART;
@@ -64,13 +58,14 @@ void init_hrtimer( struct reserve_obj * res_p)
 
 void cleanup_hrtimer(struct hrtimer *hr_timer )
 {
-	int ret;
+	struct reserve_obj* reservation_detail=container_of(hr_timer,\
+		   	struct reserve_obj, hr_timer);
 
-	ret = hrtimer_cancel( hr_timer );
-	kfree(hr_timer);
-	//if (ret) printk(KERN_INFO "The timer was still in use...\n");
-
-	//printk(KERN_INFO "HR Timer uninstalling\n");
+	if (!hrtimer_cancel( hr_timer ))
+	{
+		printk(KERN_INFO "Failed to cancel hr_timer\n");
+	}
+	reservation_detail->monitored_process->under_reservation = 0;
 
 	return;
 }

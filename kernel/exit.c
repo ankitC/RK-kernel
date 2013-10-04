@@ -51,6 +51,7 @@
 #include <trace/events/sched.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/oom.h>
+#include <linux/hr_timer_func.h>
 
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
@@ -1042,6 +1043,12 @@ NORET_TYPE void do_exit(long code)
 	exit_rcu();
 	/* causes final put_task_struct in finish_task_switch(). */
 	tsk->state = TASK_DEAD;
+
+	/* Calling cleanup for hr_timer only for parent
+	 * Child never has under_reservation flag set*/
+	if(tsk->under_reservation)
+		cleanup_hrtimer(&tsk->reserve_process.hr_timer);
+
 	schedule();
 	BUG();
 	/* Avoid "noreturn function does return".  */
