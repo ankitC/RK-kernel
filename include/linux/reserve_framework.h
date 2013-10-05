@@ -11,6 +11,7 @@ struct reserve_obj
 	pid_t pid;
 	unsigned long long prev_setime;
 	struct task_struct *monitored_process;
+	int signal_sent;
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;

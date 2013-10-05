@@ -4280,11 +4280,15 @@ static inline void check_reservation(struct task_struct *prev)
 
 		if (timespec_to_ns(&parent_process->reserve_process.spent_budget) < 0)
 		{
-			info.si_signo = SIGEXCESS;
-			info.si_code = SI_KERNEL;
-			info.si_errno = 0;
-			printk(KERN_INFO "Budget overspent\n");
-			send_sig_info(SIGEXCESS, &info, parent_process);
+			if(!parent_process->reserve_process.signal_sent)
+			{
+				info.si_signo = SIGEXCESS;
+				info.si_code = SI_KERNEL;
+				info.si_errno = 0;
+				printk(KERN_INFO "Budget overspent\n");
+				parent_process->reserve_process.signal_sent = 1;
+				send_sig_info(SIGEXCESS, &info, parent_process);
+			}
 		}
 	}
 }

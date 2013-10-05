@@ -18,9 +18,9 @@
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
-	printk(KERN_INFO "in set resrve\n");
 	struct task_struct *task = NULL;
 
+	printk(KERN_INFO "in set resrve\n");
 	if (pid == 0)
 	{
 		task = current;
@@ -51,6 +51,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->under_reservation = 1;
 	task->reserve_process.pid = pid;
 	task->reserve_process.monitored_process = task;
+	task->reserve_process.signal_sent=0;
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
 	task->reserve_process.spent_budget = C;

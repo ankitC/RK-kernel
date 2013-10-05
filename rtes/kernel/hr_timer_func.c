@@ -27,6 +27,7 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	printk(KERN_INFO "Budget spent %llu", timespec_to_ns(&reservation_detail->spent_budget));
 
 	reservation_detail->spent_budget = reservation_detail->C;
+	reservation_detail->signal_sent = 0;
 
 	forward_time = ktime_set(reservation_detail->T.tv_sec\
 	, reservation_detail->T.tv_nsec);

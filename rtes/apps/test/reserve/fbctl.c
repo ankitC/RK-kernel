@@ -8,7 +8,7 @@
 
 #define D(x)
 
-static int busy = 2;
+static int busy = 7;
 static int end_count = 0;
 static int n = 8;
 
