@@ -3,6 +3,9 @@
 
 #include <linux/time.h>
 #include <linux/hrtimer.h>
+#include <linux/spinlock.h>
+#include <asm/spinlock.h>
+
 //#include <linux/sched.h>
 
 struct reserve_obj
@@ -16,6 +19,7 @@ struct reserve_obj
 	struct timespec T;
 	struct timespec spent_budget;
 	struct hrtimer hr_timer;
+	spinlock_t reserve_spinlock;
 };
 
 #endif /* RESERVE_FRAMEWORK_H */

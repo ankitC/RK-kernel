@@ -4262,12 +4262,15 @@ static inline void check_reservation(struct task_struct *prev)
 {
 	struct task_struct *parent_process = prev;
 	struct siginfo info;
+	unsigned long flags;
 	//printk(KERN_INFO "Inside check_reservation\n");
 	if (prev->tgid != prev->pid)
 	{
 		parent_process = prev->group_leader;
 	}
 
+	spin_lock_irqsave(&parent_process->reserve_process.reserve_spinlock, flags);
+	printk(KERN_INFO "Lock taken inside sched %d\n", parent_process->reserve_process.pid);
 	if (parent_process->under_reservation)
 	{
 		unsigned long long temp = prev->se.sum_exec_runtime - \
@@ -4291,6 +4294,8 @@ static inline void check_reservation(struct task_struct *prev)
 			}
 		}
 	}
+	spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
+	printk(KERN_INFO "Lock left inside sched %d\n", parent_process->reserve_process.pid);
 }
 
 /*

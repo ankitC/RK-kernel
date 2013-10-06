@@ -66,6 +66,9 @@
 #include <linux/user-return-notifier.h>
 #include <linux/oom.h>
 #include <linux/khugepaged.h>
+#include <linux/spinlock.h>
+#include <linux/spinlock_types.h>
+#include <asm/spinlock.h>
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -1165,6 +1168,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	p->utimescaled = cputime_zero;
 	p->stimescaled = cputime_zero;
 	p->under_reservation = 0;
+	spin_lock_init(&p->reserve_process.reserve_spinlock);
 	p->reserve_process.signal_sent = 0;
 	p->reserve_process.prev_setime = 0;
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
