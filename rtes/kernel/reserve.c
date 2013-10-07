@@ -10,6 +10,7 @@
 #include <asm/current.h>
 #include <linux/reserve_framework.h>
 #include <linux/hr_timer_func.h>
+#include <linux/sysfs_func.h>
 
 #define D(x) x
 
@@ -17,19 +18,25 @@
  * Introduces the process with the given pid in
  * the reservation framework
  */
+static int n = 0;
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
 	struct task_struct *task = NULL;
 	unsigned long flags;
-	printk(KERN_INFO "in set resrve\n");
+	n++;
+	if (n == 1)
+	{
+		create_directories();
+	}
+	printk(KERN_INFO "in set reserve\n");
 	if (pid == 0)
 	{
-		if (current->tgid != current->pid)
+		/*if (current->tgid != current->pid)
 		{
 			task = current->group_leader;
 		}
-		else
+		else*/
 			task = current;
 	}
 	else
@@ -40,10 +47,10 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			if (task->pid == pid)
 			{
 				printk(KERN_INFO "found task\n");
-				if (task->tgid != task->pid)
+				/*if (task->tgid != task->pid)
 				{
 					task = task->group_leader;
-				}
+				}*/
 				break;
 			}
 		}
@@ -51,6 +58,12 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 		if (!task)
 			return -1;
+
+		if (task->tgid != task->pid)
+		{
+			task = current->group_leader;
+		}
+
 	}
 
 	if (task->under_reservation)
@@ -69,6 +82,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.spent_budget = C;
 	init_hrtimer(&task->reserve_process);
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
+	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "set all reserves pid=%u\n", pid);
 	return 0;
 }
@@ -82,7 +96,7 @@ unsigned long do_cancel_reserve(pid_t pid)
 
 	if (pid == 0)
 	{
-		task = current;
+			task = current;
 	}
 	else
 	{
@@ -97,6 +111,13 @@ unsigned long do_cancel_reserve(pid_t pid)
 		read_unlock(&tasklist_lock);
 	}
 
+	if (!task)
+		return -1;
+
+	if (task->tgid != task->pid)
+	{
+		task = current->group_leader;
+	}
 	cleanup_hrtimer(&task->reserve_process.hr_timer);
 	return 0;
 }

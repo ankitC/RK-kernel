@@ -5,6 +5,14 @@
 #include <unistd.h>
 #include <linux/time.h>
 
+void set_reserve(pid_t pid, struct timespec C, struct timespec T, unsigned int prio)
+{
+	if (syscall(__NR_set_reserve, pid, C, T, prio ) < 0)
+		printf("Error: Set reserve failed\n");
+}
+
+
+
 int main(int argc, char* argv[])
 {
 
@@ -20,7 +28,6 @@ int main(int argc, char* argv[])
 	ttime.tv_nsec = 0; /*100ms*/
 
 	unsigned int prio = 120;
-
-	syscall(__NR_set_reserve, pid, ctime, ttime, prio );
+	set_reserve( pid, ctime, ttime, prio );
 	return 1;
 }

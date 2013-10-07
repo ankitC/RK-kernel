@@ -942,7 +942,6 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 {
 	struct signal_struct *signal = p->signal;
 	struct task_struct *t;
-
 	/*
 	 * Now find a thread we can wake up to take the signal off the queue.
 	 *
@@ -1025,7 +1024,6 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	struct sigpending *pending;
 	struct sigqueue *q;
 	int override_rlimit;
-
 	trace_signal_generate(sig, info, t);
 
 	assert_spin_locked(&t->sighand->siglock);

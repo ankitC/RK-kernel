@@ -4,6 +4,7 @@
 #include <asm/uaccess.h>
 #include <asm/current.h>
 #include <linux/reserve_framework.h>
+#include <linux/sysfs_func.h>
 #include <linux/kernel.h>
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
@@ -78,6 +79,7 @@ void cleanup_hrtimer(struct hrtimer *hr_timer )
 	reservation_detail->monitored_process->under_reservation = 0;
 
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
+	remove_pid_dir_and_reserve_file(reservation_detail->monitored_process);
 	printk(KERN_INFO "Lock left inside cleanup %d\n", reservation_detail->pid);
 	return;
 }
