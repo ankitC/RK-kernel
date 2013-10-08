@@ -71,16 +71,22 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
-	strcpy(task->reserve_process.name, "gruop11");
+	strcpy(task->reserve_process.name, "group11");
 
 	task->under_reservation = 1;
 	task->reserve_process.pid = pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.signal_sent = 0;
+	task->reserve_process.buffer_overflow = 0;
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
-	task->reserve_process.spent_budget = C;
+	//task->reserve_process.spent_budget = C;
+	task->reserve_process.spent_budget.tv_sec = 0;
+	task->reserve_process.spent_budget.tv_nsec = 0;
 	init_hrtimer(&task->reserve_process);
+	task->reserve_process.c_buf.start = 0;
+	task->reserve_process.c_buf.buffer[0] = 0;
+	task->reserve_process.c_buf.end = 0;
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "set all reserves pid=%u\n", pid);

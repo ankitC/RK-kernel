@@ -4278,18 +4278,20 @@ static inline void check_reservation(struct task_struct *prev)
 		temp = prev->se.sum_exec_runtime - \
 								  prev->reserve_process.prev_setime;
 
-		parent_process->reserve_process.spent_budget = timespec_sub\
-													   (parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
+//		parent_process->reserve_process.spent_budget = timespec_sub(parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
 
+		parent_process->reserve_process.spent_budget = timespec_add\
+													   (parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
 
-		if (timespec_to_ns(&parent_process->reserve_process.spent_budget) < 0)
+		//if (timespec_to_ns(&parent_process->reserve_process.spent_budget) < 0)
+		if (timespec_to_ns(&parent_process->reserve_process.spent_budget) > timespec_to_ns(&parent_process->reserve_process.C))
 		{
 			if(!parent_process->reserve_process.signal_sent)
 			{
-				info.si_signo = SIGEXCESS;
-				info.si_code = SI_KERNEL;
-				info.si_errno = 0;
+		//		info.si_signo = SIGEXCESS;
+		//		info.si_code = SI_KERNEL;
+		//		info.si_errno = 0;
 				printk(KERN_INFO "Budget overspent\n");
 				parent_process->reserve_process.signal_sent = 1;
 				spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
