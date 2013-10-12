@@ -12,9 +12,11 @@
 //#include <linux/sched.h>
 typedef struct circ_buff
 {
-	char buffer[PAGE_SIZE];
+	//char buffer[PAGE_SIZE];
+	char buffer[96];
 	int start;
 	int end;
+	int read_count;
 } circular_buffer;
 
 struct reserve_obj

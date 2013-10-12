@@ -25,19 +25,16 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	struct task_struct *task = NULL;
 	unsigned long flags;
 	n++;
-	if (n == 1)
-	{
-		create_directories();
-	}
+
 	printk(KERN_INFO "in set reserve\n");
 	if (pid == 0)
 	{
 		/*if (current->tgid != current->pid)
-		{
-			task = current->group_leader;
-		}
-		else*/
-			task = current;
+		  {
+		  task = current->group_leader;
+		  }
+		  else*/
+		task = current;
 	}
 	else
 	{
@@ -48,9 +45,9 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			{
 				printk(KERN_INFO "found task\n");
 				/*if (task->tgid != task->pid)
-				{
-					task = task->group_leader;
-				}*/
+				  {
+				  task = task->group_leader;
+				  }*/
 				break;
 			}
 		}
@@ -68,7 +65,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
-
+	if (n == 1)
+	{
+		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
+		create_directories();
+	}
 
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
 	strcpy(task->reserve_process.name, "group11");
@@ -81,10 +82,12 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
 	//task->reserve_process.spent_budget = C;
+	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	task->reserve_process.spent_budget.tv_sec = 0;
 	task->reserve_process.spent_budget.tv_nsec = 0;
 	init_hrtimer(&task->reserve_process);
 	task->reserve_process.c_buf.start = 0;
+	task->reserve_process.c_buf.read_count = 0;
 	task->reserve_process.c_buf.buffer[0] = 0;
 	task->reserve_process.c_buf.end = 0;
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
@@ -102,7 +105,7 @@ unsigned long do_cancel_reserve(pid_t pid)
 
 	if (pid == 0)
 	{
-			task = current;
+		task = current;
 	}
 	else
 	{
@@ -119,12 +122,14 @@ unsigned long do_cancel_reserve(pid_t pid)
 
 	if (!task)
 		return -1;
-
-	if (task->tgid != task->pid)
+	if (task->under_reservation)
 	{
-		task = current->group_leader;
+		if (task->tgid != task->pid)
+		{
+			task = current->group_leader;
+		}
+		cleanup_hrtimer(&task->reserve_process.hr_timer);
 	}
-	cleanup_hrtimer(&task->reserve_process.hr_timer);
 	return 0;
 }
 

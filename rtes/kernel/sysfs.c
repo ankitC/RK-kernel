@@ -2,14 +2,14 @@
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <asm/current.h>
-static int y=0;
+//static int y=0;
 static ssize_t util_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
 	struct reserve_obj* reservation_detail = container_of(attr, \
 			struct reserve_obj, util_attr);
+	int len = circular_buffer_read(reservation_detail, buf);
 
-	printk("%d\n", y++);
-	return circular_buffer_read(reservation_detail, buf);
+	return len;
 }
 
 static ssize_t overflow_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
@@ -49,7 +49,7 @@ int create_pid_dir_and_reserve_file(struct task_struct *task)
 	pid_t pid;
 	char pid_directory[16];
 	struct kobj_attribute util_attribute = __ATTR(util, 0666, util_show, NULL);
-	struct kobj_attribute overflow_attribute = __ATTR(.overflow, 0666, overflow_show, NULL);
+	struct kobj_attribute overflow_attribute = __ATTR(overflow, 0666, overflow_show, NULL);
 
 	struct attribute_group attr_group = {
 		 .attrs = task->reserve_process.attrs,
@@ -100,21 +100,35 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 	len = strlen(time_buffer) + 1;
 	while(len)
 	{
-		*(c_buffer->buffer + (c_buffer->end % PAGE_SIZE)) = time_buffer[i];
-		c_buffer->end = (c_buffer->end % PAGE_SIZE) + 1;
+		//*(c_buffer->buffer + (c_buffer->end % PAGE_SIZE)) = time_buffer[i];
+		*(c_buffer->buffer + (c_buffer->end % 96)) = time_buffer[i];
+		//c_buffer->end = (c_buffer->end % PAGE_SIZE) + 1;
+		c_buffer->end = ((c_buffer->end+1) % 96);
 		i++;
 		len = len - 1;
+		
+		if (c_buffer->end == c_buffer->start)
+		{
+			printk(KERN_INFO "Overflow occured\n");
+			res_detail->buffer_overflow = 1;
+		}
 	}
 
 	if (res_detail->buffer_overflow)
-		c_buffer->start = c_buffer->end;
-
-//	printk(KERN_INFO "Buffer copied %s", (c_buffer->buffer + c_buffer->end - len));
-	if (c_buffer->end == c_buffer->start)
 	{
-		printk(KERN_INFO "Overflow occured\n");
-		res_detail->buffer_overflow = 1;
+		//		int temp = c_buffer->start;
+		if( (c_buffer->start = c_buffer->end - strlen(time_buffer) - 1) < 0)
+		{
+			c_buffer->start = 96 + c_buffer->start;
+		}
 	}
+	
+	if (c_buffer->start < c_buffer->end)
+		c_buffer->read_count = c_buffer->end - c_buffer->start;
+	else
+		c_buffer->read_count = c_buffer->end + c_buffer->start;
+	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d \n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end);
+	
 }
 
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
@@ -123,22 +137,37 @@ int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
 	circular_buffer *c_buffer = &res_detail->c_buf;
 //	printk(KERN_INFO "Reading from circular buffer\n");
 
+	if (c_buffer->read_count <= 0)
+	{
+		printk(KERN_INFO "Read count is lesser than zero \n");
+		buf = NULL;
+		return 0;
+	}
 	if (*c_buffer->buffer == 0)
 	{
 		buf[i] = 0;
+		printk(KERN_INFO "Buffer is null returning 0\n");
 		return 0;
 	}
 	if (res_detail->buffer_overflow == 1)
+	{
 		res_detail->buffer_overflow = 0;
+//		c_buffer->read_count = 0;
+	}
 
 	while( *(c_buffer->buffer + c_buffer->start))
 	{
-		buf[i] = *(c_buffer->buffer + (c_buffer->start % PAGE_SIZE));
-		c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
+		//buf[i] = *(c_buffer->buffer + (c_buffer->start % PAGE_SIZE));
+		buf[i] = *(c_buffer->buffer + (c_buffer->start % 96));
+		//c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
+		c_buffer->start = ((c_buffer->start+1) % 96);
 		i++;
 		len++;
 	}
-	c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
-	printk(KERN_INFO "Reading from circular buffer %s\n", c_buffer->buffer);
+	//c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
+	c_buffer->start = ((c_buffer->start+1) % 96);
+	c_buffer->read_count -= (len + 1);
+//	printk(KERN_INFO "Reading from circular buffer %s\n", );
+	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d \n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len);
 	return len;
 }
