@@ -122,12 +122,15 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 			c_buffer->start = 96 + c_buffer->start;
 		}
 	}
-	
+
+//	c_buffer->read_count += strlen(time_buffer)+1;
 	if (c_buffer->start < c_buffer->end)
 		c_buffer->read_count = c_buffer->end - c_buffer->start;
 	else
-		c_buffer->read_count = c_buffer->end + c_buffer->start;
-	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d \n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end);
+	{
+		c_buffer->read_count = (c_buffer->end - 0)+ (95 - c_buffer->start);
+	}
+	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
 	
 }
 
@@ -143,12 +146,12 @@ int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
 		buf = NULL;
 		return 0;
 	}
-	if (*c_buffer->buffer == 0)
+	/*if (*c_buffer->buffer == 0)
 	{
 		buf[i] = 0;
 		printk(KERN_INFO "Buffer is null returning 0\n");
 		return 0;
-	}
+	}*/
 	if (res_detail->buffer_overflow == 1)
 	{
 		res_detail->buffer_overflow = 0;
@@ -168,6 +171,6 @@ int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
 	c_buffer->start = ((c_buffer->start+1) % 96);
 	c_buffer->read_count -= (len + 1);
 //	printk(KERN_INFO "Reading from circular buffer %s\n", );
-	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d \n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len);
+	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d read_count %d\n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len, c_buffer->read_count);
 	return len;
 }

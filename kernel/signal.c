@@ -858,7 +858,7 @@ static int prepare_signal(int sig, struct task_struct *p, int from_ancestor_ns)
 {
 	struct signal_struct *signal = p->signal;
 	struct task_struct *t;
-
+	//printk("Preparing signal\n");
 	if (unlikely(signal->flags & SIGNAL_GROUP_EXIT)) {
 		/*
 		 * The process is in the middle of dying, nothing to do.
@@ -942,20 +942,29 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 {
 	struct signal_struct *signal = p->signal;
 	struct task_struct *t;
+	if(sig == 35)
+		printk("START - SIGEXCESS!!");
+
 	/*
 	 * Now find a thread we can wake up to take the signal off the queue.
 	 *
 	 * If the main thread wants the signal, it gets first crack.
 	 * Probably the least surprising to the average bear.
 	 */
-	if (wants_signal(sig, p))
+	if (wants_signal(sig, p)){
+		if(sig == 35)
+			printk("after wants_signal\n");
 		t = p;
-	else if (!group || thread_group_empty(p))
+	}
+	else if (!group || thread_group_empty(p)){
 		/*
 		 * There is just one thread and it does not need to be woken.
 		 * It will dequeue unblocked signals before it runs again.
 		 */
+		if(sig == 35)
+			printk("after else if - group/thread_group_empty\n");
 		return;
+	}
 	else {
 		/*
 		 * Otherwise try to find a suitable thread.
@@ -969,6 +978,8 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 				 * Any eligible threads will see
 				 * the signal in the queue soon.
 				 */
+				if(sig == 35)
+					printk("after t == signal->curr_target\n");
 				return;
 		}
 		signal->curr_target = t;
@@ -982,10 +993,14 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 	    !(signal->flags & (SIGNAL_UNKILLABLE | SIGNAL_GROUP_EXIT)) &&
 	    !sigismember(&t->real_blocked, sig) &&
 	    (sig == SIGKILL || !t->ptrace)) {
+		if(sig == 35)
+			printk("condition met\n");
 		/*
 		 * This signal will be fatal to the whole group.
 		 */
 		if (!sig_kernel_coredump(sig)) {
+			if(sig == 35)
+				printk("condition met - coredump\n");
 			/*
 			 * Start a group exit and wake everybody up.
 			 * This way we don't have other threads
@@ -1001,6 +1016,8 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 				sigaddset(&t->pending.signal, SIGKILL);
 				signal_wake_up(t, 1);
 			} while_each_thread(p, t);
+			if(sig == 35)
+				printk("!coredump\n");
 			return;
 		}
 	}
@@ -1009,7 +1026,13 @@ static void complete_signal(int sig, struct task_struct *p, int group)
 	 * The signal is already in the shared-pending queue.
 	 * Tell the chosen thread to wake up and dequeue it.
 	 */
+	if(sig == 35)
+		printk("END - SIGEXCESS!!");
+
+
 	signal_wake_up(t, sig == SIGKILL);
+	if(sig == 35)
+		printk("after returning from signal_wake_up\n");
 	return;
 }
 
@@ -1025,7 +1048,7 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	struct sigqueue *q;
 	int override_rlimit;
 	trace_signal_generate(sig, info, t);
-
+	
 	assert_spin_locked(&t->sighand->siglock);
 
 	if (!prepare_signal(sig, t, from_ancestor_ns))
@@ -1108,6 +1131,7 @@ out_set:
 	signalfd_notify(t, sig);
 	sigaddset(&pending->signal, sig);
 	complete_signal(sig, t, group);
+	
 	return 0;
 }
 

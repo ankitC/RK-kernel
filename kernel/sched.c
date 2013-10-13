@@ -4260,7 +4260,7 @@ pick_next_task(struct rq *rq)
 static inline void check_reservation(struct task_struct *prev)
 {
 	struct task_struct *parent_process = prev;
-	//struct siginfo info;
+	struct siginfo info;
 	unsigned long flags;
 	unsigned long long temp;
 	//printk(KERN_INFO "Inside check_reservation\n");
@@ -4289,9 +4289,9 @@ static inline void check_reservation(struct task_struct *prev)
 		{
 			if(!parent_process->reserve_process.signal_sent)
 			{
-		//		info.si_signo = SIGEXCESS;
-		//		info.si_code = SI_KERNEL;
-		//		info.si_errno = 0;
+				info.si_signo = SIGEXCESS;
+				info.si_code = SI_KERNEL;
+				info.si_errno = 0;
 				printk(KERN_INFO "Budget overspent Budget=%llu\nC=%llu\n", timespec_to_ns(&parent_process->reserve_process.spent_budget), timespec_to_ns(&parent_process->reserve_process.C));
 				parent_process->reserve_process.signal_sent = 1;
 				spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
