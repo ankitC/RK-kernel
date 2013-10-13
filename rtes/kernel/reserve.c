@@ -22,7 +22,7 @@ static int n = 0;
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
-	struct task_struct *task = NULL;
+	struct task_struct *task = NULL, *task_found = NULL;
 	unsigned long flags;
 	n++;
 
@@ -35,6 +35,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		  }
 		  else*/
 		task = current;
+		task_found = current;
 	}
 	else
 	{
@@ -44,24 +45,20 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			if (task->pid == pid)
 			{
 				printk(KERN_INFO "found task\n");
-				/*if (task->tgid != task->pid)
-				  {
-				  task = task->group_leader;
-				  }*/
+				task_found = task;
 				break;
 			}
 		}
 		read_unlock(&tasklist_lock);
+	}
 
-		if (!task)
+	if (!task_found)
 			return -1;
 
 		if (task->tgid != task->pid)
 		{
 			task = current->group_leader;
 		}
-
-	}
 
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
@@ -101,11 +98,12 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
  */
 unsigned long do_cancel_reserve(pid_t pid)
 {
-	struct task_struct *task;
+	struct task_struct *task = NULL, *task_found = NULL;
 
 	if (pid == 0)
 	{
 		task = current;
+		task_found = current;
 	}
 	else
 	{
@@ -114,13 +112,15 @@ unsigned long do_cancel_reserve(pid_t pid)
 		{
 			if (task->pid == pid)
 			{
+
+				task_found = task;
 				break;
 			}
 		}
 		read_unlock(&tasklist_lock);
 	}
 
-	if (!task)
+	if (!task_found)
 		return -1;
 	if (task->under_reservation)
 	{
@@ -129,7 +129,9 @@ unsigned long do_cancel_reserve(pid_t pid)
 			task = current->group_leader;
 		}
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
+		return 0;
 	}
+	printk(KERNEL_INFO "Task is not under reservation\n");
 	return 0;
 }
 

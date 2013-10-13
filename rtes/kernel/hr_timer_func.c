@@ -22,8 +22,7 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	printk(KERN_INFO "Lock taken inside callback %d\n", reservation_detail->pid);
-	printk(KERN_INFO "name: %s pid: %u prevtime %llu \n Runtime=%llu\n"\
+	//printk(KERN_INFO "name: %s pid: %u prevtime %llu \n Runtime=%llu\n"\
 			,reservation_detail->name, reservation_detail->pid,\
 			reservation_detail->prev_setime, \
 			( reservation_detail->monitored_process->se.sum_exec_runtime - \
@@ -46,7 +45,6 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 
 	hrtimer_forward(timer, curr_time, forward_time);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
-	printk(KERN_INFO "Lock left inside callback %d\n", reservation_detail->pid);
 	return HRTIMER_RESTART;
 }
 
@@ -76,7 +74,7 @@ void cleanup_hrtimer(struct hrtimer *hr_timer )
 
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
-	//printk(KERN_INFO "Lock taken inside cleanup %d\n", reservation_detail->pid);
+	printk(KERN_INFO "Cancelling reservation %d\n", reservation_detail->pid);
 	if (!hrtimer_cancel( hr_timer ))
 	{
 		printk(KERN_INFO "Failed to cancel hr_timer\n");
