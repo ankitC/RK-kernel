@@ -29,11 +29,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	printk(KERN_INFO "in set reserve\n");
 	if (pid == 0)
 	{
-		/*if (current->tgid != current->pid)
-		  {
-		  task = current->group_leader;
-		  }
-		  else*/
 		task = current;
 		task_found = current;
 	}
@@ -70,7 +65,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
 	strcpy(task->reserve_process.name, "group11");
-
 	task->under_reservation = 1;
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
@@ -78,7 +72,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.buffer_overflow = 0;
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
-	//task->reserve_process.spent_budget = C;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	task->reserve_process.spent_budget.tv_sec = 0;
 	task->reserve_process.spent_budget.tv_nsec = 0;

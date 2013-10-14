@@ -1,8 +1,15 @@
+/*
+ *File contains functions for the sysfs functionality
+ */
+
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <asm/current.h>
-//static int y=0;
+
+/*
+ * Function called when a read is done on sysfs util file
+ */
 static ssize_t util_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
 	struct reserve_obj* reservation_detail = container_of(attr, \
@@ -12,6 +19,9 @@ static ssize_t util_show(struct kobject * kobj, struct kobj_attribute * attr, ch
 	return len;
 }
 
+/*
+ * Function called when a read is done on sysfs overflow file
+ */
 static ssize_t overflow_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
 	struct reserve_obj* reservation_detail = container_of(attr, \
@@ -21,17 +31,10 @@ static ssize_t overflow_show(struct kobject * kobj, struct kobj_attribute * attr
 }
 
 struct kobject *tasks_kobj;
-/*static struct attribute * attrs [] =
-{
-	&util_attribute.attr,
-	NULL,
-};
 
-static struct attribute_group attr_group = {
-	.attrs = attrs,
-};
-
-*/
+/*
+ * Creates initial directories rtes, tasks for sysfs
+ */
 int create_directories(void)
 {
 	static struct kobject *rtes_kobj;
@@ -43,6 +46,9 @@ int create_directories(void)
 		return -ENOMEM;
 	return 0;
 }
+/*
+ * Creates pid directories and the util and overflow files
+ */
 int create_pid_dir_and_reserve_file(struct task_struct *task)
 {
 	int retval = 0;
@@ -74,6 +80,9 @@ int create_pid_dir_and_reserve_file(struct task_struct *task)
 		kobject_put(tasks_kobj);
 	return retval;
 }
+/*
+ * Removes pid directories and the util and overflow files
+ */
 
 void remove_pid_dir_and_reserve_file(struct task_struct *task)
 {
@@ -89,7 +98,9 @@ void remove_pid_dir_and_reserve_file(struct task_struct *task)
 	return;
 }
 
-
+/*
+ * Circular Buffer function where data is written to circular buffer
+ */
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget)
 {
 	circular_buffer *c_buffer = &res_detail->c_buf;
@@ -100,13 +111,11 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 	len = strlen(time_buffer) + 1;
 	while(len)
 	{
-		//*(c_buffer->buffer + (c_buffer->end % PAGE_SIZE)) = time_buffer[i];
 		*(c_buffer->buffer + (c_buffer->end % 96)) = time_buffer[i];
-		//c_buffer->end = (c_buffer->end % PAGE_SIZE) + 1;
 		c_buffer->end = ((c_buffer->end+1) % 96);
 		i++;
 		len = len - 1;
-		
+	
 		if (c_buffer->end == c_buffer->start)
 		{
 			printk(KERN_INFO "Overflow occured\n");
@@ -116,14 +125,12 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 
 	if (res_detail->buffer_overflow)
 	{
-		//		int temp = c_buffer->start;
 		if( (c_buffer->start = c_buffer->end - strlen(time_buffer) - 1) < 0)
 		{
 			c_buffer->start = 96 + c_buffer->start;
 		}
 	}
 
-//	c_buffer->read_count += strlen(time_buffer)+1;
 	if (c_buffer->start < c_buffer->end)
 		c_buffer->read_count = c_buffer->end - c_buffer->start;
 	else
@@ -133,44 +140,37 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
 	
 }
+/*
+ * Circular Buffer function where data is read to circular buffer
+ */
 
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
 {
 	int len = 0, i = 0;
 	circular_buffer *c_buffer = &res_detail->c_buf;
-//	printk(KERN_INFO "Reading from circular buffer\n");
 
 	if (c_buffer->read_count <= 0)
 	{
-		printk(KERN_INFO "Read count is lesser than zero \n");
 		buf = NULL;
 		return 0;
 	}
-	/*if (*c_buffer->buffer == 0)
-	{
-		buf[i] = 0;
-		printk(KERN_INFO "Buffer is null returning 0\n");
-		return 0;
-	}*/
+
 	if (res_detail->buffer_overflow == 1)
 	{
 		res_detail->buffer_overflow = 0;
-//		c_buffer->read_count = 0;
 	}
 
 	while( *(c_buffer->buffer + c_buffer->start))
 	{
-		//buf[i] = *(c_buffer->buffer + (c_buffer->start % PAGE_SIZE));
 		buf[i] = *(c_buffer->buffer + (c_buffer->start % 96));
-		//c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
 		c_buffer->start = ((c_buffer->start+1) % 96);
 		i++;
 		len++;
 	}
-	//c_buffer->start = (c_buffer->start % PAGE_SIZE) + 1;
+
 	c_buffer->start = ((c_buffer->start+1) % 96);
 	c_buffer->read_count -= (len + 1);
-//	printk(KERN_INFO "Reading from circular buffer %s\n", );
+
 	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d read_count %d\n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len, c_buffer->read_count);
 	return len;
 }

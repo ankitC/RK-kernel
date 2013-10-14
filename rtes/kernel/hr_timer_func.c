@@ -9,10 +9,10 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-//#define S_TO_NS(x)	(x * 1000000000)
-
 struct hrtimer *hr;
-
+/*
+ * Callback function for hr timer
+ */
 static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 {
 	struct reserve_obj* reservation_detail=container_of(timer,\
@@ -22,18 +22,11 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	//printk(KERN_INFO "name: %s pid: %u prevtime %llu \n Runtime=%llu\n"\
-			,reservation_detail->name, reservation_detail->pid,\
-			reservation_detail->prev_setime, \
-			( reservation_detail->monitored_process->se.sum_exec_runtime - \
-			  reservation_detail->prev_setime));
-
 	printk(KERN_INFO "Budget spent %llu", timespec_to_ns\
 			(&reservation_detail->spent_budget));
 
 	circular_buffer_write(reservation_detail,\
 		   	reservation_detail->spent_budget);
-//	reservation_detail->spent_budget = reservation_detail->C;
 	reservation_detail->spent_budget.tv_sec = 0;
 	reservation_detail->spent_budget.tv_nsec = 0;
 	reservation_detail->signal_sent = 0;
@@ -47,25 +40,23 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	return HRTIMER_RESTART;
 }
-
+/*
+ * Initializes the hr timer for each reserved task
+ */
 void init_hrtimer( struct reserve_obj * res_p)
 {
 	ktime_t ktime;
-	//printk(KERN_INFO "HR Timer installing\n");
-	//	ktime = ktime_set( res_p->T.tv_sec, res_p->T.tv_nsec);
 	ktime = ktime_set( 5, 0);
 
 	hrtimer_init( &res_p->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
 
 	res_p->hr_timer.function = &my_hrtimer_callback;
-
-	//printk(KERN_INFO "Starting timer to fire in (%ld)\n", jiffies );
-
 	hrtimer_start( &res_p->hr_timer, ktime, HRTIMER_MODE_REL );
-
-	//	printk(KERN_INFO "returning from init hr\n");
 	return;
 }
+/*
+ * Cleans up the hr timer for each reserved task whose reservation is cancelled
+ */
 
 void cleanup_hrtimer(struct hrtimer *hr_timer )
 {
@@ -83,7 +74,6 @@ void cleanup_hrtimer(struct hrtimer *hr_timer )
 
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	remove_pid_dir_and_reserve_file(reservation_detail->monitored_process);
-	//printk(KERN_INFO "Lock left inside cleanup %d\n", reservation_detail->pid);
 	return;
 }
 
