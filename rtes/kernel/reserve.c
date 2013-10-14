@@ -72,7 +72,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 
 	task->under_reservation = 1;
-	task->reserve_process.pid = pid;
+	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.signal_sent = 0;
 	task->reserve_process.buffer_overflow = 0;
@@ -89,7 +89,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.c_buf.end = 0;
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 	create_pid_dir_and_reserve_file (task);
-	printk(KERN_INFO "set all reserves pid=%u\n", pid);
+	printk(KERN_INFO "set all reserves pid=%u\n", task->pid);
 	return 0;
 }
 
@@ -129,9 +129,10 @@ unsigned long do_cancel_reserve(pid_t pid)
 			task = current->group_leader;
 		}
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
+		task->under_reservation = 0;
 		return 0;
 	}
-	printk(KERNEL_INFO "Task is not under reservation\n");
+	printk(KERN_INFO "Task is not under reservation\n");
 	return 0;
 }
 

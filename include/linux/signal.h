@@ -363,7 +363,7 @@ int unhandled_signal(struct task_struct *tsk, int sig);
 	SIGEMT_MASK				       )
 
 #define SIG_KERNEL_IGNORE_MASK (\
-        rt_sigmask(SIGCONT)   |  rt_sigmask(SIGCHLD)  | rt_sigmask(SIGEXCESS) | \
+        rt_sigmask(SIGCONT)   |  rt_sigmask(SIGCHLD)  | \
 	rt_sigmask(SIGWINCH)  |  rt_sigmask(SIGURG)    )
 
 #define sig_kernel_only(sig) \

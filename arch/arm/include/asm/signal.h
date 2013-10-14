@@ -71,7 +71,7 @@ typedef unsigned long sigset_t;
 #define SIGRTMAX	_NSIG
 
 #define SIGSWI		32
-#define SIGEXCESS   35
+#define SIGEXCESS   33
 /*
  * SA_FLAGS values:
  *

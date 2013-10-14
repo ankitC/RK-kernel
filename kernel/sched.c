@@ -4263,7 +4263,7 @@ static inline void check_reservation(struct task_struct *prev)
 	struct siginfo info;
 	unsigned long flags;
 	unsigned long long temp;
-	//printk(KERN_INFO "Inside check_reservation\n");
+
 	if (prev->tgid != prev->pid)
 	{
 		parent_process = prev->group_leader;
@@ -4273,18 +4273,12 @@ static inline void check_reservation(struct task_struct *prev)
 	{
 
 		spin_lock_irqsave(&parent_process->reserve_process.reserve_spinlock, flags);
-		//printk(KERN_INFO "Lock taken inside sched %d\n", parent_process->reserve_process.pid);
-
 		temp = prev->se.sum_exec_runtime - \
 								  prev->reserve_process.prev_setime;
-
-//		parent_process->reserve_process.spent_budget = timespec_sub(parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
-
 		parent_process->reserve_process.spent_budget = timespec_add\
 													   (parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
 
-		//if (timespec_to_ns(&parent_process->reserve_process.spent_budget) < 0)
 		if (timespec_to_ns(&parent_process->reserve_process.spent_budget) > timespec_to_ns(&parent_process->reserve_process.C))
 		{
 			if(!parent_process->reserve_process.signal_sent)
@@ -4292,16 +4286,18 @@ static inline void check_reservation(struct task_struct *prev)
 				info.si_signo = SIGEXCESS;
 				info.si_code = SI_KERNEL;
 				info.si_errno = 0;
-				printk(KERN_INFO "Budget overspent Budget=%llu\nC=%llu\n", timespec_to_ns(&parent_process->reserve_process.spent_budget), timespec_to_ns(&parent_process->reserve_process.C));
+				printk(KERN_INFO "Budget overspent Budget=%llu\n", timespec_to_ns(&parent_process->reserve_process.spent_budget));
 				parent_process->reserve_process.signal_sent = 1;
 				spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
-				//send_sig_info(SIGEXCESS, &info, parent_process);
-				//printk(KERN_INFO "Sent SIGEXCESS\n");
+				if (parent_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
+				{
+					send_sig_info(SIGEXCESS, &info, parent_process);
+					printk(KERN_INFO "Sent SIGEXCESS\n");
+				}
 				return;
 			}
 		}
 		spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
-		//printk(KERN_INFO "Lock left inside sched %d\n", parent_process->reserve_process.pid);
 
 	}
 }

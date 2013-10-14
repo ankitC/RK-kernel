@@ -26,14 +26,14 @@ static void waitfor(int nMilliseconds)
 	printf("Worked for %d seconds.\nSlept for %d seconds.", end - start, 10 - busy);
 }
 
-/*static void sig_excess_handler()
+static void sig_excess_handler()
 {
 	busy = busy - 1;
 	end_count = 0;
 	printf("Caught SIGEXCESS. Busy=%d\n", busy);
 	return;
 }
-*/
+
 void *util()
 {
 
@@ -89,7 +89,7 @@ int main(void) {
 		printf("in back user\n");
 
 
-//	signal(SIGEXCESS, sig_excess_handler);
+	signal(SIGEXCESS, sig_excess_handler);
 
 	for (j = 0; j < 3; j++)
 	{
