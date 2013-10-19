@@ -4259,45 +4259,45 @@ pick_next_task(struct rq *rq)
  */
 static inline void check_reservation(struct task_struct *prev)
 {
-	struct task_struct *parent_process = prev;
+	struct task_struct *current_process = prev;
 	struct siginfo info;
 	unsigned long flags;
 	unsigned long long temp;
 
-	if (prev->tgid != prev->pid)
+	/*if (prev->tgid != prev->pid)
 	{
-		parent_process = prev->group_leader;
-	}
+		current_process = prev->group_leader;
+	}*/
 
-	if (parent_process->under_reservation)
+	if (current_process->under_reservation)
 	{
 
-		spin_lock_irqsave(&parent_process->reserve_process.reserve_spinlock, flags);
+		spin_lock_irqsave(&current_process->reserve_process.reserve_spinlock, flags);
 		temp = prev->se.sum_exec_runtime - \
 								  prev->reserve_process.prev_setime;
-		parent_process->reserve_process.spent_budget = timespec_add\
-													   (parent_process->reserve_process.spent_budget, ns_to_timespec(temp));
+		current_process->reserve_process.spent_budget = timespec_add\
+													   (current_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
 
-		if (timespec_to_ns(&parent_process->reserve_process.spent_budget) > timespec_to_ns(&parent_process->reserve_process.C))
+		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
 		{
-			if(!parent_process->reserve_process.signal_sent)
+			if(!current_process->reserve_process.signal_sent)
 			{
 				info.si_signo = SIGEXCESS;
 				info.si_code = SI_KERNEL;
 				info.si_errno = 0;
-				printk(KERN_INFO "Budget overspent Budget=%llu\n", timespec_to_ns(&parent_process->reserve_process.spent_budget));
-				parent_process->reserve_process.signal_sent = 1;
-				spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
-				if (parent_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
+				printk(KERN_INFO "Budget overspent Budget=%llu\n", timespec_to_ns(&current_process->reserve_process.spent_budget));
+				current_process->reserve_process.signal_sent = 1;
+				spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
+				if (current_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
 				{
-					send_sig_info(SIGEXCESS, &info, parent_process);
+					send_sig_info(SIGEXCESS, &info, current_process);
 					printk(KERN_INFO "Sent SIGEXCESS\n");
 				}
 				return;
 			}
 		}
-		spin_unlock_irqrestore(&parent_process->reserve_process.reserve_spinlock, flags);
+		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
 
 	}
 }

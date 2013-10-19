@@ -50,10 +50,10 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (!task_found)
 			return -1;
 
-		if (task->tgid != task->pid)
+		/*if (task->tgid != task->pid)
 		{
 			task = current->group_leader;
-		}
+		}*/
 
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
@@ -117,10 +117,10 @@ unsigned long do_cancel_reserve(pid_t pid)
 		return -1;
 	if (task->under_reservation)
 	{
-		if (task->tgid != task->pid)
+		/*if (task->tgid != task->pid)
 		{
 			task = current->group_leader;
-		}
+		}*/
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
 		task->under_reservation = 0;
 		return 0;
