@@ -74,6 +74,7 @@
 #include <linux/cpuacct.h>
 #include <linux/signal.h>
 #include <linux/types.h>
+#include <linux/hr_timer_func.h>
 #include <asm/tlb.h>
 #include <asm/irq_regs.h>
 #include <asm/mutex.h>
@@ -4257,20 +4258,17 @@ pick_next_task(struct rq *rq)
 /*
  * function to check whether the spent_budget of the process 
  */
-static inline void check_reservation(struct task_struct *prev)
+void check_reservation(struct task_struct *prev)
 {
 	struct task_struct *current_process = prev;
-	struct siginfo info;
+	//struct siginfo info;
 	unsigned long flags;
 	unsigned long long temp;
 
-	/*if (prev->tgid != prev->pid)
-	{
-		current_process = prev->group_leader;
-	}*/
 
 	if (current_process->under_reservation)
 	{
+	//				printk(KERN_INFO "Inside check reservation\n");
 
 		spin_lock_irqsave(&current_process->reserve_process.reserve_spinlock, flags);
 		temp = prev->se.sum_exec_runtime - \
@@ -4279,7 +4277,7 @@ static inline void check_reservation(struct task_struct *prev)
 													   (current_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
 
-		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
+/*		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
 		{
 			if(!current_process->reserve_process.signal_sent)
 			{
@@ -4288,20 +4286,18 @@ static inline void check_reservation(struct task_struct *prev)
 				info.si_errno = 0;
 				printk(KERN_INFO "Budget overspent Budget=%llu\n", timespec_to_ns(&current_process->reserve_process.spent_budget));
 				current_process->reserve_process.signal_sent = 1;
-				spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
-				if (current_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
+			
+			*	if (current_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
 				{
 					send_sig_info(SIGEXCESS, &info, current_process);
 					printk(KERN_INFO "Sent SIGEXCESS\n");
 				}
-				return;
 			}
-		}
+		}*/
 		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
 
 	}
 }
-
 /*
  * __schedule() is the main scheduler function.
  */
@@ -4329,7 +4325,6 @@ need_resched:
 	switch_count = &prev->nivcsw;
 
 	check_reservation(prev);
-
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
 		if (unlikely(signal_pending_state(prev->state, prev))) {
 			prev->state = TASK_RUNNING;
@@ -4363,11 +4358,24 @@ need_resched:
 	clear_tsk_need_resched(prev);
 	rq->skip_clock_update = 0;
 
+	if (likely(prev != next))
+	{
+		if (prev && prev->under_reservation)
+		{
+			stop_c_timer(prev);
+		//printk(KERN_INFO "prev != next\n");
+		}
+		if (next && next->under_reservation)
+		{
+		//printk(KERN_INFO "prev != next\n");
+			start_c_timer(next);
+		}
+	}
 	if (likely(prev != next)) {
+
 		rq->nr_switches++;
 		rq->curr = next;
 		++*switch_count;
-
 		context_switch(rq, prev, next); /* unlocks the rq */
 		/*
 		 * The context switch have flipped the stack from under us

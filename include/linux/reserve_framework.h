@@ -31,9 +31,14 @@ struct reserve_obj
 	struct timespec T;
 	struct timespec spent_budget;
 	struct hrtimer hr_timer;
+
 	struct kobj_attribute util_attr;
 	struct kobj_attribute overflow_attr;
 	struct kobject *pid_obj;
+
+	struct hrtimer C_timer;
+	ktime_t remaining_C_time;
+
 	spinlock_t reserve_spinlock;
 	struct attribute *attrs[3];
 	circular_buffer c_buf;
@@ -43,4 +48,6 @@ struct reserve_obj
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf);
 int create_switches(struct kobject *config_obj);
+void stop_c_timer(struct task_struct * task);
+void start_c_timer(struct task_struct * task);
 #endif /* RESERVE_FRAMEWORK_H */

@@ -4,6 +4,7 @@
 enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer );
 void init_hrtimer( struct reserve_obj *res_p);
 
+void init_C_timer( struct reserve_obj * res_p);
 
 void cleanup_hrtimer(struct hrtimer *hr_timer );
 
