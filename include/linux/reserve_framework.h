@@ -47,7 +47,10 @@ struct reserve_obj
 
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf);
+<<<<<<< HEAD
 int create_switches(struct kobject *config_obj);
 void stop_c_timer(struct task_struct * task);
 void start_c_timer(struct task_struct * task);
+=======
+>>>>>>> parent of bade3aa... Sysfs code for switches
 #endif /* RESERVE_FRAMEWORK_H */
