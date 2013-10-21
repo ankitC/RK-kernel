@@ -12,8 +12,8 @@
 //#include <linux/sched.h>
 typedef struct circ_buff
 {
-	//char buffer[PAGE_SIZE];
-	char buffer[96];
+	char buffer[PAGE_SIZE];
+	//char buffer[96];
 	int start;
 	int end;
 	int read_count;
@@ -27,18 +27,27 @@ struct reserve_obj
 	struct task_struct *monitored_process;
 	int signal_sent;
 	int buffer_overflow;
+	char ctx_overflow;
+	int timer_started;
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;
 	struct hrtimer hr_timer;
+	struct hrtimer C_timer;
+	ktime_t remaining_C;
 	struct kobj_attribute util_attr;
 	struct kobj_attribute overflow_attr;
+	struct kobj_attribute tval_attr;
+	struct kobj_attribute ctx_attr;
 	struct kobject *pid_obj;
 	spinlock_t reserve_spinlock;
-	struct attribute *attrs[3];
+	struct attribute *attrs[5];
 	circular_buffer c_buf;
+	circular_buffer ctx_buf;
 };
 
+void ctx_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget, int ctx_in);
+int ctx_buffer_read(struct reserve_obj* res_detail , char* buf);
 
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf);

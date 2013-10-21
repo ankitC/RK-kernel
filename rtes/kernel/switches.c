@@ -7,7 +7,7 @@
 #include <linux/sched.h>
 #include <asm/current.h>
 
-int trace_ctx = 0, migrate = 0, disable_cpus = 0, partition_policy = 0;
+int trace_ctx = 0, migrate = 0, disable_cpus = 0, partition_policy = 0, guarantee = 0;
 /*
  * Function called when a read is done on sysfs util file
  */
@@ -16,6 +16,8 @@ static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, 
 	int var = 0;
 
 	printk(KERN_INFO "Switch Show %s\n", attr->attr.name);
+	if (strcmp(attr->attr.name, "guarantee") == 0)
+		var = guarantee;
 	if (strcmp(attr->attr.name, "migrate") == 0)
 		var = migrate;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
@@ -39,6 +41,9 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
 	sscanf(buf, "%d", &var);
+
+	if (strcmp(attr->attr.name, "guarantee") == 0)
+		guarantee = var;
 	if (strcmp(attr->attr.name, "migrate") == 0)
 		migrate = var;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
@@ -50,7 +55,7 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 	return count;
 }
-
+struct kobj_attribute guarantee_attribute = __ATTR(guarantee, 0666, switch_show, switch_store);
 struct kobj_attribute trace_ctx_attribute = __ATTR(trace_ctx, 0666, switch_show, switch_store);
 struct kobj_attribute migrate_attribute = __ATTR(migrate, 0666, switch_show, switch_store);
 struct kobj_attribute partition_policy_attribute = __ATTR(partition_policy, 0666, switch_show, switch_store);
@@ -59,6 +64,7 @@ struct kobj_attribute disable_cpus_attribute = __ATTR(disable_cpus, 0666, switch
 
 struct attribute *attrs[] = {
 
+	&guarantee_attribute.attr,
 	&trace_ctx_attribute.attr,
 	&migrate_attribute.attr,
 	&partition_policy_attribute.attr,
