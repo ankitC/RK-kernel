@@ -51,5 +51,4 @@ int ctx_buffer_read(struct reserve_obj* res_detail , char* buf);
 
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf);
-int create_switches(struct kobject *config_obj);
 #endif /* RESERVE_FRAMEWORK_H */

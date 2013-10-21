@@ -83,15 +83,19 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 /*
  * Initializes the hr timer for each reserved task
  */
-void init_hrtimer( struct reserve_obj * res_p)
+void init_hrtimer( struct reserve_obj *res_p)
 {
 	ktime_t ktime;
 	ktime = ktime_set( res_p->T.tv_sec, res_p->T.tv_nsec);
 
 	hrtimer_init( &res_p->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+
+	/* Setting callback for t_timer*/
 	res_p->hr_timer.function = &my_hrtimer_callback;
+
 	hrtimer_start( &res_p->hr_timer, ktime, HRTIMER_MODE_REL );
 
+	/* Start C timer only if you are running */
 	if (res_p->running)
 	{
 		printk(KERN_INFO "Started C timer\n");
@@ -99,8 +103,6 @@ void init_hrtimer( struct reserve_obj * res_p)
 		res_p->C_timer.function = &C_timer_callback;
 		hrtimer_start( &res_p->C_timer, res_p->remaining_C, HRTIMER_MODE_REL );
 	}
-
-	return;
 }
 
 

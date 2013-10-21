@@ -4,5 +4,4 @@ obj-y += nodefuncs.o
 obj-y += reserve.o
 obj-y += hr_timer_func.o
 obj-y += sysfs.o
-obj-y += switches.o
 

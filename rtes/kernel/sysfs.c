@@ -54,7 +54,6 @@ static ssize_t ctx_show(struct kobject * kobj, struct kobj_attribute * attr, cha
 
 }
 struct kobject *tasks_kobj;
-struct kobject *config_kobj;
 
 /*
  * Creates initial directories rtes, tasks for sysfs
@@ -62,19 +61,12 @@ struct kobject *config_kobj;
 int create_directories(void)
 {
 	static struct kobject *rtes_kobj;
-
-	printk(KERN_INFO "Creating initial directories\n");
+	printk(KERN_INFO "creating initial directories\n");
 	if(!(rtes_kobj = kobject_create_and_add("rtes", NULL)))
 		return -ENOMEM;
 
 	if(!(tasks_kobj = kobject_create_and_add("tasks", rtes_kobj)))
 		return -ENOMEM;
-
-	if(!(config_kobj = kobject_create_and_add("config", rtes_kobj)))
-		return -ENOMEM;
-
-	create_switches(config_kobj);
-
 	return 0;
 }
 /*

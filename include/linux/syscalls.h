@@ -850,4 +850,5 @@ asmlinkage long sys_list_processes(char* user_buffer, int len);
 asmlinkage long sys_set_reserve(pid_t pid, struct timespec C, struct timespec T, \
 					  unsigned int rt_priority);
 asmlinkage long sys_cancel_reserve(pid_t pid);
+asmlinkage long sys_end_job(void);
 #endif
