@@ -24,6 +24,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 {
 	struct task_struct *task = NULL, *task_found = NULL;
 	unsigned long flags;
+	ktime_t ktime;
 	n++;
 
 	printk(KERN_INFO "in set reserve\n");
@@ -50,11 +51,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (!task_found)
 			return -1;
 
-		/*if (task->tgid != task->pid)
-		{
-			task = current->group_leader;
-		}*/
-
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.hr_timer);
 	if (n == 1)
@@ -63,16 +59,21 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		create_directories();
 	}
 
+	ktime = ktime_set(C.tv_sec, C.tv_nsec);
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
+	if (task == current)
+		task->reserve_process.running = 1;
+	else
+		task->reserve_process.running = 0;
 	strcpy(task->reserve_process.name, "group11");
 	task->under_reservation = 1;
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.signal_sent = 0;
 	task->reserve_process.buffer_overflow = 0;
-	task->reserve_process.timer_started = 0;
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
+	task->reserve_process.remaining_C = ktime;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	task->reserve_process.spent_budget.tv_sec = 0;
 	task->reserve_process.spent_budget.tv_nsec = 0;

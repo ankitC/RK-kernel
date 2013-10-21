@@ -77,6 +77,7 @@
 #include <asm/tlb.h>
 #include <asm/irq_regs.h>
 #include <asm/mutex.h>
+#include <linux/hr_timer_func.h>
 #ifdef CONFIG_PARAVIRT
 #include <asm/paravirt.h>
 #endif
@@ -4260,7 +4261,7 @@ pick_next_task(struct rq *rq)
 static inline void check_reservation(struct task_struct *prev)
 {
 	struct task_struct *current_process = prev;
-	struct siginfo info;
+//	struct siginfo info;
 	unsigned long flags;
 	unsigned long long temp;
 
@@ -4279,7 +4280,7 @@ static inline void check_reservation(struct task_struct *prev)
 														(current_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
 
-		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
+/*		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
 		{
 			if(!current_process->reserve_process.signal_sent)
 			{
@@ -4296,7 +4297,7 @@ static inline void check_reservation(struct task_struct *prev)
 				}
 				return;
 			}
-		}
+		}*/
 		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
 
 	}
@@ -4378,25 +4379,28 @@ need_resched:
 			if (next->under_reservation)
 			ctx_buffer_write(&next->reserve_process, ts, 1);
 		}
-/*		if(prev != next)
+		if(prev != next)
 		{
-			if (prev->under_reservation && prev->reserve_process.timer_started)
+			if (prev->under_reservation)
 			{
 
 				//			printk(KERN_INFO "Prev cancelling timer\n");
 				prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
 
-				if (!hrtimer_cancel(&prev->reserve_process.C_timer)){}
-				//				printk(KERN_INFO "Couldn't cancel hrtimer\n");
-				next->reserve_process.timer_started = 0;
+				if (!hrtimer_cancel(&prev->reserve_process.C_timer))
+					printk(KERN_INFO "Couldn't cancel hrtimer\n");
+				prev->reserve_process.running = 0;
 			}
-			if (next->under_reservation && !next->reserve_process.timer_started)
+			if (next->under_reservation)
 			{
-				printk(KERN_INFO "Next starting timer\n");
-				next->reserve_process.timer_started = 1;
+//				printk(KERN_INFO "Next starting timer\n");
+				next->reserve_process.running = 1;
+				hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+
+	next->reserve_process.C_timer.function = &C_timer_callback;
 				hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL);
 			}
-		}*/
+		}
 		context_switch(rq, prev, next); /* unlocks the rq */
 		/*
 		 * The context switch have flipped the stack from under us

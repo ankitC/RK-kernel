@@ -28,7 +28,7 @@ struct reserve_obj
 	int signal_sent;
 	int buffer_overflow;
 	char ctx_overflow;
-	int timer_started;
+	char running;
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;
