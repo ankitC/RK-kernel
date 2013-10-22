@@ -1169,7 +1169,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	p->stimescaled = cputime_zero;
 	p->under_reservation = 0;
 	spin_lock_init(&p->reserve_process.reserve_spinlock);
-	p->reserve_process.signal_sent = 0;
+	p->reserve_process.need_resched = 0;
 	p->reserve_process.prev_setime = 0;
 	p->reserve_process.spent_budget.tv_sec = 0;
 	p->reserve_process.spent_budget.tv_nsec = 0;

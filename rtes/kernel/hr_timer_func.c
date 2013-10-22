@@ -16,29 +16,23 @@
 enum hrtimer_restart C_timer_callback( struct hrtimer *timer )
 {
 	printk(KERN_INFO "In C timer call back\n");
-	/*struct reserve_obj* reservation_detail=container_of(timer,\
+	struct reserve_obj* reservation_detail=container_of(timer,\
 	  struct reserve_obj, C_timer);
 
-	//ktime_t forward_time, curr_time;
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	printk(KERN_INFO "In C timer call back\n");
-
-	//forward_time = ktime_set(reservation_detail->C.tv_sec\
-	, reservation_detail->C.tv_nsec);
-
-	//curr_time = ktime_get();
-
-	//hrtimer_forward(timer, curr_time, forward_time);
+	/*Asking for reschedule since budget is exhausted*/
+	reservation_detail->need_resched = 1;
+	set_tsk_need_resched(reservation_detail->monitored_process);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
-	*/
+
 	return HRTIMER_NORESTART;
 }
 /*
  * Callback function for hr timer
  */
-static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
+enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 {
 	struct reserve_obj* reservation_detail=container_of(timer,\
 			struct reserve_obj, hr_timer);
@@ -55,7 +49,6 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 	reservation_detail->spent_budget.tv_sec = 0;
 	reservation_detail->spent_budget.tv_nsec = 0;
 	reservation_detail->spent_budget.tv_nsec = 0;
-	reservation_detail->signal_sent = 0;
 	reservation_detail->remaining_C = ktime;
 
 	if (reservation_detail->running)
@@ -68,8 +61,12 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 
 	}
 
-
-
+	if (reservation_detail->need_resched)
+	{
+		reservation_detail->need_resched = 0;
+		if(!wake_up_process(reservation_detail->monitored_process))
+			printk(KERN_INFO "Couldn't wake up process\n");
+	}
 	forward_time = ktime_set(reservation_detail->T.tv_sec\
 			, reservation_detail->T.tv_nsec);
 
@@ -83,26 +80,26 @@ static enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 /*
  * Initializes the hr timer for each reserved task
  */
-void init_hrtimer( struct reserve_obj *res_p)
+void init_hrtimer( struct reserve_obj * res_p)
 {
 	ktime_t ktime;
 	ktime = ktime_set( res_p->T.tv_sec, res_p->T.tv_nsec);
 
-	hrtimer_init( &res_p->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
-
-	/* Setting callback for t_timer*/
-	res_p->hr_timer.function = &my_hrtimer_callback;
-
-	hrtimer_start( &res_p->hr_timer, ktime, HRTIMER_MODE_REL );
-
-	/* Start C timer only if you are running */
 	if (res_p->running)
 	{
-		printk(KERN_INFO "Started C timer\n");
+		hrtimer_init( &res_p->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+		res_p->hr_timer.function = &my_hrtimer_callback;
+		hrtimer_start( &res_p->hr_timer, ktime, HRTIMER_MODE_REL );
+	
+		printk(KERN_INFO "Started C and T timer\n");
+	
 		hrtimer_init( &res_p->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
 		res_p->C_timer.function = &C_timer_callback;
 		hrtimer_start( &res_p->C_timer, res_p->remaining_C, HRTIMER_MODE_REL );
+		res_p->t_timer_started = 1;
 	}
+
+	return;
 }
 
 

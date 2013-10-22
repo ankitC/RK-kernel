@@ -28,7 +28,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	unsigned long flags;	
 	ktime_t ktime;
 
-	if (n == 0)
 	n++;
 
 	printk(KERN_INFO "in set reserve\n");
@@ -77,8 +76,9 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
-	task->reserve_process.signal_sent = 0;
 	task->reserve_process.buffer_overflow = 0;
+	task->reserve_process.need_resched = 0;
+	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
 	task->reserve_process.remaining_C = ktime;
@@ -157,7 +157,7 @@ unsigned long do_end_job()
 	task = current;
 	if (task->under_reservation)
 	{
-		task->reserve_process.signal_sent = 1;
+		//task->reserve_process.signal_sent = 1;
 		/** Invoke another function **/
 	}
 

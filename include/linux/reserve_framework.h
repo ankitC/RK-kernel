@@ -25,9 +25,10 @@ struct reserve_obj
 	pid_t pid;
 	unsigned long long prev_setime;
 	struct task_struct *monitored_process;
-	int signal_sent;
+	char need_resched;
 	int buffer_overflow;
 	char ctx_overflow;
+	char t_timer_started;
 	char running;
 	struct timespec C;
 	struct timespec T;

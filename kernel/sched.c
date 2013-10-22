@@ -4324,6 +4324,11 @@ need_resched:
 
 	switch_count = &prev->nivcsw;
 
+	if (prev->under_reservation && prev->reserve_process.need_resched)
+	{
+		prev->state = TASK_UNINTERRUPTIBLE;
+		deactivate_task(rq, prev, DEQUEUE_SLEEP);
+	}
 	check_reservation(prev);
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
 		if (unlikely(signal_pending_state(prev->state, prev))) {
@@ -4363,7 +4368,7 @@ need_resched:
 		rq->nr_switches++;
 		rq->curr = next;
 		++*switch_count;
-	
+
 		if (prev != next)
 		{
 			getrawmonotonic(&ts);
@@ -4378,7 +4383,6 @@ need_resched:
 			if (prev->under_reservation)
 			{
 
-				//			printk(KERN_INFO "Prev cancelling timer\n");
 				prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
 
 				if (!hrtimer_cancel(&prev->reserve_process.C_timer))
