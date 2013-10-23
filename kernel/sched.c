@@ -4257,9 +4257,59 @@ pick_next_task(struct rq *rq)
 	BUG(); /* the idle class will always have a runnable task */
 }
 /*
+ *Implements instrumentation functionality
+ */
+inline void instrumentation(struct task_struct* prev, struct task_struct *next)
+{
+	struct timespec ts;
+	
+	getrawmonotonic(&ts);
+
+	if (prev->under_reservation)
+		ctx_buffer_write(&prev->reserve_process, ts, 0);
+	if (next->under_reservation)
+		ctx_buffer_write(&next->reserve_process, ts, 1);
+}
+/*
+ * STop the C timer of the task which has context switched out
+ */
+inline void stop_C_timer(struct task_struct* prev)
+{
+	if (prev->under_reservation && prev->reserve_process.t_timer_started)
+	{
+		prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
+		if (!hrtimer_cancel(&prev->reserve_process.C_timer))
+			printk(KERN_INFO "Couldn't cancel hrtimer\n");
+		prev->reserve_process.running = 0;
+	}
+
+}
+
+inline void start_timer(struct task_struct * next)
+{
+	ktime_t ktime;
+	if (next->under_reservation)
+	{
+		if (!next->reserve_process.t_timer_started)
+		{
+			ktime = ktime_set( next->reserve_process.T.tv_sec, next->reserve_process.T.tv_nsec);
+			hrtimer_init( &next->reserve_process.hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+			next->reserve_process.hr_timer.function = &my_hrtimer_callback;
+			hrtimer_start(&next->reserve_process.hr_timer, ktime, HRTIMER_MODE_REL);
+			next->reserve_process.t_timer_started = 1;
+		}
+		next->reserve_process.running = 1;
+		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+
+		next->reserve_process.C_timer.function = &C_timer_callback;
+		hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL);
+	}
+
+}
+/*
  * function to check whether the spent_budget of the process 
  */
-void check_reservation(struct task_struct *prev)
+inline void check_reservation(struct task_struct *prev)
 {
 	struct task_struct *current_process = prev;
 	unsigned long flags;
@@ -4267,34 +4317,13 @@ void check_reservation(struct task_struct *prev)
 
 	if (current_process->under_reservation)
 	{
-	//				printk(KERN_INFO "Inside check reservation\n");
-
 		spin_lock_irqsave(&current_process->reserve_process.reserve_spinlock, flags);
 		temp = prev->se.sum_exec_runtime - \
 			   prev->reserve_process.prev_setime;
 		current_process->reserve_process.spent_budget = timespec_add\
 														(current_process->reserve_process.spent_budget, ns_to_timespec(temp));
 		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
-
-/*		if (timespec_to_ns(&current_process->reserve_process.spent_budget) > timespec_to_ns(&current_process->reserve_process.C))
-		{
-			if(!current_process->reserve_process.signal_sent)
-			{
-				info.si_signo = SIGEXCESS;
-				info.si_code = SI_KERNEL;
-				info.si_errno = 0;
-				printk(KERN_INFO "Budget overspent Budget=%llu\n", timespec_to_ns(&current_process->reserve_process.spent_budget));
-				current_process->reserve_process.signal_sent = 1;
-			
-			*	if (current_process->sighand->action[SIGEXCESS-1].sa.sa_handler != SIG_DFL)
-				{
-					send_sig_info(SIGEXCESS, &info, current_process);
-					printk(KERN_INFO "Sent SIGEXCESS\n");
-				}
-			}
-		}*/
 		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
-
 	}
 }
 /*
@@ -4303,7 +4332,6 @@ void check_reservation(struct task_struct *prev)
 static void __sched __schedule(void)
 {
 	struct task_struct *prev, *next;
-	struct timespec ts;
 	unsigned long *switch_count;
 	struct rq *rq;
 	int cpu;
@@ -4324,11 +4352,11 @@ need_resched:
 
 	switch_count = &prev->nivcsw;
 
-	if (prev->under_reservation && prev->reserve_process.need_resched)
+	/*if (prev->under_reservation && prev->reserve_process.need_resched)
 	{
 		prev->state = TASK_UNINTERRUPTIBLE;
 		deactivate_task(rq, prev, DEQUEUE_SLEEP);
-	}
+	}*/
 	check_reservation(prev);
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
 		if (unlikely(signal_pending_state(prev->state, prev))) {
@@ -4369,35 +4397,11 @@ need_resched:
 		rq->curr = next;
 		++*switch_count;
 
-		if (prev != next)
-		{
-			getrawmonotonic(&ts);
-
-			if (prev->under_reservation)
-			ctx_buffer_write(&prev->reserve_process, ts, 0);
-			if (next->under_reservation)
-			ctx_buffer_write(&next->reserve_process, ts, 1);
-		}
 		if(prev != next)
 		{
-			if (prev->under_reservation)
-			{
-
-				prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
-
-				if (!hrtimer_cancel(&prev->reserve_process.C_timer))
-					printk(KERN_INFO "Couldn't cancel hrtimer\n");
-				prev->reserve_process.running = 0;
-			}
-			if (next->under_reservation)
-			{
-//				printk(KERN_INFO "Next starting timer\n");
-				next->reserve_process.running = 1;
-				hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
-
-	next->reserve_process.C_timer.function = &C_timer_callback;
-				hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL);
-			}
+			instrumentation(prev, next);
+			stop_C_timer(prev);
+			start_timer(next);
 		}
 
 		context_switch(rq, prev, next); /* unlocks the rq */

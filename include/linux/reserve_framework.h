@@ -6,6 +6,7 @@
 #include <linux/spinlock.h>
 #include <linux/kobject.h>
 #include <linux/kobject.h>
+#include <linux/sched.h>
 #include <asm/spinlock.h>
 #include <asm/page.h>
 
@@ -25,11 +26,12 @@ struct reserve_obj
 	pid_t pid;
 	unsigned long long prev_setime;
 	struct task_struct *monitored_process;
-	char need_resched;
+	int need_resched;
 	int buffer_overflow;
-	char ctx_overflow;
-	char t_timer_started;
-	char running;
+	int ctx_overflow;
+	int t_timer_started;
+	int running;
+	struct cpumask mask;
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;

@@ -21,7 +21,6 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *timer )
 
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
-
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
 	set_tsk_need_resched(reservation_detail->monitored_process);
@@ -61,12 +60,12 @@ enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 
 	}
 
-	if (reservation_detail->need_resched)
+	/*if (reservation_detail->need_resched)
 	{
 		reservation_detail->need_resched = 0;
 		if(!wake_up_process(reservation_detail->monitored_process))
 			printk(KERN_INFO "Couldn't wake up process\n");
-	}
+	}*/
 	forward_time = ktime_set(reservation_detail->T.tv_sec\
 			, reservation_detail->T.tv_nsec);
 

@@ -77,6 +77,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.buffer_overflow = 0;
+	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.need_resched = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.C = C;
@@ -95,8 +96,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
 
-	init_hrtimer(&task->reserve_process);
-
+	
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
 	create_pid_dir_and_reserve_file (task);
