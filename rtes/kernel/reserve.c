@@ -152,6 +152,7 @@ unsigned long do_end_job()
 	/* Requesting the scheduler to deactivate the current task */
 	if (current->under_reservation)
 	{
+		printk("Ending Job\n");
 		current->reserve_process.need_resched = 1;
 		set_tsk_need_resched(current);
 	}
