@@ -4318,7 +4318,7 @@ inline void check_reservation(struct task_struct *prev)
 	unsigned long flags;
 	unsigned long long temp;
 
-	if (current_process->under_reservation && !current_process->reserve_process.need_resched)
+	if (current_process->under_reservation && !current_process->reserve_process.need_resched && current_process->reserve_process.t_timer_started)
 	{
 
 		spin_lock_irqsave(&current_process->reserve_process.reserve_spinlock, flags);
@@ -4383,6 +4383,16 @@ need_resched:
 
 	pre_schedule(rq, prev);
 
+	if (prev->under_reservation && prev->reserve_process.need_resched)
+	{
+		prev->state = TASK_UNINTERRUPTIBLE;
+		deactivate_task(rq, prev, DEQUEUE_SLEEP);
+		prev->on_rq = 0;
+
+	}
+
+
+
 	if (unlikely(!rq->nr_running))
 		idle_balance(cpu, rq);
 
@@ -4396,13 +4406,6 @@ need_resched:
 		rq->nr_switches++;
 		rq->curr = next;
 		++*switch_count;
-		if (prev->under_reservation && prev->reserve_process.need_resched)
-		{
-			prev->state = TASK_UNINTERRUPTIBLE;
-			deactivate_task(rq, prev, DEQUEUE_SLEEP);
-			prev->on_rq = 0;
-
-		}
 
 		if(prev != next)
 		{

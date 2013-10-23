@@ -31,7 +31,6 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 		reservation_detail->spent_budget = timespec_add\
 														(reservation_detail->spent_budget, ns_to_timespec(temp));
 		 reservation_detail->monitored_process->reserve_process.prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
-	printk(KERN_INFO "C_timer budget = %llu\n", timespec_to_ns(&reservation_detail->spent_budget)); 
 
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 
