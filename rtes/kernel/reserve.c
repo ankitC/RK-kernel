@@ -11,6 +11,7 @@
 #include <linux/reserve_framework.h>
 #include <linux/hr_timer_func.h>
 #include <linux/sysfs_func.h>
+#include <linux/partition_scheduling.h>
 
 #define D(x) x
 
@@ -94,8 +95,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
 
+
+
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
+	set_cpu_for_task(task, 3);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "set all reserves pid=%u\n", task->pid);
 	return 0;

@@ -4290,21 +4290,22 @@ inline void stop_C_timer(struct task_struct* prev)
 inline void start_timer(struct task_struct *next)
 {
 	ktime_t ktime;
-	if (next->under_reservation)
+	if (next->under_reservation && (smp_processor_id() == next->reserve_process.host_cpu))
 	{
-		if (!next->reserve_process.t_timer_started)
+		if ((!next->reserve_process.t_timer_started) )
 		{
+			printk(KERN_INFO "T_timer init\n");
 			ktime = ktime_set( next->reserve_process.T.tv_sec, next->reserve_process.T.tv_nsec);
-			hrtimer_init( &next->reserve_process.T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+			hrtimer_init( &next->reserve_process.T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 			next->reserve_process.T_timer.function = &T_timer_callback;
-			hrtimer_start(&next->reserve_process.T_timer, ktime, HRTIMER_MODE_REL);
+			hrtimer_start(&next->reserve_process.T_timer, ktime, HRTIMER_MODE_REL_PINNED);
 			next->reserve_process.t_timer_started = 1;
 		}
 		next->reserve_process.running = 1;
-		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 
 		next->reserve_process.C_timer.function = &C_timer_callback;
-		hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL);
+		hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL_PINNED);
 	}
 
 }
@@ -4354,7 +4355,6 @@ need_resched:
 	raw_spin_lock_irq(&rq->lock);
 
 	switch_count = &prev->nivcsw;
-
 
 	check_reservation(prev);
 

@@ -31,7 +31,7 @@ struct reserve_obj
 	int ctx_overflow;
 	int t_timer_started;
 	int running;
-	struct cpumask mask;
+	unsigned int host_cpu;
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;
