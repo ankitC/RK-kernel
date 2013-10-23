@@ -1047,7 +1047,7 @@ NORET_TYPE void do_exit(long code)
 	/* Calling cleanup for hr_timer only for parent
 	 * Child never has under_reservation flag set*/
 	if(tsk->under_reservation)
-		cleanup_hrtimer(&tsk->reserve_process.hr_timer);
+		cleanup_hrtimer(&tsk->reserve_process.T_timer);
 
 	schedule();
 	BUG();
