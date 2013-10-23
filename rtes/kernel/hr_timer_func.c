@@ -13,17 +13,25 @@
 /*
  * Callback function for C timer
  */
-enum hrtimer_restart C_timer_callback( struct hrtimer *timer )
+enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 {
-	printk(KERN_INFO "In C timer call back\n");
-	struct reserve_obj* reservation_detail=container_of(timer,\
-	  struct reserve_obj, C_timer);
+	struct reserve_obj* reservation_detail=container_of(C_timer,\
+			struct reserve_obj, C_timer);
 
+	unsigned long long temp;
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
 	set_tsk_need_resched(reservation_detail->monitored_process);
+	
+		temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
+			    reservation_detail->prev_setime;
+		reservation_detail->spent_budget = timespec_add\
+														(reservation_detail->spent_budget, ns_to_timespec(temp));
+		 reservation_detail->monitored_process->reserve_process.prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
+	
+
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 
 	return HRTIMER_NORESTART;
@@ -31,10 +39,10 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *timer )
 /*
  * Callback function for hr timer
  */
-enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
+enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 {
-	struct reserve_obj* reservation_detail=container_of(timer,\
-			struct reserve_obj, hr_timer);
+	struct reserve_obj* reservation_detail=container_of(T_timer,\
+			struct reserve_obj, T_timer);
 	ktime_t ktime, forward_time, curr_time;
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
@@ -52,53 +60,28 @@ enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 
 	if (reservation_detail->running)
 	{
-		if (!hrtimer_cancel(&reservation_detail->C_timer))
-			printk(KERN_INFO "Couldn't cancel hrtimer\n");
+		hrtimer_cancel(&reservation_detail->C_timer);
 		hrtimer_init( &reservation_detail->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
 		reservation_detail->C_timer.function = &C_timer_callback;
 		hrtimer_start(&reservation_detail->C_timer, reservation_detail->remaining_C, HRTIMER_MODE_REL);
 
 	}
 
-	/*if (reservation_detail->need_resched)
+	if (reservation_detail->need_resched && reservation_detail->monitored_process->state == TASK_UNINTERRUPTIBLE)
 	{
 		reservation_detail->need_resched = 0;
 		if(!wake_up_process(reservation_detail->monitored_process))
 			printk(KERN_INFO "Couldn't wake up process\n");
-	}*/
+	}
+
 	forward_time = ktime_set(reservation_detail->T.tv_sec\
 			, reservation_detail->T.tv_nsec);
 
 	curr_time = ktime_get();
 
-	hrtimer_forward(timer, curr_time, forward_time);
+	hrtimer_forward(T_timer, curr_time, forward_time);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	return HRTIMER_RESTART;
-}
-
-/*
- * Initializes the hr timer for each reserved task
- */
-void init_hrtimer( struct reserve_obj * res_p)
-{
-	ktime_t ktime;
-	ktime = ktime_set( res_p->T.tv_sec, res_p->T.tv_nsec);
-
-	if (res_p->running)
-	{
-		hrtimer_init( &res_p->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
-		res_p->hr_timer.function = &my_hrtimer_callback;
-		hrtimer_start( &res_p->hr_timer, ktime, HRTIMER_MODE_REL );
-	
-		printk(KERN_INFO "Started C and T timer\n");
-	
-		hrtimer_init( &res_p->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
-		res_p->C_timer.function = &C_timer_callback;
-		hrtimer_start( &res_p->C_timer, res_p->remaining_C, HRTIMER_MODE_REL );
-		res_p->t_timer_started = 1;
-	}
-
-	return;
 }
 
 
@@ -106,17 +89,17 @@ void init_hrtimer( struct reserve_obj * res_p)
  * Cleans up the hr timer for each reserved task whose reservation is cancelled
  */
 
-void cleanup_hrtimer(struct hrtimer *hr_timer )
+void cleanup_hrtimer(struct hrtimer *T_timer )
 {
-	struct reserve_obj* reservation_detail=container_of(hr_timer,\
-			struct reserve_obj, hr_timer);
+	struct reserve_obj* reservation_detail=container_of(T_timer,\
+			struct reserve_obj, T_timer);
 
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 	printk(KERN_INFO "Cancelling reservation %d\n", reservation_detail->pid);
-	if (!hrtimer_cancel( hr_timer ))
+	if (!hrtimer_cancel( T_timer ))
 	{
-		printk(KERN_INFO "Failed to cancel hr_timer\n");
+		printk(KERN_INFO "Failed to cancel T_timer\n");
 	}
 	if (!hrtimer_cancel( &reservation_detail->C_timer ))
 	{

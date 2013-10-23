@@ -35,7 +35,7 @@ struct reserve_obj
 	struct timespec C;
 	struct timespec T;
 	struct timespec spent_budget;
-	struct hrtimer hr_timer;
+	struct hrtimer T_timer;
 	struct hrtimer C_timer;
 	ktime_t remaining_C;
 	struct kobj_attribute util_attr;
