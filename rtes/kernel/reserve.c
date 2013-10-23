@@ -30,7 +30,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	n++;
 
-	printk(KERN_INFO "in set reserve\n");
 	if (pid == 0)
 	{
 		task = current;
@@ -43,7 +42,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		{
 			if (task->pid == pid)
 			{
-				printk(KERN_INFO "found task\n");
 				task_found = task;
 				break;
 			}
@@ -55,7 +53,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			return -1;
 
 	if (task->under_reservation)
-		cleanup_hrtimer(&task->reserve_process.hr_timer);
+		cleanup_hrtimer(&task->reserve_process.T_timer);
 	if (n == 1)
 	{
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
@@ -96,7 +94,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
 
-	
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
 	create_pid_dir_and_reserve_file (task);
@@ -134,12 +131,8 @@ unsigned long do_cancel_reserve(pid_t pid)
 	if (!task_found)
 		return -1;
 	if (task->under_reservation)
-	{
-		/*if (task->tgid != task->pid)
-		{
-			task = current->group_leader;
-		}*/
-		cleanup_hrtimer(&task->reserve_process.hr_timer);
+	{	
+		cleanup_hrtimer(&task->reserve_process.T_timer);
 		task->under_reservation = 0;
 		return 0;
 	}
@@ -152,13 +145,11 @@ unsigned long do_cancel_reserve(pid_t pid)
  */
 unsigned long do_end_job()
 {
-	struct task_struct *task = NULL;
-
-	task = current;
-	if (task->under_reservation)
+	/* Requesting the scheduler to deactivate the current task */
+	if (current->under_reservation)
 	{
-		//task->reserve_process.signal_sent = 1;
-		/** Invoke another function **/
+		current->reserve_process.need_resched = 1;
+		set_tsk_need_resched(current);
 	}
 
 	return 0;
