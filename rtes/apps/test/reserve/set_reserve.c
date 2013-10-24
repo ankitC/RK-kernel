@@ -20,11 +20,11 @@ int main(int argc, char* argv[])
 
 	printf("In user pid=%u\n", pid);
 	struct timespec ctime;
-	ctime.tv_sec = 1;
+	ctime.tv_sec = atoll(argv[2]);
 	ctime.tv_nsec = 0; /*25ms*/
 
 	struct timespec ttime;
-	ttime.tv_sec = 5;
+	ttime.tv_sec = atoll(argv[3]);
 	ttime.tv_nsec = 0; /*100ms*/
 
 	unsigned int prio = 120;
