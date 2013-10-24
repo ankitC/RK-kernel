@@ -14,7 +14,7 @@
 #include <linux/partition_scheduling.h>
 
 #define D(x) x
-
+extern void disable_auto_hotplug(void);
 
 /*
  * Introduces the process with the given pid in
@@ -57,6 +57,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		cleanup_hrtimer(&task->reserve_process.T_timer);
 	if (n == 1)
 	{
+		disable_auto_hotplug();
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 		create_directories();
 	}

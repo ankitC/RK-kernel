@@ -4391,8 +4391,6 @@ need_resched:
 
 	}
 
-
-
 	if (unlikely(!rq->nr_running))
 		idle_balance(cpu, rq);
 
