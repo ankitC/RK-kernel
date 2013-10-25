@@ -5,4 +5,6 @@ obj-y += reserve.o
 obj-y += hr_timer_func.o
 obj-y += sysfs.o
 obj-y += partition_scheduling.o
+obj-y += switches.o
+obj-y += linked_list.o
 

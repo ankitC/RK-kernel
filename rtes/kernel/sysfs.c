@@ -6,6 +6,7 @@
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <asm/current.h>
+#include <linux/sysfs_func.h>
 
 /*
  * Function called when a read is done on sysfs util file
@@ -60,13 +61,18 @@ struct kobject *tasks_kobj;
  */
 int create_directories(void)
 {
-	static struct kobject *rtes_kobj;
+	static struct kobject *rtes_kobj, *config_kobj;
 	printk(KERN_INFO "creating initial directories\n");
 	if(!(rtes_kobj = kobject_create_and_add("rtes", NULL)))
 		return -ENOMEM;
 
 	if(!(tasks_kobj = kobject_create_and_add("tasks", rtes_kobj)))
 		return -ENOMEM;
+
+	if(!(config_kobj = kobject_create_and_add("config", rtes_kobj)))
+		return -ENOMEM;
+
+	create_switches(config_kobj);
 	return 0;
 }
 /*

@@ -10,7 +10,7 @@
 #define SATURATE 0x7FFFFFFF
 #define ERROR 0XDEADBEEF
 
-SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)
+long do_calc( long first, long second, char operation)
 {
 	long result = 0;
 
@@ -25,6 +25,7 @@ SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)
 				break;
 			}
 			result = first + second;
+			
 			break;
 		case '-':
 			if (first == SATURATE || second == SATURATE){
@@ -60,3 +61,9 @@ SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)
 			Operation = %c\nResult = %ld\n", first, second, operation, result);
 	return result;
 }
+SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)
+{
+	return do_calc(first, second, operation);
+}
+
+

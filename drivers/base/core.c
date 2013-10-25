@@ -655,6 +655,7 @@ class_dir_create_and_add(struct class *class, struct kobject *parent_kobj)
 		kobject_put(&dir->kobj);
 		return NULL;
 	}
+
 	return &dir->kobj;
 }
 

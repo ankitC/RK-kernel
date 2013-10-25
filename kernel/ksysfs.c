@@ -17,6 +17,7 @@
 #include <linux/profile.h>
 #include <linux/sched.h>
 #include <linux/capability.h>
+#include <linux/sysfs_func.h>
 
 #define KERNEL_ATTR_RO(_name) \
 static struct kobj_attribute _name##_attr = __ATTR_RO(_name)
@@ -208,6 +209,8 @@ static int __init ksysfs_init(void)
 			goto group_exit;
 	}
 
+	/* creating sysfs config directory and disbling auto hotplug*/
+	create_directories();
 	return 0;
 
 group_exit:

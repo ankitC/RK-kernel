@@ -12,24 +12,24 @@
 #include <linux/hr_timer_func.h>
 #include <linux/sysfs_func.h>
 #include <linux/partition_scheduling.h>
+#include <linux/linked_list.h>
 
 #define D(x) x
-extern void disable_auto_hotplug(void);
 
 /*
  * Introduces the process with the given pid in
  * the reservation framework
  */
 static int n = 0;
+extern void disable_auto_hotplug(void);
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
 	struct task_struct *task = NULL, *task_found = NULL;
-
+	unsigned int retval = 0;
 	unsigned long flags;	
 	ktime_t ktime;
 
-	n++;
 
 	if (pid == 0)
 	{
@@ -55,13 +55,14 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.T_timer);
-	if (n == 1)
+
+	if (!n)
 	{
-		disable_auto_hotplug();
+	//	disable_auto_hotplug();
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
-		create_directories();
 	}
 
+	n++;
 	ktime = ktime_set(C.tv_sec, C.tv_nsec);
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
 
@@ -74,14 +75,21 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	ktime = ktime_set( C.tv_sec, C.tv_nsec);
 
 	strcpy(task->reserve_process.name, "group11");
+	task->reserve_process.C = C;
+	task->reserve_process.T = T;
+
+	if((retval = admission_test(task)) < 0)
+	{
+		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
+		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
+		return retval;
+	}
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.buffer_overflow = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.need_resched = 0;
 	task->reserve_process.t_timer_started = 0;
-	task->reserve_process.C = C;
-	task->reserve_process.T = T;
 	task->reserve_process.remaining_C = ktime;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	task->reserve_process.spent_budget.tv_sec = 0;
@@ -95,15 +103,12 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.read_count = 0;
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
-
-
-
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
-	set_cpu_for_task(task, 3);
+	set_cpu_for_task(task, 0);
 	create_pid_dir_and_reserve_file (task);
-	printk(KERN_INFO "set all reserves pid=%u\n", task->pid);
-	return 0;
+	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);
+	return retval;
 }
 
 /*
@@ -135,10 +140,12 @@ unsigned long do_cancel_reserve(pid_t pid)
 
 	if (!task_found)
 		return -1;
+
 	if (task->under_reservation)
-	{	
+	{
 		cleanup_hrtimer(&task->reserve_process.T_timer);
 		task->under_reservation = 0;
+		delete_node(task);
 		return 0;
 	}
 	printk(KERN_INFO "Task is not under reservation\n");

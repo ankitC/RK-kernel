@@ -128,7 +128,6 @@
  * single value that denotes runtime == period, ie unlimited time.
  */
 #define RUNTIME_INF	((u64)~0ULL)
-
 static inline int rt_policy(int policy)
 {
 	if (policy == SCHED_FIFO || policy == SCHED_RR)
@@ -4270,6 +4269,7 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 	if (next->under_reservation)
 		ctx_buffer_write(&next->reserve_process, ts, 1);
 }
+
 /*
  * STop the C timer of the task which has context switched out
  */
