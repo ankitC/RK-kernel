@@ -26,7 +26,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
 	struct task_struct *task = NULL, *task_found = NULL;
-	unsigned int retval = 0;
+	int retval = 0;
 	unsigned long flags;	
 	ktime_t ktime;
 
@@ -77,12 +77,13 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
+	retval = admission_test(task);
 
-	if((retval = admission_test(task)) < 0)
+	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
 		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
-		return retval;
+		return 1;
 	}
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;

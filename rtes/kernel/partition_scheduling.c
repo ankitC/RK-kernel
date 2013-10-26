@@ -3,13 +3,18 @@
 #include <linux/slab.h>
 #include <linux/time.h>
 #include <linux/cpumask.h>
-#include <linux/nodemask.h>
 #include <linux/linked_list.h>
 #include <linux/reserve_framework.h>
+#include <asm/div64.h>
+#include <linux/types.h>
 #define CEILING(X) (X-(int)(X) > 0 ? (int)(X+1) : (int)(X))
 #define UNSCHEDULABLE 2
 extern int guarantee;
 PROC_NODE *head = NULL;
+
+/*
+ * Liu Leyland bounds for upto 62 tasks
+ */
 const uint32_t bounds_tasks[62]=
 {
 	10000,    8284,	7797,	7568,   7434,   7347,   7286,
@@ -21,32 +26,61 @@ const uint32_t bounds_tasks[62]=
 	6981,	6980,	6979,	6978,	6977,	6976,	6976,	6975,
 	6974,	6973,	6973,	6972,	6971,	6971,	6970
 };
-
+/*
+ * Utilization bound test to check for a task
+ */
 int ub_test(struct task_struct *task)
 {
 
 	PROC_NODE *curr = head;
 	unsigned char i = 0;
-	unsigned long long sum = 0, C_temp = 0, T_temp = 0;
+	unsigned long long sum = 0;
+	uint64_t C_var = 0;
+	uint64_t T_var = 0;
+	uint64_t* C_temp = (uint64_t*)&C_var;
+	uint64_t* T_temp = (uint64_t*)&T_var;
+	uint32_t remainder= 0, t = 0;
 
 	printk(KERN_INFO "UB Test\n");
 
-	if (head == NULL)
+	*C_temp = (timespec_to_ns(&task->reserve_process.C));
+	*T_temp = timespec_to_ns(&task->reserve_process.T);
+	printk(KERN_INFO " before T: %llu\n", *T_temp);
+	remainder = do_div(*T_temp, 10000);
+	printk(KERN_INFO "after T: %llu\n", *T_temp);
+	t = *T_temp;
+	remainder = do_div(*C_temp, t);
+	sum = sum + *C_temp;
+
+	printk(KERN_INFO "Utilisation for a current task: %llu\n", *C_temp);
+
+	if (head == NULL && sum < bounds_tasks[0])
+	{
+		printk(KERN_INFO "T: %llu\n", *T_temp);
+	printk(KERN_INFO "Utilisation: %llu\n", sum);
+
+
 		return 1;
+	}
 
 	while(curr)
 	{
-		C_temp = (timespec_to_ns(&curr->task->reserve_process.C)*10000);
-		T_temp = (timespec_to_ns(&curr->task->reserve_process.T));
-		sum = sum + do_calc(C_temp, T_temp, '/') ;
+		*C_temp =(uint64_t) (timespec_to_ns(&curr->task->reserve_process.C));
+		*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
+		remainder = do_div(*T_temp, 10000);
+		t = *T_temp;
+		remainder = do_div(*C_temp, t);
+		sum = sum + *C_temp;
+		printk(KERN_INFO "Utilisation for a prev task: %llu\n", *C_temp);
+//		sum = sum + do_calc(C_temp, T_temp, '/') ;
 
 		curr = curr->next;
 		i++;
 	}
 
-	C_temp = (timespec_to_ns(&task->reserve_process.C)*10000);
-	T_temp = (timespec_to_ns(&task->reserve_process.T));
-	sum = sum + do_calc(C_temp, T_temp, '/') ;
+
+	printk(KERN_INFO "Complete Util: %llu\n", sum);
+//	sum = sum + do_calc(C_temp, T_temp, '/') ;
 
 	if (sum > bounds_tasks[0])
 		return UNSCHEDULABLE;
@@ -55,7 +89,9 @@ int ub_test(struct task_struct *task)
 
 	return 1;
 }
-
+/*
+ * Response time test to check whether the task is schedulable on that cpu
+ */
 int rt_test(struct task_struct *task)
 {
 	unsigned long long *a;
@@ -85,8 +121,9 @@ int rt_test(struct task_struct *task)
 	{
 		while (curr)
 		{
-
-			temp += (CEILING(do_calc(a[i],timespec_to_ns(&curr->task->reserve_process.T), '/')))*timespec_to_ns(&curr->task->reserve_process.C);
+	//		temp += (CEILING(do_calc(a[i],timespec_to_ns\
+							(&curr->task->reserve_process.T), '/')))\
+					*timespec_to_ns(&curr->task->reserve_process.C);
 			curr = curr->next;
 		}
 
@@ -104,6 +141,9 @@ int rt_test(struct task_struct *task)
 	return 0;
 }
 
+/*
+ * Sets a the specified "host_cpu" for the task
+ */
 void set_cpu_for_task(struct task_struct *task, unsigned int host_cpu)
 {
 	struct cpumask af_mask;
@@ -119,6 +159,10 @@ void set_cpu_for_task(struct task_struct *task, unsigned int host_cpu)
 	task->reserve_process.host_cpu = host_cpu;
 }
 
+/*
+ * Admission Test for allowing tasks to be dispatched onto a certai processor
+ * Admission test is contingent on the guarntee witch in sysfs
+ */
 int admission_test(struct task_struct *task)
 {
 	int retval = 0, online_nodes = 0, i = 0;
@@ -127,11 +171,15 @@ int admission_test(struct task_struct *task)
 
 	for( i = 0; i < 4; i++)
 	{
-		if(node_online(i))
+		if(cpu_online(i))
+		{
 			online_nodes++;
+		}
 	}
 
-	printk(KERN_INFO "ONLINE NODES %d\n", online_nodes);
+	/*
+	 * Admission test for one cpu
+	 */
 	if ((online_nodes == 1))
 	{
 		retval = ub_test(task);
@@ -139,12 +187,21 @@ int admission_test(struct task_struct *task)
 		if (retval == UNSCHEDULABLE)
 			return -1;
 
-		if (retval || rt_test(task))
+		if (retval /*|| rt_test(task)*/)
 		{
 			printk(KERN_INFO "Adding node\n");
 			add_ll_node(make_node(task));
 			return 0;
 		}
 	}
+	/*
+	 * Admission test for many processors
+	 */
+
+/*	else
+	{
+		suspend_all_tasks();
+		partition_tasks();
+	}*/
 	return -1;
 }

@@ -40,6 +40,7 @@ void delete_node (struct task_struct *task)
 	PROC_NODE* curr = head;
 	PROC_NODE* prev = NULL;
 
+	printk(KERN_INFO "Deleting node\n");
 	while (curr)
 	{
 		if (curr->task == task)

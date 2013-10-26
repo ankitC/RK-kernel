@@ -4255,6 +4255,7 @@ pick_next_task(struct rq *rq)
 
 	BUG(); /* the idle class will always have a runnable task */
 }
+extern int trace_ctx;
 /*
  *Implements instrumentation functionality
  */
@@ -4263,11 +4264,14 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 	struct timespec ts;
 	getrawmonotonic(&ts);
 
-	if (prev->under_reservation)
-		ctx_buffer_write(&prev->reserve_process, ts, 0);
+	if (trace_ctx)
+	{
+		if (prev->under_reservation)
+			ctx_buffer_write(&prev->reserve_process, ts, 0);
 
-	if (next->under_reservation)
-		ctx_buffer_write(&next->reserve_process, ts, 1);
+		if (next->under_reservation)
+			ctx_buffer_write(&next->reserve_process, ts, 1);
+	}
 }
 
 /*

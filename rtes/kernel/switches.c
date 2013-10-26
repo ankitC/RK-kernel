@@ -7,7 +7,8 @@
 #include <linux/sched.h>
 #include <asm/current.h>
 
-int trace_ctx = 0, migrate = 0, disable_cpus = 0, partition_policy = 0, guarantee = 0;
+int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
+char partition_policy[2];
 /*
  * Function called when a read is done on sysfs util file
  */
@@ -16,14 +17,16 @@ static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, 
 	int var = 0;
 
 	printk(KERN_INFO "Switch Show %s\n", attr->attr.name);
+
+	if (strcmp(attr->attr.name, "partition_policy") == 0)
+		return sprintf(buf, "%s\n", partition_policy);
+
 	if (strcmp(attr->attr.name, "guarantee") == 0)
 		var = guarantee;
 	if (strcmp(attr->attr.name, "migrate") == 0)
 		var = migrate;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
 		var = disable_cpus;
-	if (strcmp(attr->attr.name, "partition_policy") == 0)
-		var = partition_policy;
 	else
 		var = trace_ctx;
 
@@ -40,6 +43,12 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 	int var;
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
+	if (strcmp(attr->attr.name, "partition_policy") == 0)
+	{
+		strncpy(partition_policy, buf, 1);
+		return count;
+	}
+
 	sscanf(buf, "%d", &var);
 
 	if (strcmp(attr->attr.name, "guarantee") == 0)
@@ -48,8 +57,6 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		migrate = var;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
 		disable_cpus = var;
-	if (strcmp(attr->attr.name, "partition_policy") == 0)
-		partition_policy = var;
 	else
 		trace_ctx = var;
 
@@ -84,7 +91,8 @@ struct attribute_group attr_group = {
 int create_switches(struct kobject *config_obj)
 {
 	int retval = 0;
-
+	partition_policy[0] = 'F';
+	partition_policy[1] = '\0';
 	retval = sysfs_create_group(config_obj, &attr_group);
 
 	if(retval)

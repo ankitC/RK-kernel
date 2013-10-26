@@ -4,6 +4,7 @@
 #include <asm/uaccess.h>
 #include <asm/current.h>
 #include <linux/reserve_framework.h>
+#include <linux/linked_list.h>
 #include <linux/sysfs_func.h>
 #include <linux/kernel.h>
 #include <linux/hrtimer.h>
@@ -105,6 +106,7 @@ void cleanup_hrtimer(struct hrtimer *T_timer )
 	{
 		printk(KERN_INFO "Failed to cancel C_timer\n");
 	}
+	delete_node(reservation_detail->monitored_process);
 	reservation_detail->monitored_process->under_reservation = 0;
 
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
