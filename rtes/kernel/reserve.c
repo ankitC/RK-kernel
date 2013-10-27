@@ -22,6 +22,31 @@
  */
 static int n = 0;
 extern void disable_auto_hotplug(void);
+
+static unsigned long long calculate_util(struct task_struct * task)
+{
+	uint64_t C_var = 0;
+	uint64_t T_var = 0;
+	uint64_t* C_temp = (uint64_t*)&C_var;
+	uint64_t* T_temp = (uint64_t*)&T_var;
+	uint32_t remainder= 0, t = 0;
+
+	*C_temp = (timespec_to_ns(&task->reserve_process.C));
+	*T_temp = timespec_to_ns(&task->reserve_process.T);
+	remainder = do_div(*T_temp, 10000);
+	t = *T_temp;
+	remainder = do_div(*C_temp, t);
+
+	printk(KERN_INFO "Utilisation for a current task: %llu\n", *C_temp);
+	return *C_temp;
+
+}
+
+
+
+
+
+
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
@@ -77,6 +102,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
+	task->reserve_process.U = calculate_util(task);
 	retval = admission_test(task);
 
 	if(retval < 0)

@@ -33,6 +33,7 @@ struct reserve_obj
 	int running;
 	unsigned int host_cpu;
 	struct timespec C;
+	unsigned long long U;
 	struct timespec T;
 	struct timespec spent_budget;
 	struct hrtimer T_timer;

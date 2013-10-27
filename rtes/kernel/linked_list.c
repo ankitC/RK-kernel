@@ -3,6 +3,9 @@
 #include <linux/nodefuncs.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
+//#include <linux/reserve_framework.h>
+#include <linux/sched.h>
+
 extern PROC_NODE * head;
 PROC_NODE* make_node(struct task_struct *task)
 {
@@ -16,6 +19,7 @@ PROC_NODE* make_node(struct task_struct *task)
 void add_ll_node( PROC_NODE* curr1)
 {
 	PROC_NODE* curr2 = head;
+	PROC_NODE* temp = NULL;
 
 	if (!curr1)
 	{
@@ -29,8 +33,34 @@ void add_ll_node( PROC_NODE* curr1)
 	}
 	else
 	{
-		curr1->next = curr2;
-		head = curr1;
+		printk(KERN_INFO "Head Present");
+		printk(KERN_INFO "curr2->T = %llu curr1->T = %llu\n", timespec_to_ns(&curr2->task->reserve_process.T) \
+				, timespec_to_ns(&curr1->task->reserve_process.T));
+		if (timespec_to_ns(&curr2->task->reserve_process.T) >
+				   	timespec_to_ns(&curr1->task->reserve_process.T))
+		{
+			printk(KERN_INFO "Left less than right\n");
+			curr1->next = curr2;
+			head = curr1;
+			printk(KERN_INFO "Head changed, Node Added\n");
+		}
+		else
+		{
+			printk(KERN_INFO "Right less than left\n");
+			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <
+				   	timespec_to_ns(&curr1->task->reserve_process.T) ))
+			{
+				temp = curr2;
+				curr2 = curr2->next;
+			}
+
+			if(curr2)
+			{
+				printk("Had to do some sorting\n");
+				curr1->next = curr2;
+			}
+			temp->next = curr1;
+		}
 	}
 }
 
