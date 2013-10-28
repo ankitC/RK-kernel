@@ -111,13 +111,13 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 		a[i + 1] += timespec_to_ns(&stop->task->reserve_process.C);
 
 		if ( a[i] == a[i + 1]){
-			printk(KERN_INFO "a[%d] = %llu", i, a[i]);
+			printk(KERN_INFO "RT Test succeeds a[%d] = %llu", i, a[i]);
 			return 1;
 		}
 
 		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
 		{
-			printk(KERN_INFO "a[%d] = %llu", i + 1, a[i]);
+			printk(KERN_INFO " RT Test failed a[%d] = %llu", i + 1, a[i]);
 			printk(KERN_INFO "T = %llu", timespec_to_ns(&stop->task->reserve_process.T));
 			return 0;
 		}
@@ -243,6 +243,7 @@ int apply_next_fit(void)
 		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
 			cpu = (cpu + 1) % 4;
+			printk(KERN_INFO "Incrementing cpu %d", cpu);
 			counter++;
 		}
 		else

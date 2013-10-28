@@ -79,16 +79,20 @@ void delete_bin_node (struct task_struct *task)
 	{
 		if (curr->task == task)
 		{
+			printk(KERN_INFO "Found Bin Node to be deleted\n");
 			if (curr == bin_head)
 			{
+				printk(KERN_INFO "I have deleted the bin head\n");
 				bin_head = curr->next;
 				kfree(curr);
 			}
 			else
 			{
+				printk(KERN_INFO "I have deleted a standard bin node\n");
 				prev->next = curr->next;
 				kfree(curr);
 			}
+			curr = NULL;
 			return;
 		}
 		prev = curr;
