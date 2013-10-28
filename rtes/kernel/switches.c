@@ -27,7 +27,7 @@ static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, 
 		var = migrate;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
 		var = disable_cpus;
-	else
+	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		var = trace_ctx;
 
 	return sprintf(buf, "%d\n", var);
@@ -57,7 +57,7 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		migrate = var;
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
 		disable_cpus = var;
-	else
+	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		trace_ctx = var;
 
 	return count;

@@ -103,6 +103,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
 	task->reserve_process.U = calculate_util(task);
+	task->reserve_process.host_cpu = smp_processor_id();
 	retval = admission_test(task);
 
 	if(retval < 0)
@@ -132,7 +133,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.end = 0;
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
-	set_cpu_for_task(task, 0);
+	set_cpu_for_task(task);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);
 	return retval;
@@ -182,7 +183,7 @@ unsigned long do_cancel_reserve(pid_t pid)
 /*
  * Suspends the current running job
  */
-unsigned long do_end_job()
+unsigned long do_end_job(void)
 {
 	/* Requesting the scheduler to deactivate the current task */
 	if (current->under_reservation)

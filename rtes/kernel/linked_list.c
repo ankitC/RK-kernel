@@ -3,7 +3,6 @@
 #include <linux/nodefuncs.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
-//#include <linux/reserve_framework.h>
 #include <linux/sched.h>
 
 extern PROC_NODE * head;
@@ -47,7 +46,7 @@ void add_ll_node( PROC_NODE* curr1)
 		else
 		{
 			printk(KERN_INFO "Right less than left\n");
-			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <
+			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <=
 				   	timespec_to_ns(&curr1->task->reserve_process.T) ))
 			{
 				temp = curr2;

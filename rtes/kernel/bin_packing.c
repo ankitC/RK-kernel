@@ -2,55 +2,45 @@
 #include <linux/cpu.h>
 #include <linux/slab.h>
 #include <linux/time.h>
+#include <linux/string.h>
 #include <linux/cpumask.h>
 #include <linux/linked_list.h>
-#include <linux/bin_packing.h>
-#include <linux/bin_linked_list.h>
+#include <linux/cpu_linked_list.h>
 #include <linux/reserve_framework.h>
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
-extern int guarantee;
-extern int migrate;
-PROC_NODE *head = NULL;
-extern BIN_NODE *bin_head;
 
-/*
- * Liu Leyland bounds for upto 62 tasks
- */
-const uint32_t bounds_tasks[62]=
-{
-	10000,    8284,	7797,	7568,   7434,   7347,   7286,
-	7240,	7205,	7177,	7154,	7135,	7119,	7105,	7094,
-	7083,	7074,	7066,	7059,	7052,	7047,	7041,	7036,
-	7032,	7028,	7024,	7021,	7017,	7014,	7012,	7009,
-	7007,	7004,	7002,	7000,	6998,	6996,	6995,	6993,
-	6991,	6990,	6988,	6987,	6986,	6985,	6983,	6982,
-	6981,	6980,	6979,	6978,	6977,	6976,	6976,	6975,
-	6974,	6973,	6973,	6972,	6971,	6971,	6970
-};
+BIN_NODE* cpu_bin_head[4] = {0};
+extern const uint32_t bounds_tasks[62];
+extern char partition_policy[2]; 
+extern BIN_NODE* bin_head;
 /*
  * Utilization bound test to check for a task
  * Returns UNSCHEDULABLE on Failure.
  * Returns 0 when RT test is required.
  * Returns 1 on Success.
  */
-int ub_test(struct task_struct *task)
+int ub_cpu_test(BIN_NODE *curr1, int cpu)
 {
 
-	PROC_NODE *curr = head;
+	BIN_NODE *curr = cpu_bin_head[cpu];
 	unsigned int i = 0;
-	unsigned long long total_util = task->reserve_process.U;
+	unsigned long long total_util = curr1->task->reserve_process.U;
 
-	if (head == NULL && task->reserve_process.U < bounds_tasks[0])
+	printk(KERN_INFO "ub test: curr1 util %llu\n", curr1->task->reserve_process.U);
+
+	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
 	{
-		add_ll_node(make_node(task));
+		add_cpu_node(make_cpu_node(curr1->task), cpu);
 		return 1;
 	}
 
 	while(curr)
 	{
+
 		total_util += curr->task->reserve_process.U;
+		printk(KERN_INFO "curr1 util %llu\n", curr1->task->reserve_process.U);
 		curr = curr->next;
 		i++;
 	}
@@ -62,15 +52,14 @@ int ub_test(struct task_struct *task)
 	if(total_util > bounds_tasks[i])
 		return 0;
 
-	add_ll_node(make_node(task));
+	add_cpu_node(make_cpu_node(curr1->task), cpu);
 	return 1;
 }
-
 /*
  * Calculation for RT-Test on per task basis.
  * Returns 1 on Success and 0 on failure
  */
-int check_schedulabilty(PROC_NODE *stop)
+int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 {
 	unsigned long long a[24] = {0};
 	int i = 0;
@@ -80,7 +69,7 @@ int check_schedulabilty(PROC_NODE *stop)
 	uint64_t* A_temp = (uint64_t*)&A_var;
 	uint64_t* T_temp = (uint64_t*)&T_var;
 	uint32_t remainder= 0, t = 0;
-	PROC_NODE *curr = head;
+	BIN_NODE *curr = cpu_bin_head[cpu];
 
 	while (curr != stop->next)
 	{
@@ -90,7 +79,7 @@ int check_schedulabilty(PROC_NODE *stop)
 
 	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
 
-	curr = head;
+	curr = cpu_bin_head[cpu];
 
 	while (1)
 	{
@@ -134,7 +123,7 @@ int check_schedulabilty(PROC_NODE *stop)
 		}
 
 		i++;
-		curr = head;
+		curr = cpu_bin_head[cpu];
 		*A_temp = 0;
 		*T_temp = 0;
 	}
@@ -146,15 +135,15 @@ int check_schedulabilty(PROC_NODE *stop)
  * Response time test to check whether the task is schedulable on that cpu
  * Returns 1 for success and 0 for failure
  */
-int rt_test(struct task_struct *task)
+int rt_cpu_test(BIN_NODE* foo, int cpu)
 {
 	unsigned long long total_util = 0;
 	int k = 0;
-	PROC_NODE * curr = head;
+	BIN_NODE *curr = cpu_bin_head[cpu];
 	int j = 0;
 
 	printk(KERN_INFO "RT Test\n");
-	add_ll_node(make_node(task));
+	add_cpu_node(make_cpu_node(foo->task), cpu);
 
 	while (curr)
 	{
@@ -167,7 +156,7 @@ int rt_test(struct task_struct *task)
 		curr = curr->next;
 	}
 
-	curr = head;
+	curr = cpu_bin_head[cpu];
 
 	/* Forwarding the linkedlist upto the position*/
 	for (k = 0; k < j; k++)
@@ -175,7 +164,7 @@ int rt_test(struct task_struct *task)
 
 	while (curr)
 	{
-		if(check_schedulabilty(curr)){
+		if(check_cpu_schedulabilty(curr, cpu)){
 			printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
@@ -188,93 +177,128 @@ int rt_test(struct task_struct *task)
 	return 1;
 }
 
-
-
 /*
- * Admission Test for allowing tasks to be dispatched onto a certai processor
- * Admission test is contingent on the guarntee switch in sysfs
- * Returns -1 on failure and node is not added to the list.
- * Returns  1 on Success and node is added to the list.
+ * Admission test for a particular cpu
  */
-
-int admission_test(struct task_struct *task)
+int admission_test_for_cpu(BIN_NODE* curr, int cpu)
 {
-	int retval = 0, online_nodes = 0, i = 0;
-	BIN_NODE *curr = bin_head;
-	if (!guarantee)
-		return 0;
+	int retval = 0;
 
-	for( i = 0; i < 4; i++)
+	retval = ub_cpu_test(curr, cpu);
+
+	if (retval == UNSCHEDULABLE)
+		return -1;
+
+	if (retval || rt_cpu_test(curr, cpu))
 	{
-		if(cpu_online(i))
-		{
-			online_nodes++;
-		}
+		return 1;
 	}
-
-	/*
-	 * Admission test for one cpu
-	 */
-	if ((online_nodes == 1))
+	else
 	{
-		retval = ub_test(task);
+		delete_cpu_node(curr->task, cpu);
+		return -1;
+	}
+}
+/*
+ * First fit heuristic for bin packing
+ */
+int apply_first_fit(void)
+{
+	int cpu = 0;
+	BIN_NODE* curr = bin_head;
 
-		if (retval == UNSCHEDULABLE)
-			return -1;
-
-		if (retval || rt_test(task))
+	printk(KERN_INFO "First fit\n");
+	while (curr && cpu < 4)
+	{
+		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
-			return 1;
+			cpu++;
 		}
 		else
 		{
-			delete_node(task);
-			return -1;
+			printk(KERN_INFO "Setting cpu %d", cpu);
+			curr->task->reserve_process.host_cpu = cpu;
+			curr = curr->next;
+			if (curr)
+				printk(KERN_INFO "Next node existsi\n");
+			cpu = 0;
 		}
-
 	}
-	/*
-	 * Admission test for many processors
-	 */
+
+	if (cpu == 4)
+		return -1;
 	else
+		return 1;
+}
+/*
+ * Next fit heuristic for bin packing
+ */
+int apply_next_fit(void)
+{
+	int cpu = 0, counter = 0;
+	BIN_NODE* curr = bin_head;
+
+	while (curr && counter < 4)
 	{
-		add_bin_node(make_bin_node(task));
-
-		retval = apply_heuristic();
-
-		if ((retval == 1) && (migrate == 1))
+		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
-			return 1;
+			cpu = (cpu + 1) % 4;
+			counter++;
 		}
-		else if ((retval == 1) && (migrate == 0))
+		else
 		{
-			/* Mark all tasks as pending*/
-			return 1;
+			printk(KERN_INFO "Setting cpu %d", cpu);
+			curr->task->reserve_process.host_cpu = cpu;
+			curr = curr->next;
 		}
-
-		if (retval < 0)
-			printk("Task cannot be scheduled according to heuristic\n");
 	}
-	return -1;
+
+	if (counter == 4)
+		return -1;
+	else
+		return 1;
+}
+
+
+/*
+ * Best fit heuristic for bin packing
+ */
+int apply_best_fit(void)
+{
+
+	return 0;
+}
+
+
+/*
+ * Worst fit heuristic for bin packing
+ */
+int apply_worst_fit(void)
+{
+
+	return 0;
 }
 
 /*
- * Sets a the specified "host_cpu" for the task
+ * Applies the heuristic for bin packing in the partition_policy
+ * variable. 
+ * Returns 1 on success
+ * Returns -1 on failure
  */
-void set_cpu_for_task(struct task_struct *task)
+int apply_heuristic(void)
 {
-	struct cpumask af_mask;
-	int host_cpu  = task->reserve_process.host_cpu;
+	int retval = 0;
 
-	if (task->under_reservation && host_cpu != smp_processor_id())
-	{
-		cpumask_clear(&af_mask);
-		cpumask_set_cpu(host_cpu, &af_mask);
-		cpu_up(host_cpu);
+	if (strcmp(partition_policy,"N") == 0)
+			retval = apply_next_fit();
+	if (strcmp(partition_policy,"B") == 0)
+			retval = apply_best_fit();
+	if (strcmp(partition_policy,"W") == 0)
+			retval = apply_worst_fit();
+	if (strcmp(partition_policy,"F") == 0)
+			retval = apply_first_fit();
 
-		if (sched_setaffinity(task->pid, &af_mask))
-			printk(KERN_INFO "Couldn't set task affinity\n");
-		else
-			printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
-	}
+	delete_all_cpu_nodes();
+
+	return retval;
 }

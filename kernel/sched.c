@@ -4411,7 +4411,6 @@ need_resched:
 
 		if(prev != next)
 		{
-
 			instrumentation(prev, next);
 			stop_C_timer(prev);
 			start_timer(next);

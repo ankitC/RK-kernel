@@ -46,7 +46,6 @@ static ssize_t tval_show(struct kobject * kobj, struct kobj_attribute * attr, ch
  */
 static ssize_t ctx_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
-	printk(KERN_INFO "Ctx show\n");
 	struct reserve_obj* reservation_detail = container_of(attr, \
 			struct reserve_obj, ctx_attr);
 	int len = ctx_buffer_read(reservation_detail, buf);
