@@ -39,8 +39,7 @@ void add_bin_node( BIN_NODE* curr1)
 	}
 	else
 	{
-		printk(KERN_INFO "Head bin Present");
-		printk(KERN_INFO "curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
+		printk(KERN_INFO "Bin Head is present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
 				, curr1->task->reserve_process.U);
 
 		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)
@@ -74,21 +73,17 @@ void delete_bin_node (struct task_struct *task)
 	BIN_NODE* curr = bin_head;
 	BIN_NODE* prev = NULL;
 
-	printk(KERN_INFO "Deleting bin node\n");
 	while (curr)
 	{
 		if (curr->task == task)
 		{
-			printk(KERN_INFO "Found Bin Node to be deleted\n");
 			if (curr == bin_head)
 			{
-				printk(KERN_INFO "I have deleted the bin head\n");
 				bin_head = curr->next;
 				kfree(curr);
 			}
 			else
 			{
-				printk(KERN_INFO "I have deleted a standard bin node\n");
 				prev->next = curr->next;
 				kfree(curr);
 			}

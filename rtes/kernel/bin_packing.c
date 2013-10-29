@@ -10,8 +10,8 @@
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
-
-BIN_NODE* cpu_bin_head[4] = {0};
+#define TOTAL_CORES 4
+BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
@@ -89,8 +89,8 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-			printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-			printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
+			//printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
+			//printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -99,10 +99,10 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 			if ((remainder = do_div(*A_temp, 10000)) > 0)
 			{
 				*A_temp = *A_temp + 1;
-				printk(KERN_INFO "After: *A_temp = %llu", *A_temp);
+				//	printk(KERN_INFO "After: *A_temp = %llu", *A_temp);
 
 			}
-			printk(KERN_INFO "After Scaling: *A_temp = %llu", *A_temp);
+			//	printk(KERN_INFO "After Scaling: *A_temp = %llu", *A_temp);
 
 			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
 			curr = curr->next;
@@ -199,6 +199,126 @@ int admission_test_for_cpu(BIN_NODE* curr, int cpu)
 		return -1;
 	}
 }
+
+void reverse_array(int sorted_cpus[TOTAL_CORES])
+{
+	int i = 0, temp = 0;
+	for (i = 0; i < TOTAL_CORES/2; i++)
+	{
+		temp = sorted_cpus[TOTAL_CORES - 1 - i];
+		sorted_cpus[TOTAL_CORES - 1 - i] = sorted_cpus[i];
+		sorted_cpus[i] = temp;
+	}
+}
+/*
+ * sort_cpus_util_wf: Sorts cpus in descending order of utilization
+ */
+
+void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
+{
+
+	BIN_NODE* curr;
+	int i = 0;
+	int j = 0;
+
+
+	struct cpu{
+
+		int cpu;
+		int util;
+	};
+
+	struct cpu cpu_arr[TOTAL_CORES];
+
+	struct cpu temp;
+
+	for (i = 0; i < TOTAL_CORES; i++)
+	{
+		curr = cpu_bin_head[i];
+		cpu_arr[i].util = 0;
+		cpu_arr[i].cpu = i;
+
+		while(curr)
+		{
+			cpu_arr[i].util += curr->task->reserve_process.U;
+			curr = curr->next;
+		}
+	}
+
+	for(i = 0; i < TOTAL_CORES; i++)
+	{
+		for(j = i; j < TOTAL_CORES; j++)
+		{
+			if(cpu_arr[i].util > cpu_arr[j].util)
+			{
+				temp = cpu_arr[i];
+				cpu_arr[i] = cpu_arr[j];
+				cpu_arr[j] = temp;
+			}
+		}
+	}
+
+	for (i = 0; i < TOTAL_CORES; i++)
+	{
+		sorted_cpus[i] = cpu_arr[i].cpu;
+	}
+
+
+}
+
+/*
+ * sort_cpus_util_wf: Sorts cpus in descending order of utilization
+ */
+
+void sort_cpus_util_bf(int sorted_cpus[TOTAL_CORES])
+{
+
+	BIN_NODE* curr;
+	int i = 0;
+	int j = 0;
+
+
+	struct cpu{
+
+		int cpu;
+		int util;
+	};
+
+	struct cpu cpu_arr[TOTAL_CORES];
+
+	struct cpu temp;
+
+	for (i = 0; i < TOTAL_CORES; i++)
+	{
+		curr = cpu_bin_head[i];
+		cpu_arr[i].util = 0;
+		cpu_arr[i].cpu = i;
+
+		while(curr)
+		{
+			cpu_arr[i].util += curr->task->reserve_process.U;
+			curr = curr->next;
+		}
+	}
+
+	for(i = 0; i < TOTAL_CORES; i++)
+	{
+		for(j = i; j < TOTAL_CORES; j++)
+		{
+			if(cpu_arr[i].util < cpu_arr[j].util)
+			{
+				temp = cpu_arr[i];
+				cpu_arr[i] = cpu_arr[j];
+				cpu_arr[j] = temp;
+			}
+		}
+	}
+
+	for (i = 0; i < TOTAL_CORES; i++)
+	{
+		sorted_cpus[i] = cpu_arr[i].cpu;
+	}
+}
 /*
  * First fit heuristic for bin packing
  */
@@ -208,7 +328,7 @@ int apply_first_fit(void)
 	BIN_NODE* curr = bin_head;
 
 	printk(KERN_INFO "First fit\n");
-	while (curr && cpu < 4)
+	while (curr && cpu < TOTAL_CORES)
 	{
 		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
@@ -225,7 +345,7 @@ int apply_first_fit(void)
 		}
 	}
 
-	if (cpu == 4)
+	if (cpu == TOTAL_CORES)
 		return -1;
 	else
 		return 1;
@@ -238,11 +358,11 @@ int apply_next_fit(void)
 	int cpu = 0, counter = 0;
 	BIN_NODE* curr = bin_head;
 
-	while (curr && counter < 4)
+	while (curr && counter < TOTAL_CORES)
 	{
 		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
-			cpu = (cpu + 1) % 4;
+			cpu = (cpu + 1) % TOTAL_CORES;
 			printk(KERN_INFO "Incrementing cpu %d", cpu);
 			counter++;
 		}
@@ -254,7 +374,7 @@ int apply_next_fit(void)
 		}
 	}
 
-	if (counter == 4)
+	if (counter == TOTAL_CORES)
 		return -1;
 	else
 		return 1;
@@ -266,8 +386,31 @@ int apply_next_fit(void)
  */
 int apply_best_fit(void)
 {
+	int cpu = 0;
+	BIN_NODE* curr = bin_head;
+	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
 
-	return 0;
+	printk(KERN_INFO "Best Fit\n");
+	while (curr && cpu < TOTAL_CORES)
+	{
+		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
+		{
+			cpu++;
+		}
+		else
+		{
+			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
+			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr = curr->next;
+			sort_cpus_util_bf(sorted_cpus);
+			cpu = 0;
+		}
+	}
+
+	if (cpu == TOTAL_CORES)
+		return -1;
+	else
+		return 1;
 }
 
 
@@ -276,8 +419,33 @@ int apply_best_fit(void)
  */
 int apply_worst_fit(void)
 {
+	int cpu = 0;
+	BIN_NODE* curr = bin_head;
+	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
 
-	return 0;
+	while (curr && cpu < TOTAL_CORES)
+	{
+		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
+		{
+			printk(KERN_INFO "Failing admission test\n");
+			cpu++;
+		}
+		else
+		{
+			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
+			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr = curr->next;
+			sort_cpus_util_wf(sorted_cpus);
+			cpu = 0;
+		}
+	}
+
+	if (cpu == TOTAL_CORES)
+	{
+		return -1;
+	}
+	else
+		return 1;
 }
 
 /*
@@ -291,13 +459,13 @@ int apply_heuristic(void)
 	int retval = 0;
 
 	if (strcmp(partition_policy,"N") == 0)
-			retval = apply_next_fit();
+		retval = apply_next_fit();
 	if (strcmp(partition_policy,"B") == 0)
-			retval = apply_best_fit();
+		retval = apply_best_fit();
 	if (strcmp(partition_policy,"W") == 0)
-			retval = apply_worst_fit();
+		retval = apply_worst_fit();
 	if (strcmp(partition_policy,"F") == 0)
-			retval = apply_first_fit();
+		retval = apply_first_fit();
 
 	delete_all_cpu_nodes();
 

@@ -200,7 +200,8 @@ int rt_test(struct task_struct *task)
 int admission_test(struct task_struct *task)
 {
 	int retval = 0, online_nodes = 0, i = 0;
-	BIN_NODE *curr = bin_head;
+	unsigned long flags;
+
 	if (!guarantee)
 		return 0;
 
@@ -238,22 +239,29 @@ int admission_test(struct task_struct *task)
 	 */
 	else
 	{
+
+//		spin_lock_irqsave(&task->reserve_process.bin_spinlock, flags);
 		add_bin_node(make_bin_node(task));
 
 		retval = apply_heuristic();
 
 		if ((retval == 1) && (migrate == 1))
 		{
+
+//			spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
 			return 1;
 		}
 		else if ((retval == 1) && (migrate == 0))
 		{
 			/* Mark all tasks as pending*/
+//			spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
 			return 1;
 		}
 
 		if (retval < 0)
 			printk("Task cannot be scheduled according to heuristic\n");
+
+//		spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
 	}
 	return -1;
 }

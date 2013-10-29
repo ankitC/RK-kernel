@@ -40,8 +40,7 @@ void add_cpu_node( BIN_NODE* curr1, int cpu)
 	}
 	else
 	{
-		printk(KERN_INFO "Cpu bin Present");
-		printk(KERN_INFO "curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
+		printk(KERN_INFO "CPu bin present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
 				, curr1->task->reserve_process.U);
 
 		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)

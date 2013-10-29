@@ -32,6 +32,7 @@ struct reserve_obj
 	int t_timer_started;
 	int running;
 	unsigned int host_cpu;
+	unsigned int prev_cpu;
 	struct timespec C;
 	unsigned long long U;
 	struct timespec T;
@@ -45,6 +46,7 @@ struct reserve_obj
 	struct kobj_attribute ctx_attr;
 	struct kobject *pid_obj;
 	spinlock_t reserve_spinlock;
+	spinlock_t bin_spinlock;
 	struct attribute *attrs[5];
 	circular_buffer c_buf;
 	circular_buffer ctx_buf;
