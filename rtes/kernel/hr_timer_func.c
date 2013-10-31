@@ -58,7 +58,6 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 			reservation_detail->spent_budget);
 	reservation_detail->spent_budget.tv_sec = 0;
 	reservation_detail->spent_budget.tv_nsec = 0;
-	reservation_detail->spent_budget.tv_nsec = 0;
 	reservation_detail->remaining_C = ktime;
 
 	if (reservation_detail->running)

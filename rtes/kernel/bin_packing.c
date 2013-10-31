@@ -7,6 +7,7 @@
 #include <linux/linked_list.h>
 #include <linux/cpu_linked_list.h>
 #include <linux/reserve_framework.h>
+#include <linux/partition_scheduling.h>
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
@@ -14,6 +15,7 @@
 BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
+extern spinlock_t bin_spinlock;
 extern BIN_NODE* bin_head;
 /*
  * Utilization bound test to check for a task
@@ -199,17 +201,6 @@ int admission_test_for_cpu(BIN_NODE* curr, int cpu)
 		return -1;
 	}
 }
-
-void reverse_array(int sorted_cpus[TOTAL_CORES])
-{
-	int i = 0, temp = 0;
-	for (i = 0; i < TOTAL_CORES/2; i++)
-	{
-		temp = sorted_cpus[TOTAL_CORES - 1 - i];
-		sorted_cpus[TOTAL_CORES - 1 - i] = sorted_cpus[i];
-		sorted_cpus[i] = temp;
-	}
-}
 /*
  * sort_cpus_util_wf: Sorts cpus in descending order of utilization
  */
@@ -267,7 +258,7 @@ void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
 }
 
 /*
- * sort_cpus_util_wf: Sorts cpus in descending order of utilization
+ * sort_cpus_util_bf: Sorts cpus in descending order of utilization
  */
 
 void sort_cpus_util_bf(int sorted_cpus[TOTAL_CORES])
@@ -337,6 +328,7 @@ int apply_first_fit(void)
 		else
 		{
 			printk(KERN_INFO "Setting cpu %d", cpu);
+			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
 			if (curr)
@@ -369,6 +361,8 @@ int apply_next_fit(void)
 		else
 		{
 			printk(KERN_INFO "Setting cpu %d", cpu);
+			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
+
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
 		}
@@ -400,6 +394,7 @@ int apply_best_fit(void)
 		else
 		{
 			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
+			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_bf(sorted_cpus);
@@ -427,12 +422,12 @@ int apply_worst_fit(void)
 	{
 		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
 		{
-			printk(KERN_INFO "Failing admission test\n");
 			cpu++;
 		}
 		else
 		{
 			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
+			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_wf(sorted_cpus);
@@ -454,20 +449,55 @@ int apply_worst_fit(void)
  * Returns 1 on success
  * Returns -1 on failure
  */
-int apply_heuristic(void)
+int apply_heuristic(char policy[2])
 {
 	int retval = 0;
 
-	if (strcmp(partition_policy,"N") == 0)
+	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
-	if (strcmp(partition_policy,"B") == 0)
+	if (strncmp(policy,"B", 1) == 0)
 		retval = apply_best_fit();
-	if (strcmp(partition_policy,"W") == 0)
+	if (strncmp(policy,"W", 1) == 0)
 		retval = apply_worst_fit();
-	if (strcmp(partition_policy,"F") == 0)
+	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
 
 	delete_all_cpu_nodes();
 
+	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
+
 	return retval;
+}
+
+/*
+ * Waking up suspended tasks
+ */
+
+void wake_up_tasks(void)
+{
+
+	unsigned long flags;
+	ktime_t ktime;
+	BIN_NODE *curr = bin_head;
+	spin_lock_irqsave(&bin_spinlock, flags);
+
+	//Spinlock adds
+	while (curr)
+	{
+
+		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+		{
+			set_cpu_for_task(curr->task);
+			if(!wake_up_process(curr->task))
+				printk(KERN_INFO "Couldn't wake up process\n");
+			curr->task->reserve_process.t_timer_started = 0;
+		}
+
+		ktime = ktime_set(curr->task->reserve_process.C.tv_sec, curr->task->reserve_process.C.tv_nsec);
+		curr->task->reserve_process.spent_budget.tv_sec = 0;
+		curr->task->reserve_process.spent_budget.tv_nsec = 0;
+		curr->task->reserve_process.remaining_C = ktime;
+		curr = curr->next;
+	}
+	spin_unlock_irqrestore(&bin_spinlock, flags);
 }

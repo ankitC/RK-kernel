@@ -10,4 +10,5 @@ obj-y += linked_list.o
 obj-y += bin_packing.o
 obj-y += bin_linked_list.o
 obj-y += cpu_linked_list.o
+obj-y += energy_saving.o
 

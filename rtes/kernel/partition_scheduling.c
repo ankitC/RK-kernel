@@ -2,19 +2,23 @@
 #include <linux/cpu.h>
 #include <linux/slab.h>
 #include <linux/time.h>
+#include <linux/spinlock_types.h>
 #include <linux/cpumask.h>
 #include <linux/linked_list.h>
 #include <linux/bin_packing.h>
 #include <linux/bin_linked_list.h>
 #include <linux/reserve_framework.h>
 #include <asm/div64.h>
+#include <asm/current.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
 extern int guarantee;
 extern int migrate;
 PROC_NODE *head = NULL;
 extern BIN_NODE *bin_head;
-
+//spinlock_t bin_lock;
+DEFINE_SPINLOCK(bin_spinlock);
+DEFINE_SPINLOCK(suspend_spinlock);
 /*
  * Liu Leyland bounds for upto 62 tasks
  */
@@ -189,7 +193,7 @@ int rt_test(struct task_struct *task)
 }
 
 
-
+extern char partition_policy[2];
 /*
  * Admission Test for allowing tasks to be dispatched onto a certai processor
  * Admission test is contingent on the guarntee switch in sysfs
@@ -200,6 +204,7 @@ int rt_test(struct task_struct *task)
 int admission_test(struct task_struct *task)
 {
 	int retval = 0, online_nodes = 0, i = 0;
+	BIN_NODE* curr = bin_head;
 	unsigned long flags;
 
 	if (!guarantee)
@@ -240,28 +245,39 @@ int admission_test(struct task_struct *task)
 	else
 	{
 
-//		spin_lock_irqsave(&task->reserve_process.bin_spinlock, flags);
+		spin_lock_irqsave(&bin_spinlock, flags);
 		add_bin_node(make_bin_node(task));
 
-		retval = apply_heuristic();
+		retval = apply_heuristic(partition_policy);
 
 		if ((retval == 1) && (migrate == 1))
 		{
 
-//			spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
+			spin_unlock_irqrestore(&bin_spinlock, flags);
 			return 1;
 		}
 		else if ((retval == 1) && (migrate == 0))
 		{
 			/* Mark all tasks as pending*/
-//			spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
+			
+			current->reserve_process.need_resched = 1;
+			current->reserve_process.suspension_required = 1;
+			spin_unlock_irqrestore(&bin_spinlock, flags);
+			set_tsk_need_resched(current);
+			
+			/*spin_lock_irqsave(&suspend_spinlock, flags);
+			suspend = 1;
+			spin_unlock_irqrestore(&suspend_spinlock, flags);
+
+			set_tsk_need_resched(curr->task);
+			spin_unlock_irqrestore(&bin_spinlock, flags);*/
 			return 1;
 		}
 
 		if (retval < 0)
 			printk("Task cannot be scheduled according to heuristic\n");
 
-//		spin_unlock_irqrestore(&task->reserve_process.bin_spinlock, flags);
+		spin_unlock_irqrestore(&bin_spinlock, flags);
 	}
 	return -1;
 }
@@ -274,7 +290,7 @@ void set_cpu_for_task(struct task_struct *task)
 	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
 
-	if (task->under_reservation && host_cpu != smp_processor_id())
+	if (task->under_reservation)
 	{
 		cpumask_clear(&af_mask);
 		cpumask_set_cpu(host_cpu, &af_mask);

@@ -83,7 +83,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	if (!n)
 	{
-	//	disable_auto_hotplug();
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	}
 
@@ -102,6 +101,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
+	task->reserve_process.suspension_required = 0;
 	task->reserve_process.U = calculate_util(task);
 	task->reserve_process.host_cpu = smp_processor_id();
 	retval = admission_test(task);
@@ -116,7 +116,9 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.buffer_overflow = 0;
 	task->reserve_process.t_timer_started = 0;
-	task->reserve_process.need_resched = 0;
+	task->reserve_process.pending = 0;
+	if (!task->reserve_process.suspension_required) 
+		task->reserve_process.need_resched = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.remaining_C = ktime;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;

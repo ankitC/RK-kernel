@@ -5,10 +5,15 @@
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 #include <linux/sched.h>
+#include <linux/bin_packing.h>
+#include <linux/energy_saving.h>
 #include <asm/current.h>
 
 int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
 char partition_policy[2];
+extern spinlock_t bin_spinlock;
+int suspend_processes = 0;
+int wake_up_processes = 0;
 /*
  * Function called when a read is done on sysfs util file
  */
@@ -41,11 +46,26 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count)
 {
 	int var;
+	char policy[2] = {0};
+	int prev_migrate = 0;
+	unsigned long flags;
+	//BIN_NODE *curr = bin_head;
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
 	if (strcmp(attr->attr.name, "partition_policy") == 0)
 	{
-		strncpy(partition_policy, buf, 1);
+		strncpy(policy, buf, 1);
+
+		if (apply_heuristic(policy))
+		{
+				spin_lock_irqsave(&bin_spinlock, flags);
+				suspend_processes  = 1;
+				set_tsk_need_resched(current);
+				spin_unlock_irqrestore(&bin_spinlock, flags);
+
+				if (migrate == 1)
+					wake_up_processes = 1;
+		}
 		return count;
 	}
 
@@ -54,9 +74,23 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 	if (strcmp(attr->attr.name, "guarantee") == 0)
 		guarantee = var;
 	if (strcmp(attr->attr.name, "migrate") == 0)
+	{
+		prev_migrate = migrate;
 		migrate = var;
+
+		/*if ((prev_migrate == 0) && (migrate == 1))
+		{
+			suspend_processes = 0;
+			wake_up_tasks();
+		}*/
+
+	}
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
+	{
 		disable_cpus = var;
+		if (var == 1)
+			energy_savings();
+	}
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		trace_ctx = var;
 
