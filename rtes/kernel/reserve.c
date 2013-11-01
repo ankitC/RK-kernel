@@ -52,7 +52,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 {
 	struct task_struct *task = NULL, *task_found = NULL;
 	int retval = 0;
-	unsigned long flags;	
+	unsigned long flags;
 	ktime_t ktime;
 
 
@@ -134,7 +134,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
-
 	set_cpu_for_task(task);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);

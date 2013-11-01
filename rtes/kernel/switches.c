@@ -1,12 +1,12 @@
 /*
  *File contains functions for the sysfs functionality
  */
-
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <linux/bin_packing.h>
 #include <linux/energy_saving.h>
+#include <linux/suspension_framework.h>
 #include <asm/current.h>
 
 int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
@@ -60,11 +60,12 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		{
 				spin_lock_irqsave(&bin_spinlock, flags);
 				suspend_processes  = 1;
-				set_tsk_need_resched(current);
+				if(migrate == 1)
+					migrate_and_start();
+				else
+					migrate_only();
 				spin_unlock_irqrestore(&bin_spinlock, flags);
 
-				if (migrate == 1)
-					wake_up_processes = 1;
 		}
 		return count;
 	}

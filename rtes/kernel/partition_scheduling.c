@@ -254,6 +254,7 @@ int admission_test(struct task_struct *task)
 		{
 
 			spin_unlock_irqrestore(&bin_spinlock, flags);
+			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
 		else if ((retval == 1) && (migrate == 0))
@@ -289,12 +290,14 @@ void set_cpu_for_task(struct task_struct *task)
 {
 	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
+	printk(KERN_INFO "Before checking task->under_reservation\n");
 
 	if (task->under_reservation)
 	{
+		cpu_up(host_cpu);
 		cpumask_clear(&af_mask);
 		cpumask_set_cpu(host_cpu, &af_mask);
-		cpu_up(host_cpu);
+		printk(KERN_INFO "Just before sched_setaffinity\n");
 
 		if (sched_setaffinity(task->pid, &af_mask))
 			printk(KERN_INFO "Couldn't set task affinity\n");

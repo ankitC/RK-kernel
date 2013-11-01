@@ -80,6 +80,7 @@
 #include <linux/hr_timer_func.h>
 #include <linux/partition_scheduling.h>
 #include <linux/bin_linked_list.h>
+#include <linux/bin_packing.h>
 #ifdef CONFIG_PARAVIRT
 #include <asm/paravirt.h>
 #endif
@@ -4257,7 +4258,6 @@ pick_next_task(struct rq *rq)
 	BUG(); /* the idle class will always have a runnable task */
 }
 extern int trace_ctx;
-extern int suspend_processes;
 extern int migrate;
 extern int guarantee;
 /*
@@ -4270,7 +4270,7 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 
 	if (trace_ctx)
 	{
-		if (prev->under_reservation && !prev->reserve_process.pending)
+		if (prev->under_reservation)
 			ctx_buffer_write(&prev->reserve_process, ts, 0);
 
 		if (next->under_reservation)
@@ -4297,28 +4297,8 @@ inline void stop_timers(struct task_struct* prev)
  */
 inline void stop_C_timer(struct task_struct* prev)
 {
-	unsigned long flags;
 
-	/* Code to suspend tasks if migrate is off and the task has to be suspended*/
-	spin_lock_irqsave(&suspend_spinlock, flags);
-
-	if (suspend_processes == 1 && (prev->under_reservation == 1) && (guarantee == 1) && !prev->reserve_process.pending)
-	{
-			if (prev->reserve_process.host_cpu != prev->reserve_process.prev_cpu || (migrate == 0))
-			{
-				printk(KERN_INFO "Putting this task to sleep %d", prev->pid);
-				prev->state = TASK_UNINTERRUPTIBLE;
-				deactivate_task(cpu_rq(prev->reserve_process.host_cpu), prev, DEQUEUE_SLEEP);
-				stop_timers(prev);
-				prev->on_rq = 0;
-				prev->reserve_process.pending = 1;
-			}
-	}
-	spin_unlock_irqrestore(&suspend_spinlock, flags);
-
-
-
-	if (prev->under_reservation && prev->reserve_process.t_timer_started && !prev->reserve_process.pending)
+	if (prev->under_reservation && prev->reserve_process.t_timer_started)
 	{
 		if(!prev->reserve_process.need_resched)
 		{
@@ -4358,53 +4338,31 @@ extern spinlock_t bin_spinlock;
 /*
  * Suspend tasks from the utilization liked lists
  */
-inline void suspend_tasks(void)
+inline void suspend_tasks(struct task_struct *task, struct rq* rq)
 {
 	BIN_NODE* curr = bin_head;
-	unsigned long flags;
-	int wake_up_processes = 0;
+	int cpu_id = smp_processor_id();
 
-	spin_lock_irqsave(&bin_spinlock, flags);
-	spin_lock_irqsave(&suspend_spinlock, flags);
-
-
-	if (suspend_processes == 1)
+	while(curr)
 	{
-		while (curr)
+		//printk("Suspending Tasks\n");
+		if (task == curr->task)
 		{
-			if (curr->task->reserve_process.pending == 0)
+			if(curr->task->reserve_process.prev_cpu == cpu_id)
 			{
-				if (!curr->task->reserve_process.running )
+				if(curr->task->reserve_process.pending == 1)
 				{
-					if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu || (migrate == 0))
-					{
-
-						printk(KERN_INFO "Suspending Task %d\n", curr->task->pid);
-						curr->task->state = TASK_UNINTERRUPTIBLE;
-						deactivate_task(cpu_rq(curr->task->reserve_process.host_cpu), curr->task, DEQUEUE_SLEEP);
-						stop_timers(curr->task);
-						curr->task->on_rq = 0;
-						curr->task->reserve_process.pending = 1;
-					}
+					stop_timers(curr->task);
+					curr->task->state = TASK_UNINTERRUPTIBLE;
+					deactivate_task(rq, curr->task, DEQUEUE_SLEEP);
+					curr->task->on_rq = 0;
+				//	set_cpu_for_task(curr->task);
+					curr->task->reserve_process.pending = 0;
 				}
-				else
-				{
-					wake_up_processes++;
-				}
-
 			}
-			curr = curr->next;
 		}
-
-		if (wake_up_processes == 0 && migrate == 1)
-		{
-			wake_up_tasks();
-			suspend_processes = 0;
-		}
+		curr = curr->next;
 	}
-
-	spin_unlock_irqrestore(&suspend_spinlock, flags);
-	spin_unlock_irqrestore(&bin_spinlock, flags);
 }
 
 /*
@@ -4427,6 +4385,8 @@ inline void check_reservation(struct task_struct *prev)
 		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
 	}
 }
+extern int suspend_processes;
+
 /*
  * __schedule() is the main scheduler function.
  */
@@ -4480,9 +4440,6 @@ need_resched:
 
 	pre_schedule(rq, prev);
 
-	if (guarantee)
-		suspend_tasks();
-
 
 	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending)
 	{
@@ -4508,8 +4465,11 @@ need_resched:
 
 		if(prev != next)
 		{
+			if (guarantee && suspend_processes)
+				suspend_tasks(prev, rq);
 			instrumentation(prev, next);
-			stop_C_timer(prev);
+			if(prev->state != TASK_UNINTERRUPTIBLE)
+				stop_C_timer(prev);
 			start_timer(next);
 		}
 
