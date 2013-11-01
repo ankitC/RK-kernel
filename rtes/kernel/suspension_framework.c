@@ -8,7 +8,6 @@
 //extern spinlock_t(bin_spinlock);
 extern BIN_NODE* bin_head;
 extern int suspend_processes;
-//int wakeup_countdown = 0;
 
 /*
  * Waking up suspended tasks
@@ -66,20 +65,18 @@ void migrate_and_start(void)
 		while (curr)
 		{
 
-//			printk(KERN_INFO "Looping %d\n", curr->task->pid);
-			//		down(curr->task->reserve_process.sem);
+			//			printk(KERN_INFO "Looping %d\n", curr->task->pid);
 			if (curr->task->reserve_process.pending == 1)
 				flag =1;
 			curr = curr ->next;
 		}
 		if(flag == 1)
-		//	msleep (200);
-		//	set_tsk_need_resched(current);
-		yield(); /*Help!*/
+			/* Do something */
+
 	} while(flag >0);
 
 	printk(KERN_INFO "Just before wakeup_tasks\n");
-//	wakeup_tasks();
+	//	wakeup_tasks();
 }
 
 void migrate_only(void)
