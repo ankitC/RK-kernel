@@ -24,13 +24,23 @@ void wakeup_tasks(void)
 	ktime_t ktime;
 	BIN_NODE *curr = bin_head;
 
+	unsigned long flags = 0;
 	printk(KERN_INFO "Wkup\n");
-	suspend_processes = 0;
+//	suspend_processes = 0;
+
+
+	while (curr)
+	{
+		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+			set_cpu_for_task(curr->task);
+		curr = curr->next;
+	}
+
+	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 		if (curr->task->state == TASK_UNINTERRUPTIBLE)
 		{
-			set_cpu_for_task(curr->task);
 			ktime = ktime_set(curr->task->reserve_process.C.tv_sec, curr->task->reserve_process.C.tv_nsec);
 			curr->task->reserve_process.spent_budget.tv_sec = 0;
 			curr->task->reserve_process.spent_budget.tv_nsec = 0;
@@ -41,8 +51,10 @@ void wakeup_tasks(void)
 
 		}
 		curr = curr->next;
+
 	}
-	//	suspend_processes = 0;
+	spin_unlock_irqrestore(&bin_spinlock, flags);
+
 	printk(KERN_INFO "Wake up task ends\n");
 }
 /*
@@ -53,6 +65,7 @@ void migrate_and_start(void)
 {
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
+	unsigned int bypass = 1;
 
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
@@ -60,34 +73,40 @@ void migrate_and_start(void)
 		if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu)
 		{
 			curr->task->reserve_process.pending = 1;
+			bypass = 0;
 			printk(KERN_INFO "In migrate and start %d\n", curr->task->pid);
 		}
 
 		curr = curr->next;
 	}
 	spin_unlock_irqrestore(&bin_spinlock, flags);
-	mutex_lock(&suspend_mutex);
-	suspend_processes = 1;
-	mutex_unlock(&suspend_mutex);
-	printk(KERN_INFO "Just before down - semaphore\n");
-	down(&wakeup_sem);
-	printk(KERN_INFO "Just after down - semaphore\n");
 
-//	if(bin_head != NULL)
-	//	while (suspend_processes != 0);
-//	printk(KERN_INFO "Just before wakeup_tasks\n");
+	if(!bypass)
+	{
+		mutex_lock(&suspend_mutex);
+		suspend_processes = 1;
+		mutex_unlock(&suspend_mutex);
+		printk(KERN_INFO "Just before down - semaphore\n");
+		down(&wakeup_sem);
+		printk(KERN_INFO "Just after down - semaphore\n");
 
 	wakeup_tasks();
+	}
 }
 
 void migrate_only(void)
 {
 	BIN_NODE* curr = bin_head;
 
+	unsigned long flags = 0;
+	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 		curr->task->reserve_process.pending = 1;
 		curr = curr->next;
 	}
+	spin_unlock_irqrestore(&bin_spinlock, flags);
+
+
 	printk(KERN_INFO "Set all to pending migrate only %d\n", curr->task->pid);
 }

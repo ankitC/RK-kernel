@@ -4405,14 +4405,21 @@ static void check_to_wakeup(void)
 	BIN_NODE* curr = bin_head;
 	int send_wakeup_msg = 0;
 	int flag = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&bin_spinlock, flags);
 	while(curr)
 	{
 		if(curr->task->reserve_process.pending == 1)
+		{
 			send_wakeup_msg = 1;
+			printk(KERN_INFO "detected pending %d\n",curr->task->pid);
+		}
 		curr = curr->next;
 	}
+	spin_unlock_irqrestore(&bin_spinlock, flags);
 
-	if(send_wakeup_msg == 0)
+	if(send_wakeup_msg == 1)
 	{
 		mutex_lock(&suspend_mutex);
 		if(suspend_processes==1){
