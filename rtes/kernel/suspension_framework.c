@@ -5,10 +5,16 @@
 #include <linux/partition_scheduling.h>
 #include <asm/current.h>
 #include <linux/delay.h>
+#include <linux/mutex.h>
+#include <linux/semaphore.h>
+
+DEFINE_SEMAPHORE(wakeup_sem);
+DEFINE_MUTEX (suspend_mutex);
+
 //extern spinlock_t(bin_spinlock);
 extern BIN_NODE* bin_head;
 extern int suspend_processes;
-
+extern spinlock_t bin_spinlock;
 /*
  * Waking up suspended tasks
  */
@@ -19,6 +25,7 @@ void wakeup_tasks(void)
 	BIN_NODE *curr = bin_head;
 
 	printk(KERN_INFO "Wkup\n");
+	suspend_processes = 0;
 	while (curr)
 	{
 		if (curr->task->state == TASK_UNINTERRUPTIBLE)
@@ -35,10 +42,9 @@ void wakeup_tasks(void)
 		}
 		curr = curr->next;
 	}
-	suspend_processes = 0;
+	//	suspend_processes = 0;
 	printk(KERN_INFO "Wake up task ends\n");
 }
-
 /*
  * Suspend tasks from the utilization liked lists
  * When migrate is one and the policy is changed
@@ -46,8 +52,9 @@ void wakeup_tasks(void)
 void migrate_and_start(void)
 {
 	BIN_NODE* curr = bin_head;
-	int flag = 0;
+	unsigned long flags = 0;
 
+	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 		if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu)
@@ -58,25 +65,19 @@ void migrate_and_start(void)
 
 		curr = curr->next;
 	}
+	spin_unlock_irqrestore(&bin_spinlock, flags);
+	mutex_lock(&suspend_mutex);
+	suspend_processes = 1;
+	mutex_unlock(&suspend_mutex);
+	printk(KERN_INFO "Just before down - semaphore\n");
+	down(&wakeup_sem);
+	printk(KERN_INFO "Just after down - semaphore\n");
 
-	do{
-		flag = 0;
-		curr = bin_head;
-		while (curr)
-		{
+//	if(bin_head != NULL)
+	//	while (suspend_processes != 0);
+//	printk(KERN_INFO "Just before wakeup_tasks\n");
 
-			//			printk(KERN_INFO "Looping %d\n", curr->task->pid);
-			if (curr->task->reserve_process.pending == 1)
-				flag =1;
-			curr = curr ->next;
-		}
-		if(flag == 1)
-			/* Do something */
-
-	} while(flag >0);
-
-	printk(KERN_INFO "Just before wakeup_tasks\n");
-	//	wakeup_tasks();
+	wakeup_tasks();
 }
 
 void migrate_only(void)

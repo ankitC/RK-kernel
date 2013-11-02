@@ -5,7 +5,11 @@
 #include <linux/fs.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
+#include <linux/mutex.h>
+#include <linux/semaphore.h>
 
+extern struct mutex suspend_mutex;
+extern struct semaphore wakeup_sem;
 BIN_NODE *bin_head = NULL;
 
 /*

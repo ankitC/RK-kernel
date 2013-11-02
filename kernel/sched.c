@@ -4335,18 +4335,21 @@ inline void start_timer(struct task_struct *next)
 }
 extern BIN_NODE* bin_head;
 extern spinlock_t bin_spinlock;
+extern struct mutex suspend_mutex;
+extern struct semaphore wakeup_sem;
+extern int suspend_processes;
 /*
  * Suspend tasks from the utilization liked lists
  */
-inline void suspend_tasks(struct task_struct *task, struct rq* rq)
+/*inline void suspend_tasks(struct task_struct *task, struct rq* rq)
 {
 	BIN_NODE* curr = bin_head;
 	int cpu_id = smp_processor_id();
-
+	int send_wakeup_msg = 0;
 	while(curr)
 	{
 		//printk("Suspending Tasks\n");
-		if (task == curr->task)
+		if (task->pid == curr->task->pid)
 		{
 			if(curr->task->reserve_process.prev_cpu == cpu_id)
 			{
@@ -4356,14 +4359,25 @@ inline void suspend_tasks(struct task_struct *task, struct rq* rq)
 					curr->task->state = TASK_UNINTERRUPTIBLE;
 					deactivate_task(rq, curr->task, DEQUEUE_SLEEP);
 					curr->task->on_rq = 0;
-				//	set_cpu_for_task(curr->task);
 					curr->task->reserve_process.pending = 0;
 				}
 			}
+			else if(curr->task->reserve_process.pending == 1)
+				send_wakeup_msg = 1;
 		}
 		curr = curr->next;
 	}
-}
+
+	if(send_wakeup_msg == 0)
+	{
+		mutex_lock(&suspend_mutex);
+		if(suspend_processes==1){
+			up(&wakeup_sem);
+			suspend_processes = 0;
+		}
+		mutex_unlock(&suspend_mutex);
+	}
+}*/
 
 /*
  * function to check whether the spent_budget of the process 
@@ -4386,6 +4400,30 @@ inline void check_reservation(struct task_struct *prev)
 	}
 }
 extern int suspend_processes;
+
+static void check_to_wakeup(void)
+{
+	BIN_NODE* curr = bin_head;
+	int send_wakeup_msg = 0;
+	while(curr)
+	{
+		if(curr->task->reserve_process.pending == 1)
+			send_wakeup_msg = 1;
+		curr = curr->next;
+	}
+
+	if(send_wakeup_msg == 0)
+	{
+		mutex_lock(&suspend_mutex);
+		if(suspend_processes==1){
+			printk(KERN_INFO "Just before up - semaphore\n");
+			up(&wakeup_sem);
+			printk(KERN_INFO "Just after up - semaphore\n");
+			suspend_processes = 0;
+		}
+		mutex_unlock(&suspend_mutex);
+	}
+}
 
 /*
  * __schedule() is the main scheduler function.
@@ -4440,6 +4478,25 @@ need_resched:
 
 	pre_schedule(rq, prev);
 
+	if (prev->under_reservation && guarantee && suspend_processes)
+	{
+		if(prev->reserve_process.prev_cpu == smp_processor_id())
+			{
+				if(prev->reserve_process.pending == 1)
+				{
+					stop_timers(prev);
+					prev->state = TASK_UNINTERRUPTIBLE;
+					deactivate_task(rq, prev, DEQUEUE_SLEEP);
+					prev->on_rq = 0;
+					prev->reserve_process.pending = 0;
+				}
+			}
+	}
+
+	if(guarantee && suspend_processes)
+		check_to_wakeup();
+
+	//	suspend_task(prev, rq);
 
 	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending)
 	{
@@ -4465,8 +4522,6 @@ need_resched:
 
 		if(prev != next)
 		{
-			if (guarantee && suspend_processes)
-				suspend_tasks(prev, rq);
 			instrumentation(prev, next);
 			if(prev->state != TASK_UNINTERRUPTIBLE)
 				stop_C_timer(prev);

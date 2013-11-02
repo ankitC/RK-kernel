@@ -58,13 +58,10 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (apply_heuristic(policy))
 		{
-				spin_lock_irqsave(&bin_spinlock, flags);
-				suspend_processes  = 1;
 				if(migrate == 1)
 					migrate_and_start();
 				else
 					migrate_only();
-				spin_unlock_irqrestore(&bin_spinlock, flags);
 
 		}
 		return count;

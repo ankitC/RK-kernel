@@ -43,10 +43,6 @@ static unsigned long long calculate_util(struct task_struct * task)
 }
 
 
-
-
-
-
 unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		unsigned int rt_priority)
 {
