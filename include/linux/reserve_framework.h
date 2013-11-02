@@ -32,6 +32,7 @@ struct reserve_obj
 	int t_timer_started;
 	int suspension_required;
 	int pending;
+	int deactivated;
 	int running;
 	unsigned int host_cpu;
 	unsigned int prev_cpu;

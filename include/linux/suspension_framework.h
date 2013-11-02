@@ -3,5 +3,5 @@
 
 void migrate_only(void);
 void migrate_and_start(void);
-
+void wakeup_tasks(void);
 #endif

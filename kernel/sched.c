@@ -4338,47 +4338,6 @@ extern struct mutex suspend_mutex;
 extern struct semaphore wakeup_sem;
 extern int suspend_processes;
 /*
- * Suspend tasks from the utilization liked lists
- */
-/*inline void suspend_tasks(struct task_struct *task, struct rq* rq)
-{
-	BIN_NODE* curr = bin_head;
-	int cpu_id = smp_processor_id();
-	int send_wakeup_msg = 0;
-	while(curr)
-	{
-		//printk("Suspending Tasks\n");
-		if (task->pid == curr->task->pid)
-		{
-			if(curr->task->reserve_process.prev_cpu == cpu_id)
-			{
-				if(curr->task->reserve_process.pending == 1)
-				{
-					stop_timers(curr->task);
-					curr->task->state = TASK_UNINTERRUPTIBLE;
-					deactivate_task(rq, curr->task, DEQUEUE_SLEEP);
-					curr->task->on_rq = 0;
-					curr->task->reserve_process.pending = 0;
-				}
-			}
-			else if(curr->task->reserve_process.pending == 1)
-				send_wakeup_msg = 1;
-		}
-		curr = curr->next;
-	}
-
-	if(send_wakeup_msg == 0)
-	{
-		mutex_lock(&suspend_mutex);
-		if(suspend_processes==1){
-			up(&wakeup_sem);
-			suspend_processes = 0;
-		}
-		mutex_unlock(&suspend_mutex);
-	}
-}*/
-
-/*
  * function to check whether the spent_budget of the process 
  */
 inline void check_reservation(struct task_struct *prev)
@@ -4399,21 +4358,25 @@ inline void check_reservation(struct task_struct *prev)
 	}
 }
 extern int suspend_processes;
+extern int suspend_all;
 
 static void check_to_wakeup(void)
 {
 	BIN_NODE* curr = bin_head;
-	int send_wakeup_msg = 0;
+	int send_wakeup_msg = 1;
 	int flag = 0;
 	unsigned long flags;
 
+	if (!curr)
+		return;
 	spin_lock_irqsave(&bin_spinlock, flags);
+
 	while(curr)
 	{
-		if(curr->task->reserve_process.pending == 1)
+		if(curr->task->reserve_process.deactivated == 0 && curr->task->reserve_process.pending == 1)
 		{
-			send_wakeup_msg = 1;
-			printk(KERN_INFO "detected pending %d\n",curr->task->pid);
+			send_wakeup_msg = 0;
+			//printk(KERN_INFO "detected pending %d\n",curr->task->pid);
 		}
 		curr = curr->next;
 	}
@@ -4489,17 +4452,17 @@ need_resched:
 
 	pre_schedule(rq, prev);
 
-	if (prev->under_reservation && guarantee && suspend_processes)
+	if (prev->under_reservation && guarantee && (suspend_processes||suspend_all))
 	{
-		if(prev->reserve_process.pending == 1)
-				{
-					printk(KERN_INFO "Making pending 0 for %d\n", prev->pid);
-					stop_timers(prev);
-					prev->state = TASK_UNINTERRUPTIBLE;
-					deactivate_task(rq, prev, DEQUEUE_SLEEP);
-					prev->on_rq = 0;
-					prev->reserve_process.pending = 0;
-				}
+		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
+		{
+			printk(KERN_INFO "Marking pending 0 for %d\n", prev->pid);
+			stop_timers(prev);
+			prev->state = TASK_UNINTERRUPTIBLE;
+			deactivate_task(rq, prev, DEQUEUE_SLEEP);
+			prev->on_rq = 0;
+			prev->reserve_process.deactivated = 1;
+		}
 	}
 
 	if(guarantee && suspend_processes)

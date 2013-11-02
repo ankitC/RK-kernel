@@ -13,6 +13,7 @@ int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
 int suspend_processes = 0;
+int suspend_all = 0;
 int wake_up_processes = 0;
 /*
  * Function called when a read is done on sysfs util file
@@ -48,8 +49,6 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 	int var;
 	char policy[2] = {0};
 	int prev_migrate = 0;
-	unsigned long flags;
-	//BIN_NODE *curr = bin_head;
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
 	if (strcmp(attr->attr.name, "partition_policy") == 0)
@@ -76,11 +75,11 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		prev_migrate = migrate;
 		migrate = var;
 
-		/*if ((prev_migrate == 0) && (migrate == 1))
+		if ((prev_migrate == 0) && (migrate == 1))
 		{
-			suspend_processes = 0;
-			wake_up_tasks();
-		}*/
+			suspend_all = 0;
+			wakeup_tasks();
+		}
 
 	}
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)

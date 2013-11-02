@@ -13,6 +13,7 @@
 #include <linux/sysfs_func.h>
 #include <linux/partition_scheduling.h>
 #include <linux/linked_list.h>
+#include <linux/semaphore.h>
 
 #define D(x) x
 
@@ -22,7 +23,7 @@
  */
 static int n = 0;
 extern void disable_auto_hotplug(void);
-
+extern struct semaphore wakeup_sem;
 static unsigned long long calculate_util(struct task_struct * task)
 {
 	uint64_t C_var = 0;
@@ -79,7 +80,9 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	if (!n)
 	{
+		printk("Ek Baar down");
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
+		down(&wakeup_sem);
 	}
 
 	n++;
@@ -121,6 +124,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.spent_budget.tv_sec = 0;
 	task->reserve_process.spent_budget.tv_nsec = 0;
 	task->under_reservation = 1;
+	task->reserve_process.deactivated = 0;
 	task->reserve_process.c_buf.start = 0;
 	task->reserve_process.c_buf.read_count = 0;
 	task->reserve_process.c_buf.buffer[0] = 0;
