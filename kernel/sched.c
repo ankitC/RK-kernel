@@ -4286,9 +4286,8 @@ inline void stop_timers(struct task_struct* prev)
 	{
 		hrtimer_cancel(&prev->reserve_process.C_timer);
 		hrtimer_cancel(&prev->reserve_process.T_timer);
-		prev->reserve_process.running = 0;
 	}
-
+	prev->reserve_process.running = 0;
 }
 
 
@@ -4311,12 +4310,12 @@ inline void stop_C_timer(struct task_struct* prev)
 }
 
 
-inline void start_timer(struct task_struct *next)
+inline void start_reservation_timers(struct task_struct *next)
 {
 	ktime_t ktime;
 	if (next->under_reservation && (smp_processor_id() == next->reserve_process.host_cpu))
 	{
-		if ((!next->reserve_process.t_timer_started) )
+		if ((!next->reserve_process.t_timer_started))
 		{
 			printk(KERN_INFO "T_timer init\n");
 			ktime = ktime_set( next->reserve_process.T.tv_sec, next->reserve_process.T.tv_nsec);
@@ -4405,6 +4404,7 @@ static void check_to_wakeup(void)
 {
 	BIN_NODE* curr = bin_head;
 	int send_wakeup_msg = 0;
+	int flag = 0;
 	while(curr)
 	{
 		if(curr->task->reserve_process.pending == 1)
@@ -4416,12 +4416,16 @@ static void check_to_wakeup(void)
 	{
 		mutex_lock(&suspend_mutex);
 		if(suspend_processes==1){
+			suspend_processes = 0;
+			flag = 1;
+		}
+		mutex_unlock(&suspend_mutex);
+		if (flag)
+		{
 			printk(KERN_INFO "Just before up - semaphore\n");
 			up(&wakeup_sem);
 			printk(KERN_INFO "Just after up - semaphore\n");
-			suspend_processes = 0;
 		}
-		mutex_unlock(&suspend_mutex);
 	}
 }
 
@@ -4480,17 +4484,15 @@ need_resched:
 
 	if (prev->under_reservation && guarantee && suspend_processes)
 	{
-		if(prev->reserve_process.prev_cpu == smp_processor_id())
-			{
-				if(prev->reserve_process.pending == 1)
+		if(prev->reserve_process.pending == 1)
 				{
+					printk(KERN_INFO "Making pending 0 for %d\n", prev->pid);
 					stop_timers(prev);
 					prev->state = TASK_UNINTERRUPTIBLE;
 					deactivate_task(rq, prev, DEQUEUE_SLEEP);
 					prev->on_rq = 0;
 					prev->reserve_process.pending = 0;
 				}
-			}
 	}
 
 	if(guarantee && suspend_processes)
@@ -4525,7 +4527,7 @@ need_resched:
 			instrumentation(prev, next);
 			if(prev->state != TASK_UNINTERRUPTIBLE)
 				stop_C_timer(prev);
-			start_timer(next);
+			start_reservation_timers(next);
 		}
 
 		context_switch(rq, prev, next); /* unlocks the rq */
