@@ -7,7 +7,9 @@
 #include <linux/delay.h>
 #include <linux/mutex.h>
 #include <linux/semaphore.h>
+#include <linux/completion.h>
 
+DECLARE_COMPLETION (wakeup_comp);
 DEFINE_SEMAPHORE(wakeup_sem);
 DEFINE_MUTEX (suspend_mutex);
 
@@ -30,7 +32,7 @@ void wakeup_tasks(void)
 
 	while (curr)
 	{
-		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+		if (curr->task->reserve_process.deactivated == 1)
 			set_cpu_for_task(curr->task);
 		curr = curr->next;
 	}
@@ -39,7 +41,7 @@ void wakeup_tasks(void)
 	curr = bin_head;
 	while (curr)
 	{
-		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+		if (curr->task->reserve_process.deactivated == 1)
 		{
 
 			printk(KERN_INFO "Waking up %d\n", curr->task->pid);
@@ -48,13 +50,13 @@ void wakeup_tasks(void)
 			curr->task->reserve_process.spent_budget.tv_nsec = 0;
 			curr->task->reserve_process.remaining_C = ktime;
 			curr->task->reserve_process.t_timer_started = 0;
-			curr->task->reserve_process.deactivated = 0;
 			curr->task->reserve_process.pending = 0;
+			curr->task->reserve_process.need_resched = 0;
 			if(!wake_up_process(curr->task))
 				printk(KERN_INFO "Couldn't wake up process %d\n", curr->task->pid);
+			curr->task->reserve_process.deactivated = 0;
 		}
 		curr = curr->next;
-
 	}
 	spin_unlock_irqrestore(&bin_spinlock, flags);
 	printk(KERN_INFO "Wake up task ends\n");
@@ -88,9 +90,10 @@ void migrate_and_start(void)
 		mutex_lock(&suspend_mutex);
 		suspend_processes = 1;
 		mutex_unlock(&suspend_mutex);
-		printk(KERN_INFO "Just before down - semaphore\n");
-		down(&wakeup_sem);
-		printk(KERN_INFO "Just after down - semaphore\n");
+		printk(KERN_INFO "Just before down - semaphore %u\n", wakeup_sem.count);
+		//down(&wakeup_sem);
+		wait_for_completion(&wakeup_comp);
+		printk(KERN_INFO "Just after down - semaphore %u\n", wakeup_sem.count);
 
 	wakeup_tasks();
 	}

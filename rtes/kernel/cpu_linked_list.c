@@ -35,13 +35,13 @@ void add_cpu_node( BIN_NODE* curr1, int cpu)
 
 	if (cpu_bin_head[cpu] == NULL)
 	{
-		printk(KERN_INFO "Cpu Head Created");
+		//printk(KERN_INFO "Cpu Head Created");
 		cpu_bin_head[cpu] = curr1;
 	}
 	else
 	{
-		printk(KERN_INFO "CPu bin present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
-				, curr1->task->reserve_process.U);
+		//printk(KERN_INFO "CPu bin present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
+		//		, curr1->task->reserve_process.U);
 
 		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)
 		{
@@ -74,7 +74,7 @@ void delete_cpu_node (struct task_struct *task, int cpu)
 	BIN_NODE* curr = cpu_bin_head[cpu];
 	BIN_NODE* prev = NULL;
 
-	printk(KERN_INFO "Deleting bin node\n");
+	//printk(KERN_INFO "Deleting bin node\n");
 	while (curr)
 	{
 		if (curr->task == task)
@@ -104,7 +104,7 @@ void delete_all_cpu_nodes(void)
 	BIN_NODE* temp = NULL;
 	BIN_NODE* curr = NULL;
 	int i;
-	printk(KERN_INFO "Deleting all cpu nodes\n");
+	//printk(KERN_INFO "Deleting all cpu nodes\n");
 	for( i = 0; i < 4; i++)
 	{
 		curr = cpu_bin_head[i];

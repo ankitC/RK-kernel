@@ -42,12 +42,12 @@ int ub_cpu_test(BIN_NODE *curr1, int cpu)
 	{
 
 		total_util += curr->task->reserve_process.U;
-		printk(KERN_INFO "curr1 util %llu\n", curr1->task->reserve_process.U);
+		//printk(KERN_INFO "curr1 util %llu\n", curr1->task->reserve_process.U);
 		curr = curr->next;
 		i++;
 	}
 
-	printk(KERN_INFO "Complete Util: %llu\n", total_util);
+	//printk(KERN_INFO "Complete Util: %llu\n", total_util);
 
 	if (total_util	> bounds_tasks[0])
 		return UNSCHEDULABLE;
@@ -79,7 +79,7 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 		curr = curr->next;
 	}
 
-	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
+//	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
 
 	curr = cpu_bin_head[cpu];
 
@@ -144,7 +144,7 @@ int rt_cpu_test(BIN_NODE* foo, int cpu)
 	BIN_NODE *curr = cpu_bin_head[cpu];
 	int j = 0;
 
-	printk(KERN_INFO "RT Test\n");
+//	printk(KERN_INFO "RT Test\n");
 	add_cpu_node(make_cpu_node(foo->task), cpu);
 
 	while (curr)
@@ -167,7 +167,7 @@ int rt_cpu_test(BIN_NODE* foo, int cpu)
 	while (curr)
 	{
 		if(check_cpu_schedulabilty(curr, cpu)){
-			printk(KERN_INFO "We have another task to run this test on\n");
+//			printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
@@ -349,18 +349,18 @@ int apply_next_fit(void)
 {
 	int cpu = 0, counter = 0;
 	BIN_NODE* curr = bin_head;
-
+	printk(KERN_INFO "Next fit\n");
 	while (curr && counter < TOTAL_CORES)
 	{
 		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
 			cpu = (cpu + 1) % TOTAL_CORES;
-			printk(KERN_INFO "Incrementing cpu %d", cpu);
+			//printk(KERN_INFO "Incrementing cpu %d", cpu);
 			counter++;
 		}
 		else
 		{
-			printk(KERN_INFO "Setting cpu %d", cpu);
+			//printk(KERN_INFO "Setting cpu %d", cpu);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 
 			curr->task->reserve_process.host_cpu = cpu;
@@ -417,7 +417,7 @@ int apply_worst_fit(void)
 	int cpu = 0;
 	BIN_NODE* curr = bin_head;
 	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
-
+	printk(KERN_INFO "Worst fit\n");
 	while (curr && cpu < TOTAL_CORES)
 	{
 		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
@@ -464,40 +464,7 @@ int apply_heuristic(char policy[2])
 
 	delete_all_cpu_nodes();
 
-	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
+//	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
 
 	return retval;
-}
-
-/*
- * Waking up suspended tasks
- */
-
-void wake_up_tasks(void)
-{
-
-	unsigned long flags;
-	ktime_t ktime;
-	BIN_NODE *curr = bin_head;
-	spin_lock_irqsave(&bin_spinlock, flags);
-
-	//Spinlock adds
-	while (curr)
-	{
-
-		if (curr->task->state == TASK_UNINTERRUPTIBLE)
-		{
-			set_cpu_for_task(curr->task);
-			if(!wake_up_process(curr->task))
-				printk(KERN_INFO "Couldn't wake up process\n");
-			curr->task->reserve_process.t_timer_started = 0;
-		}
-
-		ktime = ktime_set(curr->task->reserve_process.C.tv_sec, curr->task->reserve_process.C.tv_nsec);
-		curr->task->reserve_process.spent_budget.tv_sec = 0;
-		curr->task->reserve_process.spent_budget.tv_nsec = 0;
-		curr->task->reserve_process.remaining_C = ktime;
-		curr = curr->next;
-	}
-	spin_unlock_irqrestore(&bin_spinlock, flags);
 }

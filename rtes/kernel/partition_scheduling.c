@@ -204,7 +204,7 @@ extern char partition_policy[2];
 int admission_test(struct task_struct *task)
 {
 	int retval = 0, online_nodes = 0, i = 0;
-	BIN_NODE* curr = bin_head;
+	//BIN_NODE* curr = bin_head;
 	unsigned long flags;
 
 	if (!guarantee)
@@ -288,8 +288,10 @@ int admission_test(struct task_struct *task)
  */
 void set_cpu_for_task(struct task_struct *task)
 {
-	struct cpumask af_mask;
+	volatile struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
+if(task!= NULL){
+	pid_t pid = task->pid;
 	printk(KERN_INFO "Before checking task->under_reservation\n");
 
 	if (task->under_reservation)
@@ -298,10 +300,10 @@ void set_cpu_for_task(struct task_struct *task)
 		cpumask_clear(&af_mask);
 		cpumask_set_cpu(host_cpu, &af_mask);
 		printk(KERN_INFO "Just before sched_setaffinity\n");
-
-		if (sched_setaffinity(task->pid, &af_mask))
-			printk(KERN_INFO "Couldn't set task affinity\n");
-		else
-			printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
+			if (sched_setaffinity(pid, &af_mask))
+				printk(KERN_INFO "Couldn't set task affinity\n");
+			else
+				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
+		}
 	}
 }

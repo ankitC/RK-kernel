@@ -4254,7 +4254,7 @@ pick_next_task(struct rq *rq)
 		if (p)
 			return p;
 	}
-
+	printk(KERN_INFO "Depressing thing ever\n");
 	BUG(); /* the idle class will always have a runnable task */
 }
 extern int trace_ctx;
@@ -4292,7 +4292,7 @@ inline void stop_timers(struct task_struct* prev)
 
 
 /*
- * STop the C timer of the task which has context switched out
+ * Stop the C timer of the task which has context switched out
  */
 inline void stop_C_timer(struct task_struct* prev)
 {
@@ -4309,7 +4309,10 @@ inline void stop_C_timer(struct task_struct* prev)
 
 }
 
-
+/* Start the timers:
+		- T timer on first invocation after deactivation or fresh insertion.
+		- C timer on every context switch in.
+*/
 inline void start_reservation_timers(struct task_struct *next)
 {
 	ktime_t ktime;
@@ -4332,6 +4335,7 @@ inline void start_reservation_timers(struct task_struct *next)
 	}
 
 }
+
 extern BIN_NODE* bin_head;
 extern spinlock_t bin_spinlock;
 extern struct mutex suspend_mutex;
@@ -4359,6 +4363,7 @@ inline void check_reservation(struct task_struct *prev)
 }
 extern int suspend_processes;
 extern int suspend_all;
+extern struct completion wakeup_comp;
 
 static void check_to_wakeup(void)
 {
@@ -4385,16 +4390,18 @@ static void check_to_wakeup(void)
 	if(send_wakeup_msg == 1)
 	{
 		mutex_lock(&suspend_mutex);
-		if(suspend_processes==1){
+		if(suspend_processes==1)
+		{
 			suspend_processes = 0;
 			flag = 1;
 		}
 		mutex_unlock(&suspend_mutex);
 		if (flag)
 		{
-			printk(KERN_INFO "Just before up - semaphore\n");
-			up(&wakeup_sem);
-			printk(KERN_INFO "Just after up - semaphore\n");
+			printk(KERN_INFO "Just before up - semaphore %u\n", wakeup_sem.count);
+			//up(&wakeup_sem);
+			complete(&wakeup_comp);
+			printk(KERN_INFO "Just after up - semaphore %u\n", wakeup_sem.count);
 		}
 	}
 }
@@ -4425,6 +4432,7 @@ need_resched:
 
 	switch_count = &prev->nivcsw;
 
+	/*  Keeps on adding the budget */
 	check_reservation(prev);
 
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
@@ -4452,6 +4460,7 @@ need_resched:
 
 	pre_schedule(rq, prev);
 
+	/* Deactivate the task if it needs to be suspended and cancel the timers */
 	if (prev->under_reservation && guarantee && (suspend_processes||suspend_all))
 	{
 		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
@@ -4465,12 +4474,8 @@ need_resched:
 		}
 	}
 
-	if(guarantee && suspend_processes)
-		check_to_wakeup();
-
-	//	suspend_task(prev, rq);
-
-	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending)
+	/* If task needs reseched, then deactivate it, but make sure its not already deactivated */
+	if (prev->under_reservation && prev->reserve_process.need_resched && (prev->reserve_process.deactivated == 0))
 	{
 		printk(KERN_INFO "Putting task %d to sleep in sched", prev->pid);
 		prev->state = TASK_UNINTERRUPTIBLE;
@@ -4478,11 +4483,20 @@ need_resched:
 		prev->on_rq = 0;
 	}
 
+
+	if(guarantee && suspend_processes)
+		check_to_wakeup();
+
+
 	if (unlikely(!rq->nr_running))
 		idle_balance(cpu, rq);
 
 	put_prev_task(rq, prev);
 	next = pick_next_task(rq);
+
+	if (next == NULL)
+		printk(KERN_INFO "Cpu id where kernel fatega %d", smp_processor_id());
+
 	clear_tsk_need_resched(prev);
 	rq->skip_clock_update = 0;
 
@@ -4492,12 +4506,18 @@ need_resched:
 		rq->curr = next;
 		++*switch_count;
 
+	/* Cancel C timer always and restart C timers 
+	whenever task context switches in but not if 
+	task is already deactivated */
+	
 		if(prev != next)
-		{
+		{	
+			/* Write the context switch in and out time */
 			instrumentation(prev, next);
-			if(prev->state != TASK_UNINTERRUPTIBLE)
+			if(prev->reserve_process.deactivated == 0)
 				stop_C_timer(prev);
-			start_reservation_timers(next);
+			if(next->reserve_process.deactivated == 0)	
+				start_reservation_timers(next);
 		}
 
 		context_switch(rq, prev, next); /* unlocks the rq */

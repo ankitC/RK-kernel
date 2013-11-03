@@ -44,6 +44,7 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
  */
 enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 {
+//	printk(KERN_INFO "HR T TIMER CALL BACK");
 	struct reserve_obj* reservation_detail=container_of(T_timer,\
 			struct reserve_obj, T_timer);
 	ktime_t ktime, forward_time, curr_time;
