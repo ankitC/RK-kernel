@@ -288,7 +288,7 @@ int admission_test(struct task_struct *task)
  */
 void set_cpu_for_task(struct task_struct *task)
 {
-	volatile struct cpumask af_mask;
+	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
 if(task!= NULL){
 	pid_t pid = task->pid;
