@@ -75,71 +75,71 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (!task_found)
 			return -1;
 
-	if (task->under_reservation)
-		cleanup_hrtimer(&task->reserve_process.T_timer);
-
+	if (task_found->under_reservation)
+		cleanup_hrtimer(&task_found->reserve_process.T_timer);
+/*
 	if (!n)
 	{
 		printk("Ek Baar down");
-		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
+		task_found->reserve_process.prev_setime = task->se.sum_exec_runtime;
 		down(&wakeup_sem);
 	}
 
-	n++;
+	n++; */
 	ktime = ktime_set(C.tv_sec, C.tv_nsec);
-	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
+	spin_lock_irqsave(&task_found->reserve_process.reserve_spinlock, flags);
 
 /* Set running according to its current status */
-	if (task == current)
-		task->reserve_process.running = 1;
+	if (task_found == current)
+		task_found->reserve_process.running = 1;
 	else
-		task->reserve_process.running = 0;
+		task_found->reserve_process.running = 0;
 
 	ktime = ktime_set( C.tv_sec, C.tv_nsec);
 
-	strcpy(task->reserve_process.name, "group11");
-	task->reserve_process.C = C;
-	task->reserve_process.T = T;
-	task->reserve_process.suspension_required = 0;
-	task->reserve_process.U = calculate_util(task);
-	task->reserve_process.host_cpu = smp_processor_id();
-	retval = admission_test(task);
+	strcpy(task_found->reserve_process.name, "group11");
+	task_found->reserve_process.C = C;
+	task_found->reserve_process.T = T;
+	task_found->reserve_process.suspension_required = 0;
+	task_found->reserve_process.U = calculate_util(task_found);
+	task_found->reserve_process.host_cpu = smp_processor_id();
+	retval = admission_test(task_found);
 
 	if(retval < 0)
 	{
-		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
-		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
+		printk(KERN_INFO "Reservation failed pid=%u\n", task_found->pid);
+		spin_unlock_irqrestore(&task_found->reserve_process.reserve_spinlock, flags);
 		return 1;
 	}
-	task->reserve_process.pid = task->pid;
-	task->reserve_process.monitored_process = task;
-	task->reserve_process.buffer_overflow = 0;
+	task_found->reserve_process.pid = task_found->pid;
+	task_found->reserve_process.monitored_process = task_found;
+	task_found->reserve_process.buffer_overflow = 0;
 	
-	task->reserve_process.t_timer_started = 0;
-	task->reserve_process.pending = 0;
-	if (!task->reserve_process.suspension_required) 
-		task->reserve_process.need_resched = 0;
-	task->reserve_process.t_timer_started = 0;
-	task->reserve_process.remaining_C = ktime;
-	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
-	task->reserve_process.spent_budget.tv_sec = 0;
-	task->reserve_process.spent_budget.tv_nsec = 0;
-	task->under_reservation = 1;
-	task->reserve_process.deactivated = 0;
+	task_found->reserve_process.t_timer_started = 0;
+	task_found->reserve_process.pending = 0;
+	if (!task_found->reserve_process.suspension_required) 
+		task_found->reserve_process.need_resched = 0;
+	task_found->reserve_process.t_timer_started = 0;
+	task_found->reserve_process.remaining_C = ktime;
+	task_found->reserve_process.prev_setime = task_found->se.sum_exec_runtime;
+	task_found->reserve_process.spent_budget.tv_sec = 0;
+	task_found->reserve_process.spent_budget.tv_nsec = 0;
+	task_found->under_reservation = 1;
+	task_found->reserve_process.deactivated = 0;
 	
 	/* Sysfs Parameters */
-	task->reserve_process.c_buf.start = 0;
-	task->reserve_process.c_buf.read_count = 0;
-	task->reserve_process.c_buf.buffer[0] = 0;
-	task->reserve_process.c_buf.end = 0;
-	task->reserve_process.ctx_buf.start = 0;
-	task->reserve_process.ctx_buf.read_count = 0;
-	task->reserve_process.ctx_buf.buffer[0] = 0;
-	task->reserve_process.ctx_buf.end = 0;
-	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
-	set_cpu_for_task(task);
-	create_pid_dir_and_reserve_file (task);
-	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);
+	task_found->reserve_process.c_buf.start = 0;
+	task_found->reserve_process.c_buf.read_count = 0;
+	task_found->reserve_process.c_buf.buffer[0] = 0;
+	task_found->reserve_process.c_buf.end = 0;
+	task_found->reserve_process.ctx_buf.start = 0;
+	task_found->reserve_process.ctx_buf.read_count = 0;
+	task_found->reserve_process.ctx_buf.buffer[0] = 0;
+	task_found->reserve_process.ctx_buf.end = 0;
+	spin_unlock_irqrestore(&task_found->reserve_process.reserve_spinlock, flags);
+	set_cpu_for_task(task_found);
+	create_pid_dir_and_reserve_file (task_found);
+	printk(KERN_INFO "Reservation succeeded pid=%u\n", task_found->pid);
 	return retval;
 }
 
@@ -173,11 +173,11 @@ unsigned long do_cancel_reserve(pid_t pid)
 	if (!task_found)
 		return -1;
 
-	if (task->under_reservation)
+	if (task_found->under_reservation)
 	{
-		cleanup_hrtimer(&task->reserve_process.T_timer);
-		task->under_reservation = 0;
-		delete_node(task);
+		cleanup_hrtimer(&task_found->reserve_process.T_timer);
+		task_found->under_reservation = 0;
+		delete_node(task_found);
 		return 0;
 	}
 	printk(KERN_INFO "Task is not under reservation\n");

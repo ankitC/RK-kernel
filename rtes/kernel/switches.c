@@ -57,11 +57,11 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (apply_heuristic(policy))
 		{
-				if(migrate == 1)
-					migrate_and_start();
-				else
-					migrate_only();
-
+			strncpy(partition_policy, buf,1);
+			if(migrate == 1)
+				migrate_and_start();
+			else
+				migrate_only();
 		}
 		return count;
 	}
