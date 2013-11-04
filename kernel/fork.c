@@ -1176,7 +1176,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	p->reserve_process.C.tv_sec = 0;
 	p->reserve_process.C.tv_nsec = 0;
 	p->reserve_process.deactivated = 0;
-
+	p->reserve_process.pending = 0;
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
 	p->prev_utime = cputime_zero;
 	p->prev_stime = cputime_zero;

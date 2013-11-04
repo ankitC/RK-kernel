@@ -15,7 +15,6 @@
 BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
-extern spinlock_t bin_spinlock;
 extern BIN_NODE* bin_head;
 /*
  * Utilization bound test to check for a task

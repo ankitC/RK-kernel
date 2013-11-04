@@ -78,7 +78,6 @@
 #include <asm/irq_regs.h>
 #include <asm/mutex.h>
 #include <linux/hr_timer_func.h>
-#include <linux/suspension_framework.h>
 #include <linux/partition_scheduling.h>
 #include <linux/bin_linked_list.h>
 #include <linux/bin_packing.h>
@@ -4281,7 +4280,7 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 /*
  * Stop the C timer of the task which has context switched out
  */
-/*inline void stop_timers(struct task_struct* prev)
+inline void stop_timers(struct task_struct* prev)
 {
 	if (prev->under_reservation && prev->reserve_process.t_timer_started)
 	{
@@ -4289,7 +4288,7 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 		hrtimer_cancel(&prev->reserve_process.T_timer);
 	}
 	prev->reserve_process.running = 0;
-}*/
+}
 
 
 /*
@@ -4311,6 +4310,7 @@ inline void stop_C_timer(struct task_struct* prev)
 
 }
 
+
 /* Start the timers:
 		- T timer on first invocation after deactivation or fresh insertion.
 		- C timer on every context switch in.
@@ -4322,13 +4322,12 @@ inline void start_reservation_timers(struct task_struct *next)
 	{
 		if ((!next->reserve_process.t_timer_started))
 		{
-			
+			printk(KERN_INFO "T_timer init\n");
 			ktime = ktime_set( next->reserve_process.T.tv_sec, next->reserve_process.T.tv_nsec);
 			hrtimer_init( &next->reserve_process.T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 			next->reserve_process.T_timer.function = &T_timer_callback;
 			hrtimer_start(&next->reserve_process.T_timer, ktime, HRTIMER_MODE_REL_PINNED);
 			next->reserve_process.t_timer_started = 1;
-			printk(KERN_INFO "T_timer started: %d\n", next->pid);
 		}
 		next->reserve_process.running = 1;
 		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
@@ -4338,10 +4337,11 @@ inline void start_reservation_timers(struct task_struct *next)
 	}
 
 }
-
 extern BIN_NODE* bin_head;
-//extern spinlock_t bin_spinlock;
-extern int suspend_processes;
+extern spinlock_t bin_spinlock;
+extern struct mutex suspend_mutex;
+extern struct semaphore wakeup_sem;
+extern volatile int suspend_processes;
 /*
  * function to check whether the spent_budget of the process 
  */
@@ -4362,92 +4362,8 @@ inline void check_reservation(struct task_struct *prev)
 		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
 	}
 }
+extern volatile int suspend_processes;
 extern int suspend_all;
-extern struct completion wakeup_comp;
-extern struct task_struct *wake_me_up;
-extern spinlock_t foolock;
-
-static void check_to_wakeup(void)
-{
-	BIN_NODE* curr = bin_head;
-	int send_wakeup_msg = 1;
-	unsigned long flags;
-	static int inside = 0;
-	
-
-	if(smp_processor_id() == wake_me_up->reserve_process.host_cpu)
-		return;
-
-	if(suspend_processes == 0 || inside == 1)
-		return;
-
-	if (!curr)
-		return;
-
-spin_lock(&foolock);
-	if((suspend_processes == 1) && (inside == 0))
-	{
-		inside = 1;
-		spin_unlock(&foolock);	
-		while(curr)
-		{
-			if((curr->task->reserve_process.deactivated == 0) && (curr->task->reserve_process.pending == 1))
-			{
-				send_wakeup_msg = 0;
-				//printk(KERN_INFO "Not deactivated %d\n",curr->task->pid);
-			}
-			curr = curr->next;
-		}
-
-		if(send_wakeup_msg == 1)
-		{
-				printk(KERN_INFO "Grabbed a spinlock!CPU %d\n", smp_processor_id());
-  				
-  				if(!wake_up_process(wake_me_up))
-					printk(KERN_INFO "Couldn't wake up process %d\n", curr->task->pid);
-				else
-					suspend_processes = 0;
-			printk(KERN_INFO "Let go off a spinlock!\n");
- 			
-			//complete(&wakeup_comp);
-
-		}
-		inside = 0;
-		spin_lock(&foolock);
-	}
-spin_unlock(&foolock);
-	
-	//printk(KERN_INFO "Done Check %d\n", smp_processor_id());
-	//	////spin_unlock_irqrestore(&bin_spinlock, flags);
-////spin_unlock_irqrestore(&bin_spinlock, flags);
-}
-
-void suspend_per_core(void)
-{
-	BIN_NODE* curr = bin_head;
-	unsigned long flags;
-	struct rq *rq = cpu_rq(smp_processor_id());
-	////spin_lock_irqsave(&bin_spinlock, flags);
-
-	while (curr)
-	{
-	//	if ((curr->task->reserve_process.prev_cpu == smp_processor_id()) 
-			if( (curr->task->reserve_process.pending == 1) \
-			&& (curr->task->reserve_process.deactivated == 0))
-		{
-			printk(KERN_INFO "Deactivate %d\n", curr->task->pid);
-			//stop_timers(prev);
-			curr->task->state = TASK_UNINTERRUPTIBLE;
-			rq = cpu_rq(curr->task->reserve_process.prev_cpu);
-			deactivate_task(rq, curr->task, DEQUEUE_SLEEP);
-			curr->task->on_rq = 0;
-			curr->task->reserve_process.deactivated = 1;
-		}
-
-		curr = curr->next;
-	}
-	////spin_unlock_irqrestore(&bin_spinlock, flags);
-}
 
 /*
  * __schedule() is the main scheduler function.
@@ -4475,7 +4391,6 @@ need_resched:
 
 	switch_count = &prev->nivcsw;
 
-	/*  Keeps on adding the budget */
 	check_reservation(prev);
 
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
@@ -4501,10 +4416,20 @@ need_resched:
 		switch_count = &prev->nvcsw;
 	}
 
-	pre_schedule(rq, prev);
+	if (prev->under_reservation && guarantee && (suspend_processes||suspend_all))
+	{
+		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
+		{
+			printk(KERN_INFO "Marking pending 0 for %d\n", prev->pid);
+			stop_timers(prev);
+			prev->state = TASK_UNINTERRUPTIBLE;
+			deactivate_task(rq, prev, DEQUEUE_SLEEP);
+			prev->on_rq = 0;
+			prev->reserve_process.deactivated = 1;
+		}
+	}
 
-		/* If task needs reseched, then deactivate it, but make sure its not already deactivated */
-	if (prev->under_reservation && prev->reserve_process.need_resched && (prev->reserve_process.deactivated == 0))
+	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending && (prev->reserve_process.deactivated == 0))
 	{
 		printk(KERN_INFO "Putting task %d to sleep in sched", prev->pid);
 		prev->state = TASK_UNINTERRUPTIBLE;
@@ -4512,29 +4437,13 @@ need_resched:
 		prev->on_rq = 0;
 	}
 
-	/* Deactivate the task if it needs to be suspended and cancel the timers */
-	if (prev->under_reservation && guarantee &&prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0 )
-	{
-			printk(KERN_INFO "Deactivate %d\n", prev->pid);
-			//stop_timers(prev);
-			prev->state = TASK_UNINTERRUPTIBLE;
-			deactivate_task(rq, prev, DEQUEUE_SLEEP);
-			prev->on_rq = 0;
-			prev->reserve_process.deactivated = 1;	
-	}
-
-	if((suspend_processes == 1) && (guarantee == 1) && (prev->under_reservation == 0))
-	{
-		//suspend_per_core();
-		check_to_wakeup();
-	}
+	pre_schedule(rq, prev);
 
 	if (unlikely(!rq->nr_running))
 		idle_balance(cpu, rq);
 
 	put_prev_task(rq, prev);
 	next = pick_next_task(rq);
-
 	clear_tsk_need_resched(prev);
 	rq->skip_clock_update = 0;
 

@@ -264,14 +264,14 @@ int admission_test(struct task_struct *task)
 			current->reserve_process.need_resched = 1;
 			current->reserve_process.suspension_required = 1;
 			spin_unlock_irqrestore(&bin_spinlock, flags);
-			set_tsk_need_resched(current);
+			//set_tsk_need_resched(current);
 			
 			/*spin_lock_irqsave(&suspend_spinlock, flags);
 			suspend = 1;
 			spin_unlock_irqrestore(&suspend_spinlock, flags);
 
 			set_tsk_need_resched(curr->task);
-			spin_unlock_irqrestore(&bin_spinlock, flags);*/
+			//spin_unlock_irqrestore(&bin_spinlock, flags);*/
 			return 1;
 		}
 

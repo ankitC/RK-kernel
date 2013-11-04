@@ -25,20 +25,22 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 	unsigned long flags;
 	
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
+	
+	printk(KERN_INFO "C timer call back : %d ", reservation_detail->pid);
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
 	set_tsk_need_resched(reservation_detail->monitored_process);
-	
 		temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
 			    reservation_detail->prev_setime;
 		reservation_detail->spent_budget = timespec_add\
 														(reservation_detail->spent_budget, ns_to_timespec(temp));
-		 reservation_detail->monitored_process->reserve_process.prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
+	reservation_detail->monitored_process->reserve_process.prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
 
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 
 	return HRTIMER_NORESTART;
 }
+
 /*
  * Callback function for hr timer
  */
