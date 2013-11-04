@@ -8,6 +8,7 @@
 #include <linux/mutex.h>
 #include <linux/semaphore.h>
 #include <linux/completion.h>
+#include <linux/spinlock_types.h>
 
 DEFINE_SPINLOCK(foolock);
 DECLARE_COMPLETION(wakeup_comp);
@@ -28,15 +29,15 @@ void wakeup_tasks(void)
 
 	unsigned long flags = 0;
 	printk(KERN_INFO "Wkup\n");
-/*
+
 	while (curr)
 	{
 		if (curr->task->reserve_process.deactivated == 1)
 			set_cpu_for_task(curr->task);
 		curr = curr->next;
 	}
-*/
-	spin_lock_irqsave(&bin_spinlock, flags);
+
+//	spin_lock_irqsave(&bin_spinlock, flags);
 	curr = bin_head;
 	while (curr)
 	{
@@ -51,13 +52,14 @@ void wakeup_tasks(void)
 			curr->task->reserve_process.t_timer_started = 0;
 			curr->task->reserve_process.pending = 0;
 			curr->task->reserve_process.need_resched = 0;
+			curr->task->reserve_process.running = 0;
 			if(!wake_up_process(curr->task))
 				printk(KERN_INFO "Couldn't wake up process %d\n", curr->task->pid);
 			curr->task->reserve_process.deactivated = 0;
 		}
 		curr = curr->next;
 	}
-	spin_unlock_irqrestore(&bin_spinlock, flags);
+//	spin_unlock_irqrestore(&bin_spinlock, flags);
 	printk(KERN_INFO "Wake up task ends\n");
 }
 
@@ -67,8 +69,8 @@ inline void stop_timers(struct task_struct* prev)
 	{
 		hrtimer_cancel(&prev->reserve_process.C_timer);
 		hrtimer_cancel(&prev->reserve_process.T_timer);
+		printk(KERN_INFO "Timers stopped for deactivating:pid:%d.\n", prev->pid);
 	}
-	prev->reserve_process.running = 0;
 }
 
 /*
@@ -81,7 +83,7 @@ void migrate_and_start(void)
 	unsigned long flags = 0;
 	unsigned int bypass = 1;
 
-	spin_lock_irqsave(&bin_spinlock, flags);
+//	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 		if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu)
@@ -94,24 +96,22 @@ void migrate_and_start(void)
 
 		curr = curr->next;
 	}
-	spin_unlock_irqrestore(&bin_spinlock, flags);
+//	spin_unlock_irqrestore(&bin_spinlock, flags);
 
 	if(!bypass)
 	{
 		printk(KERN_INFO "S\n");
-		set_current_state(TASK_INTERRUPTIBLE);
+		set_current_state(TASK_UNINTERRUPTIBLE);
+  	  	
   	  	spin_lock(&foolock);
   	  		wake_me_up = current;
   	  		wake_me_up->reserve_process.host_cpu = smp_processor_id();
   			suspend_processes = 1;
         spin_unlock(&foolock);
+        
         printk(KERN_INFO "Sleeping on %d", smp_processor_id());
-
-	//	wait_for_completion(&wakeup_comp);
-        schedule();
-     //wake_me_up = NULL;
-  	 //	set_current_state(TASK_RUNNING);
-  		printk(KERN_INFO "W\n");
+		schedule();
+		printk(KERN_INFO "W\n");
 		wakeup_tasks();
 	}
 }
@@ -121,13 +121,13 @@ void migrate_only(void)
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
 
-	spin_lock_irqsave(&bin_spinlock, flags);
+	//spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 		curr->task->reserve_process.pending = 1;
 		curr = curr->next;
 	}
-	spin_unlock_irqrestore(&bin_spinlock, flags);
+	////spin_unlock_irqrestore(&bin_spinlock, flags);
 
 	//mutex_lock(&suspend_mutex);
 	suspend_all = 1;
