@@ -12,8 +12,9 @@
 int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
-int suspend_processes = 0;
-int suspend_all = 0;
+extern struct mutex suspend_mutex;
+volatile int suspend_processes = 0;
+volatile int suspend_all = 0;
 int wake_up_processes = 0;
 /*
  * Function called when a read is done on sysfs util file
@@ -77,7 +78,9 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if ((prev_migrate == 0) && (migrate == 1))
 		{
+			mutex_lock(&suspend_mutex);
 			suspend_all = 0;
+			mutex_unlock(&suspend_mutex);
 			wakeup_tasks();
 		}
 

@@ -30,7 +30,6 @@ struct reserve_obj
 	int buffer_overflow;
 	int ctx_overflow;
 	int t_timer_started;
-	int suspension_required;
 	int pending;
 	int deactivated;
 	int running;

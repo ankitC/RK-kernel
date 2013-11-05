@@ -18,11 +18,11 @@
 
 #define D(x) x
 
+extern int migrate;
 /*
  * Introduces the process with the given pid in
  * the reservation framework
  */
-static int n = 0;
 extern void disable_auto_hotplug(void);
 extern struct semaphore wakeup_sem;
 static unsigned long long calculate_util(struct task_struct * task)
@@ -79,14 +79,8 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (task->under_reservation)
 		cleanup_hrtimer(&task->reserve_process.T_timer);
 
-	if (!n)
-	{
-		printk("Ek Baar down");
 		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
-		down(&wakeup_sem);
-	}
 
-	n++;
 	ktime = ktime_set(C.tv_sec, C.tv_nsec);
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
 
@@ -101,29 +95,29 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	strcpy(task->reserve_process.name, "group11");
 	task->reserve_process.C = C;
 	task->reserve_process.T = T;
-	task->reserve_process.suspension_required = 0;
 	task->reserve_process.U = calculate_util(task);
 	task->reserve_process.host_cpu = smp_processor_id();
 	retval = admission_test(task);
-	migrate_and_start(task);
 	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
 		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 		return 1;
 	}
+
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.buffer_overflow = 0;
 	task->reserve_process.t_timer_started = 0;
-	if (!task->reserve_process.suspension_required) 
-		task->reserve_process.need_resched = 0;
+	task->reserve_process.need_resched = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.remaining_C = ktime;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	task->reserve_process.spent_budget.tv_sec = 0;
 	task->reserve_process.spent_budget.tv_nsec = 0;
 	task->under_reservation = 1;
+
+	/* Sysfs params */
 	task->reserve_process.c_buf.start = 0;
 	task->reserve_process.c_buf.read_count = 0;
 	task->reserve_process.c_buf.buffer[0] = 0;
@@ -132,7 +126,18 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.read_count = 0;
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
+
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
+	
+	/*  Refactor all tasks according to recalculated
+		reservations.
+		Suspend everyone if migrate is set to 0 */
+	
+	if(migrate == 1)
+		migrate_and_start(task);
+	else
+		migrate_only();
+
 	set_cpu_for_task(task);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);

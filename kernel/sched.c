@@ -4340,8 +4340,6 @@ inline void start_reservation_timers(struct task_struct *next)
 extern BIN_NODE* bin_head;
 extern spinlock_t bin_spinlock;
 extern struct mutex suspend_mutex;
-extern struct semaphore wakeup_sem;
-extern volatile int suspend_processes;
 /*
  * function to check whether the spent_budget of the process 
  */
@@ -4363,8 +4361,8 @@ inline void check_reservation(struct task_struct *prev)
 	}
 }
 extern volatile int suspend_processes;
-extern int suspend_all;
-
+extern volatile int suspend_all;
+	
 /*
  * __schedule() is the main scheduler function.
  */

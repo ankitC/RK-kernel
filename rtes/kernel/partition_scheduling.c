@@ -12,13 +12,13 @@
 #include <asm/current.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
+
 extern int guarantee;
 extern int migrate;
 PROC_NODE *head = NULL;
 extern BIN_NODE *bin_head;
-//spinlock_t bin_lock;
 DEFINE_SPINLOCK(bin_spinlock);
-DEFINE_SPINLOCK(suspend_spinlock);
+
 /*
  * Liu Leyland bounds for upto 62 tasks
  */
@@ -33,6 +33,7 @@ const uint32_t bounds_tasks[62]=
 	6981,	6980,	6979,	6978,	6977,	6976,	6976,	6975,
 	6974,	6973,	6973,	6972,	6971,	6971,	6970
 };
+
 /*
  * Utilization bound test to check for a task
  * Returns UNSCHEDULABLE on Failure.
@@ -225,6 +226,10 @@ int admission_test(struct task_struct *task)
 	{
 		retval = ub_test(task);
 
+		/* If schedulable with UB test - returns 1.
+		 * If RT test required, UB test - returns 0.
+		 * If U>1, UB test returns UNSCHEDULABLE.
+		 */
 		if (retval == UNSCHEDULABLE)
 			return -1;
 
@@ -250,33 +255,16 @@ int admission_test(struct task_struct *task)
 
 		retval = apply_heuristic(partition_policy);
 
-		if ((retval == 1) && (migrate == 1))
+		if (retval == 1)
 		{
-
 			spin_unlock_irqrestore(&bin_spinlock, flags);
 			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
-		else if ((retval == 1) && (migrate == 0))
-		{
-			/* Mark all tasks as pending*/
-			
-			current->reserve_process.need_resched = 1;
-			current->reserve_process.suspension_required = 1;
-			spin_unlock_irqrestore(&bin_spinlock, flags);
-			//set_tsk_need_resched(current);
-			
-			/*spin_lock_irqsave(&suspend_spinlock, flags);
-			suspend = 1;
-			spin_unlock_irqrestore(&suspend_spinlock, flags);
-
-			set_tsk_need_resched(curr->task);
-			//spin_unlock_irqrestore(&bin_spinlock, flags);*/
-			return 1;
-		}
-
-		if (retval < 0)
+		if (retval < 0){
+			delete_bin_node(task);
 			printk("Task cannot be scheduled according to heuristic\n");
+		}
 
 		spin_unlock_irqrestore(&bin_spinlock, flags);
 	}
@@ -290,16 +278,16 @@ void set_cpu_for_task(struct task_struct *task)
 {
 	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
-if(task!= NULL){
-	pid_t pid = task->pid;
-	printk(KERN_INFO "Before checking task->under_reservation\n");
+	if(task!= NULL){
+		pid_t pid = task->pid;
+		printk(KERN_INFO "Before checking task->under_reservation\n");
 
-	if (task->under_reservation)
-	{
-		cpu_up(host_cpu);
-		cpumask_clear(&af_mask);
-		cpumask_set_cpu(host_cpu, &af_mask);
-		printk(KERN_INFO "Just before sched_setaffinity\n");
+		if (task->under_reservation)
+		{
+			cpu_up(host_cpu);
+			cpumask_clear(&af_mask);
+			cpumask_set_cpu(host_cpu, &af_mask);
+			printk(KERN_INFO "Just before sched_setaffinity\n");
 			if (sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else

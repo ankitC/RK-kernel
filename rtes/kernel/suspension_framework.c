@@ -8,10 +8,10 @@
 #include <linux/mutex.h>
 #include <linux/semaphore.h>
 
-DEFINE_SEMAPHORE(wakeup_sem);
-DEFINE_MUTEX (suspend_mutex);
 
+DEFINE_MUTEX (suspend_mutex);
 extern spinlock_t(bin_spinlock);
+
 extern BIN_NODE* bin_head;
 extern volatile int suspend_processes;
 extern int suspend_all;
@@ -30,7 +30,7 @@ void wakeup_tasks(void)
 
 	while (curr)
 	{
-		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+		if (curr->task->reserve_process.deactivated == 1)
 			set_cpu_for_task(curr->task);
 		curr = curr->next;
 	}
@@ -39,7 +39,7 @@ void wakeup_tasks(void)
 	curr = bin_head;
 	while (curr)
 	{
-		if (curr->task->state == TASK_UNINTERRUPTIBLE)
+		if (curr->task->reserve_process.deactivated == 1)
 		{
 
 			printk(KERN_INFO "Waking up %d\n", curr->task->pid);
@@ -60,6 +60,7 @@ void wakeup_tasks(void)
 	spin_unlock_irqrestore(&bin_spinlock, flags);
 	printk(KERN_INFO "Wake up task ends\n");
 }
+
 /*
  * Suspend tasks from the utilization liked lists
  * When migrate is one and the policy is changed
