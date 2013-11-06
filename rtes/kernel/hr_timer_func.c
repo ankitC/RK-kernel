@@ -23,10 +23,10 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 
 	unsigned long long temp;
 	unsigned long flags;
-	
+
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
-	
-	printk(KERN_INFO "C timer call back : %d ", reservation_detail->pid);
+
+	printk(KERN_INFO "C_Timer Expired: %d ", reservation_detail->pid);
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
 	set_tsk_need_resched(reservation_detail->monitored_process);
@@ -77,6 +77,8 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 		reservation_detail->need_resched = 0;
 		if(!wake_up_process(reservation_detail->monitored_process))
 			printk(KERN_INFO "Couldn't wake up process\n");
+		else
+			printk(KERN_INFO "Resuming Task:%d\n", reservation_detail->pid);
 	}
 
 	forward_time = ktime_set(reservation_detail->T.tv_sec\

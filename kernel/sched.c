@@ -4429,7 +4429,7 @@ need_resched:
 
 	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending && (prev->reserve_process.deactivated == 0))
 	{
-		printk(KERN_INFO "Putting task %d to sleep in sched", prev->pid);
+		printk(KERN_INFO "Deactivating:%d\n", prev->pid);
 		prev->state = TASK_UNINTERRUPTIBLE;
 		deactivate_task(rq, prev, DEQUEUE_SLEEP);
 		prev->on_rq = 0;
