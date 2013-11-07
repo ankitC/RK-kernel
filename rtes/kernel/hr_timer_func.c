@@ -50,6 +50,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	struct reserve_obj* reservation_detail=container_of(T_timer,\
 			struct reserve_obj, T_timer);
 	ktime_t ktime, forward_time, curr_time;
+
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 

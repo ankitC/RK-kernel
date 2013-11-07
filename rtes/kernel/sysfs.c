@@ -139,9 +139,12 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 {
 	circular_buffer *c_buffer = &res_detail->c_buf;
 	unsigned long long time = timespec_to_ns(&spent_budget);
-	char time_buffer[21];
+	char time_buffer[36];
+	struct timespec ts;
 	int len = 0, i = 0;
-	sprintf(time_buffer, "%llu", time);
+
+	getrawmonotonic(&ts);
+	sprintf(time_buffer, "%llu %llu", time, timespec_to_ns(&ts));
 	len = strlen(time_buffer) + 1;
 	while(len)
 	{
@@ -149,7 +152,7 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 		c_buffer->end = ((c_buffer->end+1) % PAGE_SIZE);
 		i++;
 		len = len - 1;
-	
+
 		if (c_buffer->end == c_buffer->start)
 		{
 			printk(KERN_INFO "Overflow occured\n");

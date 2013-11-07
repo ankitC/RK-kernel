@@ -441,7 +441,7 @@ int apply_worst_fit(void)
 	else
 		return 1;
 }
-
+/*
 void assign_cpus(BIN_NODE* curr, int cpu){
 
 	curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
@@ -519,7 +519,8 @@ int apply_harmonic_fit(void){
 		curr = curr->next;
 		curr_U = curr->task->reserve_process.U;
 	}
-}
+	return 0;
+}*/
 
 /*
  * Applies the heuristic for bin packing in the partition_policy

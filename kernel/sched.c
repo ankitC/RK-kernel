@@ -4300,8 +4300,8 @@ inline void stop_C_timer(struct task_struct* prev)
 
 	if (prev->under_reservation && prev->reserve_process.t_timer_started && prev->reserve_process.running)
 	{
-			prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
-			hrtimer_cancel(&prev->reserve_process.C_timer);
+		prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
+		hrtimer_cancel(&prev->reserve_process.C_timer);
 		prev->reserve_process.running = 0;
 	}
 
