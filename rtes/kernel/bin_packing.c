@@ -444,9 +444,8 @@ int apply_worst_fit(void)
 
 int apply_harmonic_fit(void){
 
-	int cpu = 0;
 	BIN_NODE* curr = bin_head;
-	int curr_U = curr->reserve_process.U;
+	unsigned long long curr_U = curr->reserve_process.U;
 	printk(KERN_INFO "Harmonic Fit\n");
 
 	while(curr){
