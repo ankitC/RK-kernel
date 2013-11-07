@@ -442,39 +442,82 @@ int apply_worst_fit(void)
 		return 1;
 }
 
+void assign_cpus(BIN_NODE* curr, int cpu){
+
+	curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
+	curr->task->reserve_process.host_cpu = cpu;
+
+}
+
+int helper_function(BIN_NODE* curr, int cpu){
+
+	int counter = 0;
+
+	while (counter < TOTAL_CORES){
+
+		if (admission_test_for_cpu(curr, cpu) < 0){
+			cpu = (cpu + 1) % TOTAL_CORES;
+			counter++;
+		}
+		else {
+			assign_cpus();
+			return 1;
+		}
+	}
+
+	if (counter == TOTAL_CORES)
+		return -1;
+
+}
+
 int apply_harmonic_fit(void){
 
 	BIN_NODE* curr = bin_head;
-	unsigned long long curr_U = curr->reserve_process.U;
+	unsigned long long curr_U = curr->task->reserve_process.U;
+
 	printk(KERN_INFO "Harmonic Fit\n");
 
 	while(curr){
 
 		if (curr_U < 2000){
-			//apply_next_fit();
+			if (helper_function(curr, 0) < 0)
+				return -1;
+
 		}
 		else if (curr_U < 2500){
 			if (admission_test_for_cpu(curr, 0) < 0){
-				//apply_next_fit
+				if (helper_function(curr, 1) < 0)
+					return -1;
 			}
+			else
+				assign_cpus(curr, 0);
 		}
 		else if (curr_U < 3333)
 			if (admission_test_for_cpu(curr, 1) < 0){
-				//apply_next_fit
+				if (helper_function(curr, 2) < 0)
+					return -1;
 			}
+			else
+				assign_cpus(curr, 1);
 		else if (curr_U < 5000)
 			if (admission_test_for_cpu(curr, 2) < 0){
-				//apply_next_fit
+				if (helper_function(curr, 3) < 0)
+					return -1;
 			}
+			else
+				assign_cpus(curr, 2);
 		else if (curr_U < 10000)
 			if (admission_test_for_cpu(curr, 3) < 0){
-				//apply_next_fit
+				if (helper_function(curr, 0) < 0)
+					return -1;
 			}
+			else
+				assign_cpus(curr, 3);
 		else
 			return -1;
 
 		curr = curr->next;
-		curr_U = curr->reserve_process.U;
+		curr_U = curr->task->reserve_process.U;
 	}
 }
 
