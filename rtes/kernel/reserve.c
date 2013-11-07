@@ -19,6 +19,7 @@
 #define D(x) x
 
 extern int migrate;
+extern int guarantee;
 /*
  * Introduces the process with the given pid in
  * the reservation framework
@@ -132,12 +133,14 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	/*  Refactor all tasks according to recalculated
 		reservations.
 		Suspend everyone if migrate is set to 0 */
-	
-	if(migrate == 1)
-		migrate_and_start(task);
-	else
-		migrate_only();
 
+	if (guarantee)
+	{
+		if(migrate == 1)
+			migrate_and_start(task);
+		else
+			migrate_only();
+	}
 	set_cpu_for_task(task);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);

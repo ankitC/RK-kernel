@@ -53,7 +53,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	unsigned long flags;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	printk(KERN_INFO "Budget spent %llu", timespec_to_ns\
+	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\
 			(&reservation_detail->spent_budget));
 
 	ktime = ktime_set(reservation_detail->C.tv_sec, reservation_detail->C.tv_nsec);
@@ -66,10 +66,10 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	if (reservation_detail->running)
 	{
 		hrtimer_cancel(&reservation_detail->C_timer);
-		hrtimer_init( &reservation_detail->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL );
+		hrtimer_init( &reservation_detail->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 		reservation_detail->C_timer.function = &C_timer_callback;
-		hrtimer_start(&reservation_detail->C_timer, reservation_detail->remaining_C, HRTIMER_MODE_REL);
-
+		hrtimer_start(&reservation_detail->C_timer, reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
+		printk(KERN_INFO "C Timer init\n");
 	}
 
 	if (reservation_detail->need_resched && reservation_detail->monitored_process->state == TASK_UNINTERRUPTIBLE)

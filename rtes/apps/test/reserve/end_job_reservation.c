@@ -63,6 +63,7 @@ void wait_for(long long timediff){
 		if(timespent > timediff/2)
 		{
 			syscall(__NR_end_job );
+			printf("Breaking out of waitfor\n");
 			break;
 		}
 
@@ -107,11 +108,11 @@ int main(char **argc, char** argv)
 
 	while(n++ < 10){
 
-		wait_for((nanos(CW)+CWns)/2000);
+		wait_for((nanos(CW)+CWns)/1000);
 		/*if (n % 2)
 			syscall(__NR_end_job );
 		wait_for((nanos(CW)+CWns)/2000);*/
-		usleep((useconds_t)(((nanos(TW)+TWns)-nanos(CW)+CWns)/1000) );
+//		usleep((useconds_t)(((nanos(TW)+TWns)-nanos(CW)+CWns)/1000) );
 		printf("n = %d \n",n);
 	}
 

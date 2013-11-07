@@ -4300,11 +4300,8 @@ inline void stop_C_timer(struct task_struct* prev)
 
 	if (prev->under_reservation && prev->reserve_process.t_timer_started && prev->reserve_process.running)
 	{
-		if(!prev->reserve_process.need_resched)
-		{
 			prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
 			hrtimer_cancel(&prev->reserve_process.C_timer);
-		}
 		prev->reserve_process.running = 0;
 	}
 
@@ -4418,7 +4415,7 @@ need_resched:
 	{
 		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
 		{
-			printk(KERN_INFO "Marking pending 0 for %d\n", prev->pid);
+			printk(KERN_INFO "Marking %d as pending.\n", prev->pid);
 			stop_timers(prev);
 			prev->state = TASK_UNINTERRUPTIBLE;
 			deactivate_task(rq, prev, DEQUEUE_SLEEP);

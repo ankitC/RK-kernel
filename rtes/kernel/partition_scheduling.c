@@ -8,6 +8,7 @@
 #include <linux/bin_packing.h>
 #include <linux/bin_linked_list.h>
 #include <linux/reserve_framework.h>
+#include <linux/suspension_framework.h>
 #include <asm/div64.h>
 #include <asm/current.h>
 #include <linux/types.h>
@@ -288,7 +289,7 @@ void set_cpu_for_task(struct task_struct *task)
 			cpumask_clear(&af_mask);
 			cpumask_set_cpu(host_cpu, &af_mask);
 			printk(KERN_INFO "Just before sched_setaffinity\n");
-			if (sched_setaffinity(pid, &af_mask))
+			if (reserve_sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
