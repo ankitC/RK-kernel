@@ -30,7 +30,7 @@ void energy_savings(void)
 		for (i = 0; i < TOTAL_CORES; i++)
 		{
 			if (cpu_used[i] == 0)
-				set_cpu_online(i, 0);
+				cpu_down(i);
 		}
 	}
 }
