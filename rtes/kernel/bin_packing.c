@@ -442,6 +442,43 @@ int apply_worst_fit(void)
 		return 1;
 }
 
+int apply_harmonic_fit(void){
+
+	int cpu = 0;
+	BIN_NODE* curr = bin_head;
+	int curr_U = curr->reserve_process.U;
+	printk(KERN_INFO "Harmonic Fit\n");
+
+	while(curr){
+
+		if (curr_U < 2000){
+			//apply_next_fit();
+		}
+		else if (curr_U < 2500){
+			if (admission_test_for_cpu(curr, 0) < 0){
+				//apply_next_fit
+			}
+		}
+		else if (curr_U < 3333)
+			if (admission_test_for_cpu(curr, 1) < 0){
+				//apply_next_fit
+			}
+		else if (curr_U < 5000)
+			if (admission_test_for_cpu(curr, 2) < 0){
+				//apply_next_fit
+			}
+		else if (curr_U < 10000)
+			if (admission_test_for_cpu(curr, 3) < 0){
+				//apply_next_fit
+			}
+		else
+			return -1;
+
+		curr = curr->next;
+		curr_U = curr->reserve_process.U;
+	}
+}
+
 /*
  * Applies the heuristic for bin packing in the partition_policy
  * variable. 
@@ -467,3 +504,5 @@ int apply_heuristic(char policy[2])
 
 	return retval;
 }
+
+
