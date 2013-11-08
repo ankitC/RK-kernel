@@ -5,6 +5,7 @@
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <linux/bin_packing.h>
+#include <linux/bin_linked_list.h>
 #include <linux/energy_saving.h>
 #include <linux/suspension_framework.h>
 #include <asm/current.h>
@@ -12,6 +13,7 @@
 int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
+extern BIN_NODE *bin_head;
 extern struct mutex suspend_mutex;
 volatile int suspend_processes = 0;
 volatile int suspend_all = 0;
@@ -75,7 +77,8 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (prev_guarantee == 0 && var == 1)
 		{
-			if (apply_heuristic(policy))
+			
+			if (bin_head != NULL && apply_heuristic(policy))
 			{
 				guarantee = var;
 			}
