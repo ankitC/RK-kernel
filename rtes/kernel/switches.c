@@ -77,7 +77,6 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (prev_guarantee == 0 && var == 1)
 		{
-			
 			if (bin_head != NULL && apply_heuristic(policy))
 			{
 				guarantee = var;
