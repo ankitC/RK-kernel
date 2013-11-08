@@ -14,6 +14,7 @@
 #include <linux/partition_scheduling.h>
 #include <linux/suspension_framework.h>
 #include <linux/linked_list.h>
+#include <linux/bin_linked_list.h>
 #include <linux/semaphore.h>
 
 #define D(x) x
@@ -99,12 +100,19 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.U = calculate_util(task);
 	task->reserve_process.host_cpu = smp_processor_id();
 	retval = admission_test(task);
+
 	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
 		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 		return 1;
 	}
+
+	/* Adding to util linked list so that when guarantee is made
+	 * 1 the util linked list is ready for scheduling according 
+	 * to the heuristic */
+	if (guarantee == 0 && task->under_reservation == 0)
+		add_bin_node(make_bin_node(task));
 
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;

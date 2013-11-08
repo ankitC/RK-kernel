@@ -43,15 +43,15 @@ void add_cpu_node( BIN_NODE* curr1, int cpu)
 		//printk(KERN_INFO "CPu bin present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
 		//		, curr1->task->reserve_process.U);
 
-		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)
+		if (timespec_to_ns(&curr2->task->reserve_process.T) < timespec_to_ns(&curr1->task->reserve_process.T))
 		{
 			curr1->next = curr2;
 			cpu_bin_head[cpu] = curr1;
 		}
 		else
 		{
-			while( curr2 && (curr2->task->reserve_process.U >=
-				   	curr1->task->reserve_process.U) )
+			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) >=
+				   	timespec_to_ns(&curr1->task->reserve_process.T)) )
 			{
 				temp = curr2;
 				curr2 = curr2->next;

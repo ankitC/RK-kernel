@@ -34,6 +34,44 @@ const uint32_t bounds_tasks[62]=
 	6981,	6980,	6979,	6978,	6977,	6976,	6976,	6975,
 	6974,	6973,	6973,	6972,	6971,	6971,	6970
 };
+/*
+ * Deciding the real time priorities of a task based on period
+ */
+void set_rt_prios(void)
+{
+	BIN_NODE *curr = bin_head, *min_node = NULL;
+	int rt_prio = MAX_RT_PRIO - 2;
+	unsigned long long T_min = 999999999, temp = 0;
+	int list_len = 0;
+
+	while (curr)
+	{
+		curr->task->reserve_process.rt_prio = -1;
+		curr = curr->next;
+		list_len++;
+	}
+
+	curr = bin_head;
+
+	while (list_len)
+	{
+		curr = bin_head;
+		while (curr)
+		{
+
+			temp = timespec_to_ns(&curr->task->reserve_process.T);
+			if (curr->task->reserve_process.rt_prio == -1 && T_min > temp)
+			{
+				min_node = curr;
+				T_min = timespec_to_ns(&curr->task->reserve_process.T);
+			}
+			curr = curr->next;
+		}
+
+		min_node->task->reserve_process.rt_prio = rt_prio--;
+		list_len--;
+	}
+}
 
 /*
  * Utilization bound test to check for a task
@@ -236,6 +274,7 @@ int admission_test(struct task_struct *task)
 
 		if (retval || rt_test(task))
 		{
+			set_rt_prios();
 			return 1;
 		}
 		else
@@ -259,6 +298,7 @@ int admission_test(struct task_struct *task)
 		if (retval == 1)
 		{
 			spin_unlock_irqrestore(&bin_spinlock, flags);
+			set_rt_prios();
 			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
@@ -272,6 +312,7 @@ int admission_test(struct task_struct *task)
 	return -1;
 }
 
+
 /*
  * Sets a the specified "host_cpu" for the task
  */
@@ -279,6 +320,9 @@ void set_cpu_for_task(struct task_struct *task)
 {
 	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
+	struct sched_param param;
+	param.sched_priority = task->reserve_process.rt_prio;
+
 	if(task!= NULL){
 		pid_t pid = task->pid;
 		printk(KERN_INFO "Before checking task->under_reservation\n");
@@ -293,6 +337,8 @@ void set_cpu_for_task(struct task_struct *task)
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
+
+			sched_setscheduler(task, SCHED_RR, &param);
 		}
 	}
 }

@@ -27,25 +27,20 @@ void add_ll_node( PROC_NODE* curr1)
 
 	if (head == NULL)
 	{
-		printk(KERN_INFO "Head Created");
 		head = curr1;
 	}
 	else
 	{
-		printk(KERN_INFO "Head Present");
 		printk(KERN_INFO "curr2->T = %llu curr1->T = %llu\n", timespec_to_ns(&curr2->task->reserve_process.T) \
 				, timespec_to_ns(&curr1->task->reserve_process.T));
 		if (timespec_to_ns(&curr2->task->reserve_process.T) >
 				   	timespec_to_ns(&curr1->task->reserve_process.T))
 		{
-			printk(KERN_INFO "Left less than right\n");
 			curr1->next = curr2;
 			head = curr1;
-			printk(KERN_INFO "Head changed, Node Added\n");
 		}
 		else
 		{
-			printk(KERN_INFO "Right less than left\n");
 			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <=
 				   	timespec_to_ns(&curr1->task->reserve_process.T) ))
 			{
@@ -55,7 +50,6 @@ void add_ll_node( PROC_NODE* curr1)
 
 			if(curr2)
 			{
-				printk("Had to do some sorting\n");
 				curr1->next = curr2;
 			}
 			temp->next = curr1;

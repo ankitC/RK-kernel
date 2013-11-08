@@ -33,6 +33,7 @@ struct reserve_obj
 	int pending;
 	int deactivated;
 	int running;
+	int rt_prio;
 	unsigned int host_cpu;
 	unsigned int prev_cpu;
 	struct timespec C;
