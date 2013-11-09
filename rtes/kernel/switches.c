@@ -51,7 +51,7 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 {
 	int var;
 	char policy[2] = {0};
-	int prev_migrate = 0, prev_guarantee = 0;
+	int prev_migrate = 0, prev_guarantee = 0, retval = 0;
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
 	if (strcmp(attr->attr.name, "partition_policy") == 0)
@@ -77,13 +77,23 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (prev_guarantee == 0 && var == 1)
 		{
-			if (bin_head != NULL && apply_heuristic(policy))
+			retval = apply_heuristic(policy);
+			if (bin_head != NULL && retval < 0)
 			{
-				guarantee = var;
+				printk(KERN_INFO "Guarntee did not succeed\n");
 			}
 			else
 			{
-				printk(KERN_INFO "Guarntee did not succeed\n");
+				printk(KERN_INFO "Guarntee succeed with retval %d\n", retval);
+
+				guarantee = var;
+				if (bin_head != NULL && retval)
+				{
+					if(migrate == 1)
+						migrate_and_start(current);
+					else
+						migrate_only();
+				}
 			}
 		}
 	}

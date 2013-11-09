@@ -41,7 +41,7 @@ void set_rt_prios(void)
 {
 	BIN_NODE *curr = bin_head, *min_node = NULL;
 	int rt_prio = MAX_RT_PRIO - 2;
-	unsigned long long T_min = 999999999, temp = 0;
+	unsigned long long T_min = ULLONG_MAX, temp = 0;
 	int list_len = 0;
 
 	while (curr)
@@ -58,7 +58,6 @@ void set_rt_prios(void)
 		curr = bin_head;
 		while (curr)
 		{
-
 			temp = timespec_to_ns(&curr->task->reserve_process.T);
 			if (curr->task->reserve_process.rt_prio == -1 && T_min > temp)
 			{
@@ -67,7 +66,7 @@ void set_rt_prios(void)
 			}
 			curr = curr->next;
 		}
-
+		printk(KERN_INFO "Settting RTPrio %d to %d task", rt_prio, min_node->task->pid );
 		min_node->task->reserve_process.rt_prio = rt_prio--;
 		list_len--;
 	}
@@ -144,8 +143,8 @@ int check_schedulabilty(PROC_NODE *stop)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-			printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-			printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
+		//	printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
+		//	printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -220,11 +219,11 @@ int rt_test(struct task_struct *task)
 	while (curr)
 	{
 		if(check_schedulabilty(curr)){
-			printk(KERN_INFO "We have another task to run this test on\n");
+		//	printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
-			printk(KERN_INFO "End of Linked List\n");
+		//	printk(KERN_INFO "End of Linked List\n");
 			return 0;
 		}
 	}
@@ -248,7 +247,9 @@ int admission_test(struct task_struct *task)
 	unsigned long flags;
 
 	if (!guarantee)
+	{
 		return 0;
+	}
 
 	for( i = 0; i < 4; i++)
 	{
@@ -299,7 +300,7 @@ int admission_test(struct task_struct *task)
 		{
 			spin_unlock_irqrestore(&bin_spinlock, flags);
 			set_rt_prios();
-			printk(KERN_INFO "Reutning 1 in adm test\n");
+//			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
 		if (retval < 0){
@@ -325,14 +326,14 @@ void set_cpu_for_task(struct task_struct *task)
 
 	if(task!= NULL){
 		pid_t pid = task->pid;
-		printk(KERN_INFO "Before checking task->under_reservation\n");
+		//printk(KERN_INFO "Before checking task->under_reservation\n");
 
 		if (task->under_reservation)
 		{
 			cpu_up(host_cpu);
 			cpumask_clear(&af_mask);
 			cpumask_set_cpu(host_cpu, &af_mask);
-			printk(KERN_INFO "Just before sched_setaffinity\n");
+		//	printk(KERN_INFO "Just before sched_setaffinity\n");
 			if (reserve_sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else

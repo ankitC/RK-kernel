@@ -13,12 +13,34 @@ PROC_NODE* make_node(struct task_struct *task)
 	node->next = NULL;
 	return node;
 }
+/*
+ * Finding if the node already exists in the linked list
+ */
+int find_proc_node(PROC_NODE* to_be_found)
+{
+	PROC_NODE* curr = head;
 
+	while (curr)
+	{
+		if (curr->task->pid == to_be_found->task->pid)
+		{
+			delete_node(curr->task);
+			add_ll_node(to_be_found);
+			return 1;
+		}
+		curr = curr->next;
+	}
+
+	return 0;
+}
 /*Addind a node*/
 void add_ll_node( PROC_NODE* curr1)
 {
 	PROC_NODE* curr2 = head;
 	PROC_NODE* temp = NULL;
+
+	if (find_proc_node(curr1))
+		return;
 
 	if (!curr1)
 	{

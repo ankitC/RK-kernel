@@ -22,6 +22,26 @@ BIN_NODE* make_bin_node(struct task_struct *task)
 	node->next = NULL;
 	return node;
 }
+/*
+ * Finding if the node already exists in the linked list
+ */
+int find_bin_node(BIN_NODE* to_be_found)
+{
+	BIN_NODE* curr = bin_head;
+
+	while (curr)
+	{
+		if (curr->task->pid == to_be_found->task->pid)
+		{
+			delete_bin_node(curr->task);
+			add_bin_node(to_be_found);
+			return 1;
+		}
+		curr = curr->next;
+	}
+
+	return 0;
+}
 
 /*
  *Adding a bin node
@@ -30,6 +50,9 @@ void add_bin_node( BIN_NODE* curr1)
 {
 	BIN_NODE* curr2 = bin_head;
 	BIN_NODE* temp = NULL;
+
+	if (find_bin_node(curr1))
+		return;
 
 	if (!curr1)
 	{
