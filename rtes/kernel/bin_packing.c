@@ -8,6 +8,7 @@
 #include <linux/cpu_linked_list.h>
 #include <linux/reserve_framework.h>
 #include <linux/partition_scheduling.h>
+#include <linux/custom_heuristic.h>
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
@@ -506,6 +507,9 @@ int apply_heuristic(char policy[2])
 		retval = apply_worst_fit();
 	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
+	if (strncmp(policy,"C", 1) == 0)
+		apply_custom_fit();
+//		retval = apply_first_fit();
 
 	delete_all_cpu_nodes();
 
