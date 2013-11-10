@@ -143,6 +143,11 @@ void migrate_only(void)
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
 
+
+	if (bin_head == NULL)
+		return;
+
+	printk(KERN_INFO "In migrate only\n");
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{

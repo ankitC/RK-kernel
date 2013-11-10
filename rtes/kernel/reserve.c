@@ -14,6 +14,7 @@
 #include <linux/partition_scheduling.h>
 #include <linux/suspension_framework.h>
 #include <linux/linked_list.h>
+#include <linux/bin_linked_list.h>
 #include <linux/semaphore.h>
 
 #define D(x) x
@@ -24,8 +25,6 @@ extern int guarantee;
  * Introduces the process with the given pid in
  * the reservation framework
  */
-extern void disable_auto_hotplug(void);
-extern struct semaphore wakeup_sem;
 static unsigned long long calculate_util(struct task_struct * task)
 {
 	uint64_t C_var = 0;
@@ -78,14 +77,17 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 			return -1;
 
 	if (task->under_reservation)
+	{
 		cleanup_hrtimer(&task->reserve_process.T_timer);
+		cleanup_hrtimer(&task->reserve_process.C_timer);
+	}
 
-		task->reserve_process.prev_setime = task->se.sum_exec_runtime;
-
+	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
 	ktime = ktime_set(C.tv_sec, C.tv_nsec);
 	spin_lock_irqsave(&task->reserve_process.reserve_spinlock, flags);
 
-/* Set running according to its current status */
+	/* Set running according to its current status */
+
 	if (task == current)
 		task->reserve_process.running = 1;
 	else
@@ -99,6 +101,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.U = calculate_util(task);
 	task->reserve_process.host_cpu = smp_processor_id();
 	retval = admission_test(task);
+
 	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
@@ -141,10 +144,17 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		else
 			migrate_only();
 	}
+	else
+	{
+
+		printk(KERN_INFO "Guarentee 0");
+		add_ll_node(make_node(task));
+		add_bin_node(make_bin_node(task));
+	}
 	set_cpu_for_task(task);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);
-	return retval;
+	return 0;
 }
 
 /*

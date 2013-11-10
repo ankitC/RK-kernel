@@ -174,7 +174,7 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 	{
 		c_buffer->read_count = (c_buffer->end - 0)+ (PAGE_SIZE -1  - c_buffer->start);
 	}
-	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
+//	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
 	
 }
 /*
@@ -208,7 +208,7 @@ int circular_buffer_read(struct reserve_obj* res_detail , char* buf)
 	c_buffer->start = ((c_buffer->start+1) % PAGE_SIZE);
 	c_buffer->read_count -= (len + 1);
 
-	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d read_count %d\n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len, c_buffer->read_count);
+//	printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d read_count %d\n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len, c_buffer->read_count);
 	return len;
 }
 

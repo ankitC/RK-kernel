@@ -13,12 +13,34 @@ PROC_NODE* make_node(struct task_struct *task)
 	node->next = NULL;
 	return node;
 }
+/*
+ * Finding if the node already exists in the linked list
+ */
+int find_proc_node(PROC_NODE* to_be_found)
+{
+	PROC_NODE* curr = head;
 
+	while (curr)
+	{
+		if (curr->task->pid == to_be_found->task->pid)
+		{
+			delete_node(curr->task);
+			add_ll_node(to_be_found);
+			return 1;
+		}
+		curr = curr->next;
+	}
+
+	return 0;
+}
 /*Addind a node*/
 void add_ll_node( PROC_NODE* curr1)
 {
 	PROC_NODE* curr2 = head;
 	PROC_NODE* temp = NULL;
+
+	if (find_proc_node(curr1))
+		return;
 
 	if (!curr1)
 	{
@@ -27,25 +49,20 @@ void add_ll_node( PROC_NODE* curr1)
 
 	if (head == NULL)
 	{
-		printk(KERN_INFO "Head Created");
 		head = curr1;
 	}
 	else
 	{
-		printk(KERN_INFO "Head Present");
 		printk(KERN_INFO "curr2->T = %llu curr1->T = %llu\n", timespec_to_ns(&curr2->task->reserve_process.T) \
 				, timespec_to_ns(&curr1->task->reserve_process.T));
 		if (timespec_to_ns(&curr2->task->reserve_process.T) >
 				   	timespec_to_ns(&curr1->task->reserve_process.T))
 		{
-			printk(KERN_INFO "Left less than right\n");
 			curr1->next = curr2;
 			head = curr1;
-			printk(KERN_INFO "Head changed, Node Added\n");
 		}
 		else
 		{
-			printk(KERN_INFO "Right less than left\n");
 			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <=
 				   	timespec_to_ns(&curr1->task->reserve_process.T) ))
 			{
@@ -55,7 +72,6 @@ void add_ll_node( PROC_NODE* curr1)
 
 			if(curr2)
 			{
-				printk("Had to do some sorting\n");
 				curr1->next = curr2;
 			}
 			temp->next = curr1;

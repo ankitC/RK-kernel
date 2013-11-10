@@ -5,6 +5,7 @@
 #include <linux/sysfs.h>
 #include <linux/sched.h>
 #include <linux/bin_packing.h>
+#include <linux/bin_linked_list.h>
 #include <linux/energy_saving.h>
 #include <linux/suspension_framework.h>
 #include <asm/current.h>
@@ -12,6 +13,7 @@
 int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
+extern BIN_NODE *bin_head;
 extern struct mutex suspend_mutex;
 volatile int suspend_processes = 0;
 volatile int suspend_all = 0;
@@ -49,20 +51,26 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 {
 	int var;
 	char policy[2] = {0};
-	int prev_migrate = 0, prev_guarantee = 0;
+	int prev_migrate = 0, prev_guarantee = 0, retval = 0;
 
 	printk(KERN_INFO "Switch Store %s\n", attr->attr.name);
 	if (strcmp(attr->attr.name, "partition_policy") == 0)
 	{
 		strncpy(policy, buf, 1);
-
-		if (apply_heuristic(policy))
+		if (guarantee)
+		{
+			if (apply_heuristic(policy))
+			{
+				strncpy(partition_policy, buf,1);
+				if(migrate == 1)
+					migrate_and_start(current);
+				else
+					migrate_only();
+			}
+		}
+		else
 		{
 			strncpy(partition_policy, buf,1);
-			if(migrate == 1)
-				migrate_and_start(current);
-			else
-				migrate_only();
 		}
 		return count;
 	}
@@ -75,13 +83,23 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 		if (prev_guarantee == 0 && var == 1)
 		{
-			if (apply_heuristic(policy))
+			retval = apply_heuristic(partition_policy);
+			if (bin_head != NULL && retval < 0)
 			{
-				guarantee = var;
+				printk(KERN_INFO "Guarntee did not succeed\n");
 			}
 			else
 			{
-				printk(KERN_INFO "Guarntee did not succeed\n");
+				printk(KERN_INFO "Guarntee succeed with retval %d\n", retval);
+
+				guarantee = var;
+				if (bin_head != NULL && retval)
+				{
+					if(migrate == 1)
+						migrate_and_start(current);
+					else
+						migrate_only();
+				}
 			}
 		}
 	}

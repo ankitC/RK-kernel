@@ -18,6 +18,52 @@ extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
 /*
+ * Deciding the real time priorities of a task based on period
+ */
+void set_rt_prios(void)
+{
+	BIN_NODE *curr = bin_head, *min_node = NULL;
+	int rt_prio = MAX_RT_PRIO - 2;
+	unsigned long long T_min = ULLONG_MAX, temp = 0;
+	int list_len = 0;
+
+	while (curr)
+	{
+		curr->task->reserve_process.rt_prio = -1;
+		curr = curr->next;
+		list_len++;
+	}
+
+	curr = bin_head;
+
+	while (list_len)
+	{
+		curr = bin_head;
+		T_min = ULLONG_MAX;
+		min_node = NULL;
+
+		while (curr)
+		{
+			if (curr->task->reserve_process.rt_prio == -1)
+			{
+				temp = timespec_to_ns(&curr->task->reserve_process.T);
+
+				if (T_min > temp)
+				{
+					min_node = curr;
+					T_min = timespec_to_ns(&curr->task->reserve_process.T);
+				}
+			}
+			curr = curr->next;
+		}
+		if (min_node)
+			min_node->task->reserve_process.rt_prio = rt_prio--;
+		list_len--;
+	}
+}
+
+
+/*
  * Utilization bound test to check for a task
  * Returns UNSCHEDULABLE on Failure.
  * Returns 0 when RT test is required.
@@ -442,87 +488,6 @@ int apply_worst_fit(void)
 	else
 		return 1;
 }
-/*
-void assign_cpus(BIN_NODE* curr, int cpu){
-
-	curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-	curr->task->reserve_process.host_cpu = cpu
-
-}
-
-
-int helper_function(BIN_NODE* curr, int cpu){
-
-	int counter = 0;
-
-	while (counter < TOTAL_CORES){
-
-		if (admission_test_for_cpu(curr, cpu) < 0){
-			cpu = (cpu + 1) % TOTAL_CORES;
-			counter++;
-		}
-		else {
-			assign_cpus();
-			return 1;
-		}
-	}
-
-	if (counter == TOTAL_CORES)
-		return -1;
-
-}
-
-int apply_harmonic_fit(void){
-
-	BIN_NODE* curr = bin_head;
-	unsigned long long curr_U = curr->task->reserve_process.U;
-
-	printk(KERN_INFO "Harmonic Fit\n");
-
-	while(curr){
-
-		if (curr_U < 2000){
-			if (helper_function(curr, 0) < 0)
-				return -1;
-
-		}
-		else if (curr_U < 2500){
-			if (admission_test_for_cpu(curr, 0) < 0){
-				if (helper_function(curr, 1) < 0)
-					return -1;
-			}
-			else
-				assign_cpus(curr, 0);
-		}
-		else if (curr_U < 3333)
-			if (admission_test_for_cpu(curr, 1) < 0){
-				if (helper_function(curr, 2) < 0)
-					return -1;
-			}
-			else
-				assign_cpus(curr, 1);
-		else if (curr_U < 5000)
-			if (admission_test_for_cpu(curr, 2) < 0){
-				if (helper_function(curr, 3) < 0)
-					return -1;
-			}
-			else
-				assign_cpus(curr, 2);
-		else if (curr_U < 10000)
-			if (admission_test_for_cpu(curr, 3) < 0){
-				if (helper_function(curr, 0) < 0)
-					return -1;
-			}
-			else
-				assign_cpus(curr, 3);
-		else
-			return -1;
-
-		curr = curr->next;
-		curr_U = curr->task->reserve_process.U;
-	}
-	return 0;
-}*/
 
 /*
  * Applies the heuristic for bin packing in the partition_policy
@@ -548,7 +513,9 @@ int apply_heuristic(char policy[2])
 
 	delete_all_cpu_nodes();
 
-//	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
+	if (retval == 1)
+		set_rt_prios();
+	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
 
 	return retval;
 }

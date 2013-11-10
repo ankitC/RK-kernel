@@ -99,7 +99,7 @@ int main(char **argc, char** argv)
 
 	int n = 0;
 
-	while(n++ < 10){
+	while(1){
 
 		wait_for((nanos(CW)+CWns)/1000);
 		usleep((useconds_t)(((nanos(TW)+TWns)-nanos(CW)+CWns)/1000) );

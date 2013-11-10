@@ -35,6 +35,7 @@ const uint32_t bounds_tasks[62]=
 	6974,	6973,	6973,	6972,	6971,	6971,	6970
 };
 
+
 /*
  * Utilization bound test to check for a task
  * Returns UNSCHEDULABLE on Failure.
@@ -106,8 +107,8 @@ int check_schedulabilty(PROC_NODE *stop)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-			printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-			printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
+		//	printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
+		//	printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -182,11 +183,11 @@ int rt_test(struct task_struct *task)
 	while (curr)
 	{
 		if(check_schedulabilty(curr)){
-			printk(KERN_INFO "We have another task to run this test on\n");
+		//	printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
-			printk(KERN_INFO "End of Linked List\n");
+		//	printk(KERN_INFO "End of Linked List\n");
 			return 0;
 		}
 	}
@@ -210,7 +211,9 @@ int admission_test(struct task_struct *task)
 	unsigned long flags;
 
 	if (!guarantee)
+	{
 		return 0;
+	}
 
 	for( i = 0; i < 4; i++)
 	{
@@ -259,7 +262,7 @@ int admission_test(struct task_struct *task)
 		if (retval == 1)
 		{
 			spin_unlock_irqrestore(&bin_spinlock, flags);
-			printk(KERN_INFO "Reutning 1 in adm test\n");
+//			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
 		if (retval < 0){
@@ -272,6 +275,7 @@ int admission_test(struct task_struct *task)
 	return -1;
 }
 
+
 /*
  * Sets a the specified "host_cpu" for the task
  */
@@ -279,20 +283,26 @@ void set_cpu_for_task(struct task_struct *task)
 {
 	struct cpumask af_mask;
 	int host_cpu  = task->reserve_process.host_cpu;
+	struct sched_param param;
+	param.sched_priority = task->reserve_process.rt_prio;
+
 	if(task!= NULL){
 		pid_t pid = task->pid;
-		printk(KERN_INFO "Before checking task->under_reservation\n");
+		//printk(KERN_INFO "Before checking task->under_reservation\n");
 
 		if (task->under_reservation)
 		{
 			cpu_up(host_cpu);
 			cpumask_clear(&af_mask);
 			cpumask_set_cpu(host_cpu, &af_mask);
-			printk(KERN_INFO "Just before sched_setaffinity\n");
+		//	printk(KERN_INFO "Just before sched_setaffinity\n");
 			if (reserve_sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
+
+			printk(KERN_INFO "Pid:%d Prio\n", task->reserve_process.rt_prio);
+			sched_setscheduler(task, SCHED_RR, &param);
 		}
 	}
 }

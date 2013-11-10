@@ -4411,6 +4411,8 @@ need_resched:
 		switch_count = &prev->nvcsw;
 	}
 
+	pre_schedule(rq, prev);
+
 	if (prev->under_reservation && guarantee && (suspend_processes||suspend_all))
 	{
 		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
@@ -4418,7 +4420,7 @@ need_resched:
 			printk(KERN_INFO "Marking %d as pending.\n", prev->pid);
 			stop_timers(prev);
 			prev->state = TASK_UNINTERRUPTIBLE;
-			deactivate_task(rq, prev, DEQUEUE_SLEEP);
+			deactivate_task(rq, prev, 0);
 			prev->on_rq = 0;
 			prev->reserve_process.deactivated = 1;
 		}
@@ -4428,11 +4430,9 @@ need_resched:
 	{
 		printk(KERN_INFO "Deactivating:%d\n", prev->pid);
 		prev->state = TASK_UNINTERRUPTIBLE;
-		deactivate_task(rq, prev, DEQUEUE_SLEEP);
+		deactivate_task(rq, prev, 0);
 		prev->on_rq = 0;
 	}
-
-	pre_schedule(rq, prev);
 
 	if (unlikely(!rq->nr_running))
 		idle_balance(cpu, rq);

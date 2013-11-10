@@ -52,26 +52,37 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	ktime_t ktime, forward_time, curr_time;
 
 	unsigned long flags;
+	unsigned long long temp;
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\
-			(&reservation_detail->spent_budget));
-
 	ktime = ktime_set(reservation_detail->C.tv_sec, reservation_detail->C.tv_nsec);
-	circular_buffer_write(reservation_detail,\
-			reservation_detail->spent_budget);
-	reservation_detail->spent_budget.tv_sec = 0;
-	reservation_detail->spent_budget.tv_nsec = 0;
 	reservation_detail->remaining_C = ktime;
 
 	if (reservation_detail->running)
 	{
+		temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
+			   reservation_detail->prev_setime;
+		reservation_detail->spent_budget = timespec_add\
+				(reservation_detail->spent_budget, ns_to_timespec(temp));
+		reservation_detail->prev_setime = \
+				reservation_detail->monitored_process->se.sum_exec_runtime;
+
 		hrtimer_cancel(&reservation_detail->C_timer);
-		hrtimer_init( &reservation_detail->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
+		hrtimer_init( &reservation_detail->C_timer, \
+				CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 		reservation_detail->C_timer.function = &C_timer_callback;
-		hrtimer_start(&reservation_detail->C_timer, reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
-		printk(KERN_INFO "C Timer init\n");
+		hrtimer_start(&reservation_detail->C_timer,\
+			   	reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
+		//printk(KERN_INFO "C Timer init\n");
 	}
+
+	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\
+			(&reservation_detail->spent_budget));
+
+	circular_buffer_write(reservation_detail,\
+			reservation_detail->spent_budget);
+	reservation_detail->spent_budget.tv_sec = 0;
+	reservation_detail->spent_budget.tv_nsec = 0;
 
 	if (reservation_detail->need_resched && reservation_detail->monitored_process->state == TASK_UNINTERRUPTIBLE)
 	{
@@ -86,7 +97,6 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 			, reservation_detail->T.tv_nsec);
 
 	curr_time = ktime_get();
-
 	hrtimer_forward(T_timer, curr_time, forward_time);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	return HRTIMER_RESTART;
