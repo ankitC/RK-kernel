@@ -83,6 +83,7 @@ void migrate_and_start(struct task_struct *task)
 			if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu)
 			{
 				curr->task->reserve_process.pending = 1;
+				set_tsk_need_resched(curr->task);
 				bypass = 0;
 				printk(KERN_INFO "In migrate and start %d\n", curr->task->pid);
 			}
@@ -152,6 +153,7 @@ void migrate_only(void)
 	while (curr)
 	{
 		curr->task->reserve_process.pending = 1;
+		set_tsk_need_resched(curr->task);
 		curr = curr->next;
 	}
 	spin_unlock_irqrestore(&bin_spinlock, flags);

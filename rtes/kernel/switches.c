@@ -102,6 +102,11 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 				}
 			}
 		}
+		else
+		{
+			guarantee = var;
+		}
+		return count;
 	}
 	if (strcmp(attr->attr.name, "migrate") == 0)
 	{
@@ -115,6 +120,7 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 			mutex_unlock(&suspend_mutex);
 			wakeup_tasks();
 		}
+		return count;
 
 	}
 	if (strcmp(attr->attr.name, "disable_cpus") == 0)
@@ -122,6 +128,7 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 		disable_cpus = var;
 		if (var == 1)
 			energy_savings();
+		return count;
 	}
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		trace_ctx = var;
