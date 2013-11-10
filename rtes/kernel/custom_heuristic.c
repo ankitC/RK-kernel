@@ -9,7 +9,7 @@
 #include <linux/partition_scheduling.h>
 #define TOTAL_CORES 4
 
-void find_combinations(int sub_pa_length);
+int find_combinations(int sub_pa_length);
 //int apply_first_fit_pa(void);
 void del_all_sub_pa_nodes(void);
 void del_all_pa_nodes(void);
@@ -110,6 +110,9 @@ BIN_NODE* find_pa_node (unsigned long long base_period){
 
 	BIN_NODE* curr = pa_head;
 
+	if (timespec_to_ns(&curr->task->reserve_process.T) == base_period)
+		return curr;
+
 	while (curr && timespec_to_ns(&curr->task->reserve_process.T) != base_period){
 		curr =  curr->next;
 	}
@@ -126,13 +129,16 @@ BIN_NODE* find_pa_node (unsigned long long base_period){
 BIN_NODE* find_pa_node_pid (int pid){
 
 	BIN_NODE* curr = pa_head;
+	if (curr->task->pid == pid)
+		return curr;
 
 	while (curr && curr->task->pid != pid){
 		curr =  curr->next;
 	}
 
-	if (curr == NULL)
+	if (curr == NULL){
 		curr =  NULL;
+	}
 
 	return curr;
 }
@@ -291,7 +297,7 @@ int find_length(BIN_NODE* head){
 	return length;
 }
 
-void apply_custom_fit(void){
+int apply_custom_fit(void){
 
 	int sub_pa_length = 0;
 	int pa_length = 0;
@@ -302,6 +308,7 @@ void apply_custom_fit(void){
 	uint64_t T_var = 0;
 	uint64_t* T_temp = (uint64_t *)&T_var;
 	uint32_t remainder = 0;
+	int retval = 0;
 
 	while (curr){
 
@@ -331,7 +338,8 @@ void apply_custom_fit(void){
 	print_pa_list(sub_pa_head);
 	sub_pa_length = find_length(sub_pa_head);
 	printk("Length of the New List is %d\n", sub_pa_length);
-	find_combinations(sub_pa_length);
+	retval = find_combinations(sub_pa_length);
+	return retval;
 }
 
 void assign_cpus(struct w A[], int size, int iter){
@@ -343,17 +351,19 @@ void assign_cpus(struct w A[], int size, int iter){
 		curr = find_pa_node_pid(A[i].pid);
 		curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 		curr->task->reserve_process.host_cpu = iter;
+		printk(KERN_INFO "PID %d goes to CPU %d\n", A[i].pid, iter);
 		delete_pa_node(curr->task);
 	}
 }
 
 // prints subset found
 //void printSubset(unsigned long long A[], unsigned long long size)
-void printSubset(struct w A[], int size)
+int printSubset(struct w A[], int size)
 {
 	int i = 0;
 
 	BIN_NODE* curr = NULL;
+	printk("Entered PrintSubset\n");
 
 	for(i = 0; i < size; i++)
 	{
@@ -362,20 +372,25 @@ void printSubset(struct w A[], int size)
 		curr = find_pa_node_pid(A[i].pid);
 		if (!curr){
 			printk(KERN_INFO "Discarded Combination\n");
-			return;
+			return 1;
 		}
 	}
 	printk("\n");
 
 	if (iter == 0){
 		assign_cpus(A, size, iter);
+		return 1;
 	}
 	else{
 		iter++;
-		if (iter < 4)
+		if (iter < 4){
 			assign_cpus(A, size, iter);
-		else
+			return 1;
+		}
+		else{
 			printk(KERN_INFO "Need to return an error here\n");
+			return -1;
+		}
 	}
 }
 
@@ -391,7 +406,7 @@ void sort_util(struct w s[], int size){
 	{
 		for(j = i; j < size; j++)
 		{
-			if(s[i].weights < s[j].weights)
+			if(s[i].weights > s[j].weights)
 			{
 				temp = s[i];
 				s[i] = s[j];
@@ -414,18 +429,19 @@ void sort_util(struct w s[], int size){
 		int s_size, int t_size,
 		unsigned long long sum, unsigned long long ite,
 		unsigned long long const target_sum)*/
-void subset_sum(struct w s[], struct w t[],
+int subset_sum(struct w s[], struct w t[],
 		int s_size, int t_size,
 		unsigned long long sum, unsigned long long ite,
 		unsigned long long const target_sum)
 {
 	int i = 0;
+	static int retval = 0;
 	total_nodes++;
 
 	if( target_sum == sum )
 	{
 		// We found sum
-		printSubset(t, t_size);
+		retval |= printSubset(t, t_size);
 
 		// constraint check
 //		if( ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum )
@@ -435,7 +451,7 @@ void subset_sum(struct w s[], struct w t[],
 //			subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
 			subset_sum(s, t, s_size, t_size-1, sum - s[ite].weights, ite + 1, target_sum);
 		}
-		return;
+//		return retval;
 	}
 	else
 	{
@@ -448,6 +464,7 @@ void subset_sum(struct w s[], struct w t[],
 			{
 //				t[t_size] = s[i];
 				t[t_size].weights = s[i].weights;
+				t[t_size].pid = s[i].pid;
 
 //				if( sum + s[i] <= target_sum )
 				if( sum + s[i].weights <= target_sum )
@@ -459,23 +476,29 @@ void subset_sum(struct w s[], struct w t[],
 			}
 		}
 	}
+	printk(KERN_INFO "subset sum returns %d\n", retval);
+	return retval;
 }
 
 // Wrapper that prints subsets that sum to target_sum
-void generateSubsets(struct w s[], int size, int target_sum)
+int generateSubsets(struct w s[], int size, int target_sum)
 {
 //	unsigned long long *tuplet_vector = (unsigned long long *)kmalloc(size * sizeof(unsigned long long), GFP_KERNEL);
 	struct w *tuplet_vector = (struct w *)kzalloc(size * sizeof(struct w), GFP_KERNEL);
 
 	unsigned long long total = 0;
 	int i = 0;
+	int retval = 0;
 
 	// sort the set
 	sort_util(s, size);
-/*	for(i = 0; i < size; i++ )
+	printk(KERN_INFO "Target = %d\n", target_sum);
+
+	for(i = 0; i < size; i++ )
 	{
-		total += s[i];
-	}*/
+		printk(KERN_INFO "[%d] U = %llu", i, s[i].weights);
+		printk(KERN_INFO "[%d] PID = %d", i, s[i].pid);
+	}
 
 	for(i = 0; i < size; i++){
 
@@ -487,18 +510,21 @@ void generateSubsets(struct w s[], int size, int target_sum)
 	if( s[0].weights <= target_sum && total >= target_sum )
 	{
 
-		subset_sum(s, tuplet_vector, size, 0, 0, 0, target_sum);
+		 retval = subset_sum(s, tuplet_vector, size, 0, 0, 0, target_sum);
 
 	}
 
 	kfree(tuplet_vector);
+	printk(KERN_INFO "generate Subsets returns %d\n", retval);
+	return retval;
 }
 
-void find_combinations(int sub_pa_length){
+int find_combinations(int sub_pa_length){
 	int i = 0;
 //	unsigned long long *weights;
 	struct w *wts;
 	unsigned long long target = 0;
+	int retval = 0;
 	int size = 0;
 	BIN_NODE* curr = sub_pa_head;
 
@@ -522,7 +548,8 @@ void find_combinations(int sub_pa_length){
 	i = 0;
 	target = 10000;
 //	generateSubsets(weights, size, target);
-	generateSubsets(wts, size, target);
+	retval = generateSubsets(wts, size, target);
+	printk(KERN_INFO "find combinations returns %d\n", retval);
 
 	//Delete all nodes from sub_pa_list
 	del_all_sub_pa_nodes();
@@ -530,6 +557,7 @@ void find_combinations(int sub_pa_length){
 	//apply_first_fit_pa();
 	//Delete all nodes of pa_list
 	del_all_pa_nodes();
+	return retval;
 
 }
 
