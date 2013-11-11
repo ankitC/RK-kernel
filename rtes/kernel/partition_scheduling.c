@@ -96,8 +96,6 @@ int check_schedulabilty(PROC_NODE *stop)
 		curr = curr->next;
 	}
 
-	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
-
 	curr = head;
 
 	while (1)
@@ -108,8 +106,6 @@ int check_schedulabilty(PROC_NODE *stop)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-		//	printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-		//	printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -118,10 +114,7 @@ int check_schedulabilty(PROC_NODE *stop)
 			if ((remainder = do_div(*A_temp, 10000)) > 0)
 			{
 				*A_temp = *A_temp + 1;
-				printk(KERN_INFO "After: *A_temp = %llu", *A_temp);
-
 			}
-			printk(KERN_INFO "After Scaling: *A_temp = %llu", *A_temp);
 
 			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
 			curr = curr->next;
@@ -184,7 +177,6 @@ int rt_test(struct task_struct *task)
 	while (curr)
 	{
 		if(check_schedulabilty(curr)){
-		//	printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
@@ -208,7 +200,6 @@ extern char partition_policy[2];
 int admission_test(struct task_struct *task)
 {
 	int retval = 0, online_nodes = 0, i = 0;
-	//BIN_NODE* curr = bin_head;
 	unsigned long flags;
 
 	if (!guarantee)
@@ -263,7 +254,6 @@ int admission_test(struct task_struct *task)
 		if (retval == 1)
 		{
 			spin_unlock_irqrestore(&bin_spinlock, flags);
-//			printk(KERN_INFO "Reutning 1 in adm test\n");
 			return 1;
 		}
 		if (retval < 0){
@@ -296,15 +286,16 @@ void set_cpu_for_task(struct task_struct *task)
 			cpu_up(host_cpu);
 			cpumask_clear(&af_mask);
 			cpumask_set_cpu(host_cpu, &af_mask);
-		//	printk(KERN_INFO "Just before sched_setaffinity\n");
+	
 			if (reserve_sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
 
 			printk(KERN_INFO "Pid:%d Prio\n", task->reserve_process.rt_prio);
+
 			if (rt_priority_enable)
-				sched_setscheduler(task, SCHED_RR, &param);
+				sched_setscheduler(task, SCHED_FIFO, &param);
 		}
 	}
 }

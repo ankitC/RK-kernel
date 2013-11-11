@@ -61,13 +61,10 @@ void add_bin_node( BIN_NODE* curr1)
 
 	if (bin_head == NULL)
 	{
-		printk(KERN_INFO "Bin Head Created");
 		bin_head = curr1;
 	}
 	else
 	{
-		printk(KERN_INFO "Bin Head is present curr2->u = %llu curr1->u = %llu\n", curr2->task->reserve_process.U \
-				, curr1->task->reserve_process.U);
 
 		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)
 		{
