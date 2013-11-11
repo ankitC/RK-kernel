@@ -197,6 +197,92 @@ void del_all_pa_nodes(void){
 }
 
 /*
+ * FrontBackSplit: finds the middle of the linked list
+ */
+void FrontBackSplit(BIN_NODE* source, BIN_NODE** frontRef, BIN_NODE** backRef)
+{
+	BIN_NODE* fast;
+	BIN_NODE* slow;
+	if (source == NULL || source->next == NULL)
+	{
+		/* length < 2 cases */
+		*frontRef = source;
+		*backRef = NULL;
+	}
+	else
+	{
+		slow = source;
+		fast = source->next;
+
+		/* Advance 'fast' two nodes, and advance 'slow' one node */
+		while (fast != NULL)
+		{
+			fast = fast->next;
+			if (fast != NULL)
+			{
+				slow = slow->next;
+				fast = fast->next;
+			}
+		}
+
+		/* 'slow' is before the midpoint in the list, so split it in two
+		 *       at that point. */
+		*frontRef = source;
+		*backRef = slow->next;
+		slow->next = NULL;
+	}
+}
+
+/* SortedMerge: Merge Sort for the PA Linked List*/
+BIN_NODE* SortedMerge(BIN_NODE* a, BIN_NODE* b)
+{
+	BIN_NODE* result = NULL;
+
+	/* Base cases */
+	if (a == NULL)
+		return(b);
+	else if (b == NULL)
+		return(a);
+
+	/* Pick either a or b, and recur */
+	if (a->task->reserve_process.U >= b->task->reserve_process.U)
+	{
+		result = a;
+		result->next = SortedMerge(a->next, b);
+	}
+	else
+	{
+		result = b;
+		result->next = SortedMerge(a, b->next);
+	}
+	return(result);
+}
+
+/* sorts the linked list by changing next pointers (not data) */
+void MergeSort(BIN_NODE** headRef)
+{
+	BIN_NODE* head = *headRef;
+	BIN_NODE* a;
+	BIN_NODE* b;
+
+	/* Base case -- length 0 or 1 */
+	if ((head == NULL) || (head->next == NULL))
+	{
+		return;
+	}
+
+	/* Split head into 'a' and 'b' sublists */
+	FrontBackSplit(head, &a, &b);
+
+	/* Recursively sort the sublists */
+	MergeSort(&a);
+	MergeSort(&b);
+
+	/* answer = merge the two sorted lists together */
+	*headRef = SortedMerge(a, b);
+}
+
+/*
  * add_sub_pa_node: Add a node to the best linked list
  */
 void add_sub_pa_node(BIN_NODE* curr)
@@ -358,11 +444,6 @@ int apply_custom_fit(void){
 		base = base->next;
 	}
 
-	if (sub_pa_head){
-		printk(KERN_INFO "Second LL has a Head\n");
-		printk(KERN_INFO "Second LL's Tail = %d\n", sub_pa_tail->task->pid);
-	}
-
 	print_pa_list(sub_pa_head);
 	sub_pa_length = find_length(sub_pa_head);
 	printk("Length of the New List is %d\n", sub_pa_length);
@@ -470,7 +551,7 @@ int subset_sum(struct w s[], struct w t[],
 	if( target_sum == sum )
 	{
 		// We found sum
-		retval |= printSubset(t, t_size);
+		retval |= printSubset(t, t_size); // <--- Check if this returns -1
 
 		// constraint check
 //		if( ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum )
@@ -584,8 +665,10 @@ int find_combinations(int sub_pa_length){
 	//Delete all nodes from sub_pa_list
 	del_all_sub_pa_nodes();
 	//Call Best Fit on the remaining nodes of pa_list
-	if (pa_head)
+	if (pa_head){
+		MergeSort(&pa_head);
 		retval_f = apply_first_fit_pa();
+	}
 	//Delete all nodes of pa_list
 	del_all_pa_nodes();
 	//Determine the return value
@@ -594,11 +677,6 @@ int find_combinations(int sub_pa_length){
 	else
 		return -1;
 }
-
-/*******************************************************************************
- * *****************************************************************************
- * ****************************************************************************/
-
 
 /*
  * Utilization bound test to check for a task
@@ -626,12 +704,9 @@ int ub_cpu_test_pa(BIN_NODE *curr1, int cpu)
 	{
 
 		total_util += curr->task->reserve_process.U;
-		//printk(KERN_INFO "curr1 util %llu\n", curr1->task->reserve_process.U);
 		curr = curr->next;
 		i++;
 	}
-
-	//printk(KERN_INFO "Complete Util: %llu\n", total_util);
 
 	if (total_util	> bounds_tasks[0])
 		return UNSCHEDULABLE;
@@ -662,8 +737,6 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 		a[0] += timespec_to_ns(&curr->task->reserve_process.C);
 		curr = curr->next;
 	}
-
-//	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
 
 	curr = cpu_bin_head[cpu];
 
@@ -816,6 +889,5 @@ int apply_first_fit_pa(void)
 		return -1;
 	else
 		return 1;
-	
 }
 
