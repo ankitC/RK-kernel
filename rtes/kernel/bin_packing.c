@@ -507,8 +507,8 @@ int apply_heuristic(char policy[2])
 		retval = apply_worst_fit();
 	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
-	if (strncmp(policy,"C", 1) == 0)
-		apply_custom_fit();
+	if (strncmp(policy,"P", 1) == 0)
+		retval = apply_custom_fit();
 //		retval = apply_first_fit();
 
 	delete_all_cpu_nodes();

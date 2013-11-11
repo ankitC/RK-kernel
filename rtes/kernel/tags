@@ -1,0 +1,139 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BUFF_SIZE	ps.c	11;"	d	file:
+C_timer_callback	hr_timer_func.c	/^enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )$/;"	f
+D	nodefuncs.c	7;"	d	file:
+D	ps.c	12;"	d	file:
+D	reserve.c	20;"	d	file:
+ERROR	calc.c	11;"	d	file:
+FIXED_SCALE	calc.c	9;"	d	file:
+LINELENGTH	ps.c	10;"	d	file:
+SATURATE	calc.c	10;"	d	file:
+SYSCALL_DEFINE0	ps.c	/^SYSCALL_DEFINE0(count_processes)$/;"	f
+SYSCALL_DEFINE0	reserve.c	/^SYSCALL_DEFINE0(end_job)$/;"	f
+SYSCALL_DEFINE1	reserve.c	/^SYSCALL_DEFINE1(cancel_reserve, pid_t, pid)$/;"	f
+SYSCALL_DEFINE2	ps.c	/^SYSCALL_DEFINE2(list_processes, char*, user_buffer, int, len)$/;"	f
+SYSCALL_DEFINE3	calc.c	/^SYSCALL_DEFINE3(calc, long, first, long, second, char, operation)$/;"	f
+SYSCALL_DEFINE4	reserve.c	/^SYSCALL_DEFINE4(set_reserve, pid_t, pid, struct timespec, C, struct timespec, T\\$/;"	f
+TOTAL_CORES	bin_packing.c	15;"	d	file:
+TOTAL_CORES	custom_heuristic.c	10;"	d	file:
+TOTAL_CORES	energy_saving.c	12;"	d	file:
+T_timer_callback	hr_timer_func.c	/^enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )$/;"	f
+UNSCHEDULABLE	bin_packing.c	14;"	d	file:
+UNSCHEDULABLE	partition_scheduling.c	15;"	d	file:
+add_bin_node	bin_linked_list.c	/^void add_bin_node( BIN_NODE* curr1)$/;"	f
+add_cpu_node	cpu_linked_list.c	/^void add_cpu_node( BIN_NODE* curr1, int cpu)$/;"	f
+add_ll_node	linked_list.c	/^void add_ll_node( PROC_NODE* curr1)$/;"	f
+add_node	nodefuncs.c	/^void add_node(TASK_NODE** head, TASK_NODE* curr1)$/;"	f
+add_pa_node	custom_heuristic.c	/^void add_pa_node(BIN_NODE* curr1)$/;"	f
+add_sub_pa_node	custom_heuristic.c	/^void add_sub_pa_node(BIN_NODE* curr)$/;"	f
+admission_test	partition_scheduling.c	/^int admission_test(struct task_struct *task)$/;"	f
+admission_test_for_cpu	bin_packing.c	/^int admission_test_for_cpu(BIN_NODE* curr, int cpu)$/;"	f
+apply_best_fit	bin_packing.c	/^int apply_best_fit(void)$/;"	f
+apply_custom_fit	custom_heuristic.c	/^void apply_custom_fit(void){$/;"	f
+apply_first_fit	bin_packing.c	/^int apply_first_fit(void)$/;"	f
+apply_first_fit_pa	custom_heuristic.c	/^int apply_first_fit_pa(void)$/;"	f
+apply_heuristic	bin_packing.c	/^int apply_heuristic(char policy[2])$/;"	f
+apply_next_fit	bin_packing.c	/^int apply_next_fit(void)$/;"	f
+apply_worst_fit	bin_packing.c	/^int apply_worst_fit(void)$/;"	f
+assign_cpus	custom_heuristic.c	/^void assign_cpus(struct w A[], unsigned long long size, int iter){$/;"	f
+attr_group	switches.c	/^struct attribute_group attr_group = {$/;"	v	typeref:struct:attribute_group
+attrs	switches.c	/^struct attribute *attrs[] = {$/;"	v	typeref:struct:attribute
+bin_head	bin_linked_list.c	/^BIN_NODE *bin_head = NULL;$/;"	v
+bin_spinlock	partition_scheduling.c	/^DEFINE_SPINLOCK(bin_spinlock);$/;"	v
+bounds_tasks	partition_scheduling.c	/^const uint32_t bounds_tasks[62]=$/;"	v
+calculate_util	reserve.c	/^static unsigned long long calculate_util(struct task_struct * task)$/;"	f	file:
+check_cpu_schedulabilty	bin_packing.c	/^int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)$/;"	f
+check_schedulabilty	partition_scheduling.c	/^int check_schedulabilty(PROC_NODE *stop)$/;"	f
+circular_buffer_read	sysfs.c	/^int circular_buffer_read(struct reserve_obj* res_detail , char* buf)$/;"	f
+circular_buffer_write	sysfs.c	/^void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget)$/;"	f
+cleanup_hrtimer	hr_timer_func.c	/^void cleanup_hrtimer(struct hrtimer *T_timer )$/;"	f
+cpu_bin_head	bin_packing.c	/^BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};$/;"	v
+create_directories	sysfs.c	/^int create_directories(void)$/;"	f
+create_pid_dir_and_reserve_file	sysfs.c	/^int create_pid_dir_and_reserve_file(struct task_struct *task)$/;"	f
+create_switches	switches.c	/^int create_switches(struct kobject *config_obj)$/;"	f
+ctx_buffer_read	sysfs.c	/^int ctx_buffer_read(struct reserve_obj* res_detail , char* buf)$/;"	f
+ctx_buffer_write	sysfs.c	/^void ctx_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget, int ctx_in)$/;"	f
+ctx_show	sysfs.c	/^static ssize_t ctx_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)$/;"	f	file:
+del_all_pa_nodes	custom_heuristic.c	/^void del_all_pa_nodes(void){$/;"	f
+del_all_sub_pa_nodes	custom_heuristic.c	/^void del_all_sub_pa_nodes(void){$/;"	f
+delete_all_cpu_nodes	cpu_linked_list.c	/^void delete_all_cpu_nodes(void)$/;"	f
+delete_bin_node	bin_linked_list.c	/^void delete_bin_node (struct task_struct *task)$/;"	f
+delete_cpu_node	cpu_linked_list.c	/^void delete_cpu_node (struct task_struct *task, int cpu)$/;"	f
+delete_linked_list	nodefuncs.c	/^void delete_linked_list (TASK_NODE** head)$/;"	f
+delete_node	linked_list.c	/^void delete_node (struct task_struct *task)$/;"	f
+delete_pa_node	custom_heuristic.c	/^void delete_pa_node (struct task_struct *task)$/;"	f
+disable_cpus	switches.c	/^int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;$/;"	v
+disable_cpus_attribute	switches.c	/^struct kobj_attribute disable_cpus_attribute = __ATTR(disable_cpus, 0666, switch_show, switch_store);$/;"	v	typeref:struct:kobj_attribute
+do_calc	calc.c	/^long do_calc( long first, long second, char operation)$/;"	f
+do_cancel_reserve	reserve.c	/^unsigned long do_cancel_reserve(pid_t pid)$/;"	f
+do_count_processes	ps.c	/^unsigned int do_count_processes(void)$/;"	f
+do_end_job	reserve.c	/^unsigned long do_end_job(void)$/;"	f
+do_list_processes	ps.c	/^unsigned long do_list_processes(char* user_buffer, int len)$/;"	f
+do_set_reserve	reserve.c	/^unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\\$/;"	f
+energy_savings	energy_saving.c	/^void energy_savings(void)$/;"	f
+eratosthenes_sieve	custom_heuristic.c	/^void eratosthenes_sieve(struct period_length* p_len){$/;"	f
+find_bin_node	bin_linked_list.c	/^int find_bin_node(BIN_NODE* to_be_found)$/;"	f
+find_combinations	custom_heuristic.c	/^void find_combinations(int sub_pa_length){$/;"	f
+find_length	custom_heuristic.c	/^int find_length(BIN_NODE* head){$/;"	f
+find_max_p_length	custom_heuristic.c	/^struct period_length* find_max_p_length(struct period_length* p_len, int pa_length){$/;"	f
+find_pa_node	custom_heuristic.c	/^BIN_NODE* find_pa_node (unsigned long long base_period){$/;"	f
+find_pa_node_pid	custom_heuristic.c	/^BIN_NODE* find_pa_node_pid (int pid){$/;"	f
+find_proc_node	linked_list.c	/^int find_proc_node(PROC_NODE* to_be_found)$/;"	f
+find_process_by_pid	suspension_framework.c	/^static struct task_struct *find_process_by_pid(pid_t pid)$/;"	f	file:
+generateSubsets	custom_heuristic.c	/^void generateSubsets(struct w s[], int size, int target_sum)$/;"	f
+guarantee	switches.c	/^int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;$/;"	v
+guarantee_attribute	switches.c	/^struct kobj_attribute guarantee_attribute = __ATTR(guarantee, 0666, switch_show, switch_store);$/;"	v	typeref:struct:kobj_attribute
+head	partition_scheduling.c	/^PROC_NODE *head = NULL;$/;"	v
+initialize_tasks	custom_heuristic.c	/^struct period_length* initialize_tasks(struct period_length* p_len, int pa_length){$/;"	f
+length	custom_heuristic.c	/^	int length;$/;"	m	struct:period_length	file:
+make_bin_node	bin_linked_list.c	/^BIN_NODE* make_bin_node(struct task_struct *task)$/;"	f
+make_cpu_node	cpu_linked_list.c	/^BIN_NODE* make_cpu_node(struct task_struct *task)$/;"	f
+make_node	linked_list.c	/^PROC_NODE* make_node(struct task_struct *task)$/;"	f
+make_pa_node	custom_heuristic.c	/^BIN_NODE* make_pa_node(struct task_struct *task)$/;"	f
+migrate	switches.c	/^int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;$/;"	v
+migrate_and_start	suspension_framework.c	/^void migrate_and_start(struct task_struct *task)$/;"	f
+migrate_attribute	switches.c	/^struct kobj_attribute migrate_attribute = __ATTR(migrate, 0666, switch_show, switch_store);$/;"	v	typeref:struct:kobj_attribute
+migrate_only	suspension_framework.c	/^void migrate_only(void)$/;"	f
+overflow_show	sysfs.c	/^static ssize_t overflow_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)$/;"	f	file:
+pa_head	custom_heuristic.c	/^BIN_NODE* pa_head = NULL;$/;"	v
+partition_policy	switches.c	/^char partition_policy[2];$/;"	v
+partition_policy_attribute	switches.c	/^struct kobj_attribute partition_policy_attribute = __ATTR(partition_policy, 0666, switch_show, switch_store);$/;"	v	typeref:struct:kobj_attribute
+period	custom_heuristic.c	/^	unsigned long long period;$/;"	m	struct:period_length	file:
+period_length	custom_heuristic.c	/^struct period_length{$/;"	s	file:
+pid	custom_heuristic.c	/^	int pid;$/;"	m	struct:w	file:
+printSubset	custom_heuristic.c	/^void printSubset(struct w A[], unsigned long long size)$/;"	f
+print_pa_list	custom_heuristic.c	/^void print_pa_list(BIN_NODE* head){$/;"	f
+remove_pid_dir_and_reserve_file	sysfs.c	/^void remove_pid_dir_and_reserve_file(struct task_struct *task)$/;"	f
+reserve_sched_setaffinity	suspension_framework.c	/^long reserve_sched_setaffinity(pid_t pid, const struct cpumask *in_mask)$/;"	f
+rt_cpu_test	bin_packing.c	/^int rt_cpu_test(BIN_NODE* foo, int cpu)$/;"	f
+rt_test	partition_scheduling.c	/^int rt_test(struct task_struct *task)$/;"	f
+set_cpu_for_task	partition_scheduling.c	/^void set_cpu_for_task(struct task_struct *task)$/;"	f
+set_rt_prios	bin_packing.c	/^void set_rt_prios(void)$/;"	f
+sort_cpus_util_bf	bin_packing.c	/^void sort_cpus_util_bf(int sorted_cpus[TOTAL_CORES])$/;"	f
+sort_cpus_util_wf	bin_packing.c	/^void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])$/;"	f
+sort_util	custom_heuristic.c	/^void sort_util(struct w s[], int size){$/;"	f
+sub_pa_head	custom_heuristic.c	/^BIN_NODE* sub_pa_head = NULL;$/;"	v
+sub_pa_tail	custom_heuristic.c	/^BIN_NODE* sub_pa_tail = NULL;$/;"	v
+subset_sum	custom_heuristic.c	/^void subset_sum(struct w s[], struct w t[],$/;"	f
+suspend_all	switches.c	/^volatile int suspend_all = 0;$/;"	v
+suspend_mutex	suspension_framework.c	/^DEFINE_MUTEX (suspend_mutex);$/;"	v
+suspend_processes	switches.c	/^volatile int suspend_processes = 0;$/;"	v
+switch_show	switches.c	/^static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)$/;"	f	file:
+switch_store	switches.c	/^static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,$/;"	f	file:
+tasks_kobj	sysfs.c	/^struct kobject *tasks_kobj;$/;"	v	typeref:struct:kobject
+total_nodes	custom_heuristic.c	/^static int total_nodes;$/;"	v	file:
+trace_ctx	switches.c	/^int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;$/;"	v
+trace_ctx_attribute	switches.c	/^struct kobj_attribute trace_ctx_attribute = __ATTR(trace_ctx, 0666, switch_show, switch_store);$/;"	v	typeref:struct:kobj_attribute
+tval_show	sysfs.c	/^static ssize_t tval_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)$/;"	f	file:
+ub_cpu_test	bin_packing.c	/^int ub_cpu_test(BIN_NODE *curr1, int cpu)$/;"	f
+ub_test	partition_scheduling.c	/^int ub_test(struct task_struct *task)$/;"	f
+util_show	sysfs.c	/^static ssize_t util_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)$/;"	f	file:
+w	custom_heuristic.c	/^struct w{$/;"	s	file:
+wake_up_processes	switches.c	/^int wake_up_processes = 0;$/;"	v
+wakeup_tasks	suspension_framework.c	/^void wakeup_tasks(void)$/;"	f
+weights	custom_heuristic.c	/^	unsigned long long weights;$/;"	m	struct:w	file:

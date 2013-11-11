@@ -302,7 +302,7 @@ void set_cpu_for_task(struct task_struct *task)
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
 
 			printk(KERN_INFO "Pid:%d Prio\n", task->reserve_process.rt_prio);
-			sched_setscheduler(task, SCHED_RR, &param);
+//			sched_setscheduler(task, SCHED_RR, &param);
 		}
 	}
 }
