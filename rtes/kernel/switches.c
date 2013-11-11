@@ -10,7 +10,7 @@
 #include <linux/suspension_framework.h>
 #include <asm/current.h>
 
-int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0, rt_priority_enable = 0;
+int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0, rt_priority_enable = 0, uni_processor = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
 extern BIN_NODE *bin_head;
@@ -39,7 +39,10 @@ static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, 
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		var = trace_ctx;
 	if (strcmp(attr->attr.name, "rt_priority_enable") == 0)
-		var = trace_ctx;
+		var = rt_priority_enable;
+	if (strcmp(attr->attr.name, "uni_processor") == 0)
+		var = uni_processor;
+
 
 
 	return sprintf(buf, "%d\n", var);
@@ -134,7 +137,9 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		trace_ctx = var;
 	if (strcmp(attr->attr.name, "rt_priority_enable") == 0)
-		trace_ctx = var;
+		rt_priority_enable = var;
+	if (strcmp(attr->attr.name, "uni_processor") == 0)
+		uni_processor = var;
 
 	return count;
 }
@@ -144,6 +149,7 @@ struct kobj_attribute migrate_attribute = __ATTR(migrate, 0666, switch_show, swi
 struct kobj_attribute partition_policy_attribute = __ATTR(partition_policy, 0666, switch_show, switch_store);
 struct kobj_attribute disable_cpus_attribute = __ATTR(disable_cpus, 0666, switch_show, switch_store);
 struct kobj_attribute rt_priority_enable_attribute = __ATTR(rt_priority_enable, 0666, switch_show, switch_store);
+struct kobj_attribute uni_processor_attribute = __ATTR(uni_processor, 0666, switch_show, switch_store);
 
 
 struct attribute *attrs[] = {
@@ -153,6 +159,7 @@ struct attribute *attrs[] = {
 	&migrate_attribute.attr,
 	&partition_policy_attribute.attr,
 	&disable_cpus_attribute.attr,
+	&uni_processor_attribute.attr,
 	&rt_priority_enable_attribute.attr,   /* need to NULL terminate the list of attributes */
 	NULL,
 };

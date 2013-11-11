@@ -137,7 +137,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.end = 0;
 
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
-	
+
 	/*  Refactor all tasks according to recalculated
 		reservations.
 		Suspend everyone if migrate is set to 0 */

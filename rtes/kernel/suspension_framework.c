@@ -17,6 +17,7 @@ extern spinlock_t(bin_spinlock);
 extern BIN_NODE* bin_head;
 extern volatile int suspend_processes;
 extern int suspend_all;
+extern int disable_cpus;
 extern spinlock_t bin_spinlock;
 /*
  * Waking up suspended tasks
@@ -136,7 +137,11 @@ void migrate_and_start(struct task_struct *task)
 		printk(KERN_INFO "Just after while\n");
 
 		wakeup_tasks();
-		energy_savings();
+
+		if (disable_cpus)
+		{
+			energy_savings();
+		}
 	}
 }
 
