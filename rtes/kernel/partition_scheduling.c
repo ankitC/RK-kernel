@@ -15,6 +15,7 @@
 #define UNSCHEDULABLE 2
 
 extern int guarantee;
+extern int rt_priority_enable;
 extern int migrate;
 PROC_NODE *head = NULL;
 extern BIN_NODE *bin_head;
@@ -302,7 +303,8 @@ void set_cpu_for_task(struct task_struct *task)
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
 
 			printk(KERN_INFO "Pid:%d Prio\n", task->reserve_process.rt_prio);
-//			sched_setscheduler(task, SCHED_RR, &param);
+			if (rt_priority_enable)
+				sched_setscheduler(task, SCHED_RR, &param);
 		}
 	}
 }

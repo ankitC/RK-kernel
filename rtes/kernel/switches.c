@@ -10,7 +10,7 @@
 #include <linux/suspension_framework.h>
 #include <asm/current.h>
 
-int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0;
+int trace_ctx = 0, migrate = 0, disable_cpus = 0, guarantee = 0, rt_priority_enable = 0;
 char partition_policy[2];
 extern spinlock_t bin_spinlock;
 extern BIN_NODE *bin_head;
@@ -38,6 +38,9 @@ static ssize_t switch_show(struct kobject * kobj, struct kobj_attribute * attr, 
 		var = disable_cpus;
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		var = trace_ctx;
+	if (strcmp(attr->attr.name, "rt_priority_enable") == 0)
+		var = trace_ctx;
+
 
 	return sprintf(buf, "%d\n", var);
 }
@@ -90,8 +93,6 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 			}
 			else
 			{
-				printk(KERN_INFO "Guarntee succeed with retval %d\n", retval);
-
 				guarantee = var;
 				if (bin_head != NULL && retval)
 				{
@@ -132,6 +133,8 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 	}
 	if (strcmp(attr->attr.name, "trace_ctx") == 0)
 		trace_ctx = var;
+	if (strcmp(attr->attr.name, "rt_priority_enable") == 0)
+		trace_ctx = var;
 
 	return count;
 }
@@ -140,6 +143,7 @@ struct kobj_attribute trace_ctx_attribute = __ATTR(trace_ctx, 0666, switch_show,
 struct kobj_attribute migrate_attribute = __ATTR(migrate, 0666, switch_show, switch_store);
 struct kobj_attribute partition_policy_attribute = __ATTR(partition_policy, 0666, switch_show, switch_store);
 struct kobj_attribute disable_cpus_attribute = __ATTR(disable_cpus, 0666, switch_show, switch_store);
+struct kobj_attribute rt_priority_enable_attribute = __ATTR(rt_priority_enable, 0666, switch_show, switch_store);
 
 
 struct attribute *attrs[] = {
@@ -148,7 +152,8 @@ struct attribute *attrs[] = {
 	&trace_ctx_attribute.attr,
 	&migrate_attribute.attr,
 	&partition_policy_attribute.attr,
-	&disable_cpus_attribute.attr,   /* need to NULL terminate the list of attributes */
+	&disable_cpus_attribute.attr,
+	&rt_priority_enable_attribute.attr,   /* need to NULL terminate the list of attributes */
 	NULL,
 };
 

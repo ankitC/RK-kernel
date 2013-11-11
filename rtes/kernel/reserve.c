@@ -17,7 +17,7 @@
 #include <linux/bin_linked_list.h>
 #include <linux/semaphore.h>
 
-#define D(x) x
+#define DEBUG 0
 
 extern int migrate;
 extern int guarantee;
@@ -39,7 +39,9 @@ static unsigned long long calculate_util(struct task_struct * task)
 	t = *T_temp;
 	remainder = do_div(*C_temp, t);
 
-	printk(KERN_INFO "Utilisation for a current task: %llu\n", *C_temp);
+	#ifdef DEBUG
+	printk(KERN_INFO "Utilization for a current task: %llu\n", *C_temp);
+	#endif
 	return *C_temp;
 
 }
@@ -77,10 +79,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (!task_found)
 			return -1;
 
-	printk(KERN_INFO "Setting reservation for %d", task->pid);
 	if (task->under_reservation)
 	{
 		cleanup_hrtimer(&task->reserve_process.T_timer);
+		if(task->state == TASK_UNINTERRUPTIBLE && !wake_up_process(task))
+				printk(KERN_INFO "Couldn't wake up process %d\n", task->pid);
 	}
 
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;
@@ -106,6 +109,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
+
 		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 		return 1;
 	}
@@ -147,8 +151,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	}
 	else
 	{
-
-		printk(KERN_INFO "Guarentee 0");
 		add_ll_node(make_node(task));
 		add_bin_node(make_bin_node(task));
 	}

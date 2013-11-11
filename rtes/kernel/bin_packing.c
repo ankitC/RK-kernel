@@ -76,8 +76,6 @@ int ub_cpu_test(BIN_NODE *curr1, int cpu)
 	unsigned int i = 0;
 	unsigned long long total_util = curr1->task->reserve_process.U;
 
-	printk(KERN_INFO "ub test: curr1 util %llu\n", curr1->task->reserve_process.U);
-
 	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
 	{
 		add_cpu_node(make_cpu_node(curr1->task), cpu);
@@ -88,12 +86,9 @@ int ub_cpu_test(BIN_NODE *curr1, int cpu)
 	{
 
 		total_util += curr->task->reserve_process.U;
-		//printk(KERN_INFO "curr1 util %llu\n", curr1->task->reserve_process.U);
 		curr = curr->next;
 		i++;
 	}
-
-	//printk(KERN_INFO "Complete Util: %llu\n", total_util);
 
 	if (total_util	> bounds_tasks[0])
 		return UNSCHEDULABLE;
@@ -125,8 +120,6 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 		curr = curr->next;
 	}
 
-//	printk(KERN_INFO "Value of a[0] = %llu \n", a[0]);
-
 	curr = cpu_bin_head[cpu];
 
 	while (1)
@@ -137,8 +130,6 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-			//printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-			//printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -147,10 +138,8 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 			if ((remainder = do_div(*A_temp, 10000)) > 0)
 			{
 				*A_temp = *A_temp + 1;
-				//	printk(KERN_INFO "After: *A_temp = %llu", *A_temp);
 
 			}
-			//	printk(KERN_INFO "After Scaling: *A_temp = %llu", *A_temp);
 
 			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
 			curr = curr->next;
@@ -213,11 +202,9 @@ int rt_cpu_test(BIN_NODE* foo, int cpu)
 	while (curr)
 	{
 		if(check_cpu_schedulabilty(curr, cpu)){
-//			printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
-			printk(KERN_INFO "End of Linked List\n");
 			return 0;
 		}
 	}
@@ -377,8 +364,6 @@ int apply_first_fit(void)
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
-			if (curr)
-				printk(KERN_INFO "Next node existsi\n");
 			cpu = 0;
 		}
 	}
@@ -401,12 +386,10 @@ int apply_next_fit(void)
 		if (admission_test_for_cpu(curr, cpu) < 0)
 		{
 			cpu = (cpu + 1) % TOTAL_CORES;
-			//printk(KERN_INFO "Incrementing cpu %d", cpu);
 			counter++;
 		}
 		else
 		{
-			//printk(KERN_INFO "Setting cpu %d", cpu);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 
 			curr->task->reserve_process.host_cpu = cpu;
@@ -509,7 +492,6 @@ int apply_heuristic(char policy[2])
 		retval = apply_first_fit();
 	if (strncmp(policy,"P", 1) == 0)
 		retval = apply_custom_fit();
-//		retval = apply_first_fit();
 
 	delete_all_cpu_nodes();
 
