@@ -54,6 +54,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	ktime_t ktime;
 
 
+	printk(KERN_INFO "Setting reservation for %d", pid);
 	if (pid == 0)
 	{
 		task = current;
@@ -76,10 +77,10 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (!task_found)
 			return -1;
 
+	printk(KERN_INFO "Setting reservation for %d", task->pid);
 	if (task->under_reservation)
 	{
 		cleanup_hrtimer(&task->reserve_process.T_timer);
-		cleanup_hrtimer(&task->reserve_process.C_timer);
 	}
 
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;

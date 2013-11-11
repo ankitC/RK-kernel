@@ -16,19 +16,19 @@ void set_reserve(pid_t pid, struct timespec C, struct timespec T, unsigned int p
 int main(int argc, char* argv[])
 {
 
-	pid_t pid = (pid_t)atoi(argv[1]);
+	//pid_t pid = (pid_t)atoi(argv[1]);
 
-	printf("In user pid=%u\n", pid);
+	printf("In user pid=%u\n", getpid());
 	struct timespec ctime;
-	ctime.tv_sec = atoll(argv[2]);
+	ctime.tv_sec = atoll(argv[1]);
 	ctime.tv_nsec = 0; /*25ms*/
 
 	struct timespec ttime;
-	ttime.tv_sec = atoll(argv[3]);
+	ttime.tv_sec = atoll(argv[2]);
 	ttime.tv_nsec = 0; /*100ms*/
 
 	unsigned int prio = 99;
-	set_reserve( pid, ctime, ttime, prio );
+	set_reserve( 0, ctime, ttime, prio );
 	while (1);
 	return 1;
 }
