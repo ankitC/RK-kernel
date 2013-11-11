@@ -336,7 +336,7 @@ void eratosthenes_sieve(struct period_length* p_len){
 
 	while (outer_curr){
 
-		inner_curr = pa_head;
+		inner_curr = outer_curr;
 		base_period = timespec_to_ns(&inner_curr->task->reserve_process.T);
 		p_len[i].period = base_period;
 		printk(KERN_INFO "Period = %llu\n", p_len[i].period);
