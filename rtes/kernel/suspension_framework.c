@@ -9,7 +9,7 @@
 #include <linux/semaphore.h>
 #include <linux/cpu.h>
 #include <linux/cpuset.h>
-
+#include <linux/energy_saving.h>
 
 DEFINE_MUTEX (suspend_mutex);
 extern spinlock_t(bin_spinlock);
@@ -136,6 +136,7 @@ void migrate_and_start(struct task_struct *task)
 		printk(KERN_INFO "Just after while\n");
 
 		wakeup_tasks();
+		energy_savings();
 	}
 }
 
