@@ -332,6 +332,7 @@ void eratosthenes_sieve(struct period_length* p_len){
 	uint64_t B_var = 0;
 	uint64_t* B_temp = (uint64_t *)&B_var;
 	uint32_t scaled_base_period = 0;
+	uint32_t temp_base = 0;
 	int i = 0;
 
 	while (outer_curr){
@@ -347,7 +348,9 @@ void eratosthenes_sieve(struct period_length* p_len){
 			scaled_base_period = do_div(*B_temp, 10000);
 			*T_temp = timespec_to_ns(&inner_curr->task->reserve_process.T);
 			printk(KERN_INFO "Period of this node = %llu\n", *T_temp);
-			remainder = do_div(*T_temp, *B_temp);
+			remainder = do_div(*T_temp, 10000);
+			temp_base = (uint32_t )*B_temp;
+			remainder = do_div(*T_temp, temp_base);
 			printk(KERN_INFO "Remainder = %d\n", remainder);
 
 			if(timespec_to_ns(&inner_curr->task->reserve_process.T) == base_period || remainder == 0){
@@ -357,6 +360,7 @@ void eratosthenes_sieve(struct period_length* p_len){
 
 			inner_curr = inner_curr->next;
 		}
+		printk(KERN_INFO "The length of p_len[%d] is %d", i, p_len[i].length);
 		i++;
 		outer_curr = outer_curr->next;
 	}
@@ -371,11 +375,13 @@ struct period_length* find_max_p_length(struct period_length* p_len, int pa_leng
 	int i = 0;
 	int max_length = p_len[i].length;
 	struct period_length* result = p_len;
+	printk(KERN_INFO "PA LENGTH = %d\n", pa_length);
 
 	for (i = 1; i < pa_length; i++){
 
 		if (p_len[i].length > max_length){
-			result = p_len;
+			result = &p_len[i];
+			max_length = p_len[i].length;
 		}
 	}
 	return result;
@@ -398,6 +404,8 @@ int find_length(BIN_NODE* head){
 
 int apply_custom_fit(void){
 
+
+
 	int sub_pa_length = 0;
 	int pa_length = 0;
 	BIN_NODE* curr = bin_head;
@@ -410,9 +418,11 @@ int apply_custom_fit(void){
 	uint64_t B_var = 0;
 	uint64_t* B_temp = (uint64_t *)&B_var;
 	uint32_t scaled_base_period = 0;
+	uint32_t temp_base = 0;
 	int retval = 0;
 	iter = 0;
 
+	printk(KERN_INFO "In Custom Fit\n");
 	while (curr){
 
 		add_pa_node(make_pa_node(curr->task));
@@ -433,11 +443,13 @@ int apply_custom_fit(void){
 	base = find_pa_node(base_period->period);
 
 	while (base){
-		printk(KERN_INFO "Creating a second LL\n");
+//		printk(KERN_INFO "Creating a second LL\n");
 		*B_temp = timespec_to_ns(&base->task->reserve_process.T);
 		scaled_base_period = do_div(*B_temp, 10000);
 		*T_temp = timespec_to_ns(&base->task->reserve_process.T);
-		remainder = do_div(*T_temp, *B_temp);
+		temp_base = (uint32_t)*B_temp;
+		remainder = do_div(*T_temp, 10000);
+		remainder = do_div(*T_temp, temp_base);
 		if(timespec_to_ns(&base->task->reserve_process.T) == base_period->period || remainder == 0){
 			add_sub_pa_node(make_pa_node(base->task));
 		}
@@ -586,7 +598,7 @@ int subset_sum(struct w s[], struct w t[],
 			}
 		}
 	}
-	printk(KERN_INFO "subset sum returns %d\n", retval);
+//	printk(KERN_INFO "subset sum returns %d\n", retval);
 	return retval;
 }
 
@@ -666,6 +678,7 @@ int find_combinations(int sub_pa_length){
 	del_all_sub_pa_nodes();
 	//Call Best Fit on the remaining nodes of pa_list
 	if (pa_head){
+		printk(KERN_INFO "Had to do a First Fit for some unfortunate nodes\n");
 		MergeSort(&pa_head);
 		retval_f = apply_first_fit_pa();
 	}
@@ -881,7 +894,8 @@ int apply_first_fit_pa(void)
 			curr = curr->next;
 			if (curr)
 				printk(KERN_INFO "Next node exists\n");
-			cpu = 0;
+			//cpu = 0;
+			cpu = iter;
 		}
 	}
 
