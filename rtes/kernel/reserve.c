@@ -17,10 +17,11 @@
 #include <linux/bin_linked_list.h>
 #include <linux/semaphore.h>
 
-#define DEBUG 0
+#define DEBUG
 
 extern int migrate;
 extern int guarantee;
+extern int uni_processor;
 /*
  * Introduces the process with the given pid in
  * the reservation framework
@@ -140,14 +141,19 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	/*  Refactor all tasks according to recalculated
 		reservations.
-		Suspend everyone if migrate is set to 0 */
+		Suspend everyone if migrate is set to 0.
+		If admission test fails and guarantee is not on 
+		add the nodes to the linked list bin and proc*/
 
 	if (guarantee)
 	{
-		if(migrate == 1)
-			migrate_and_start(task);
-		else
-			migrate_only();
+		if (!uni_processor)
+		{
+			if(migrate == 1)
+				migrate_and_start(task);
+			else
+				migrate_only();
+		}
 	}
 	else
 	{

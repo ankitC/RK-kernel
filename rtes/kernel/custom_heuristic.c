@@ -814,8 +814,6 @@ int apply_first_fit_pa(void)
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
-			if (curr)
-				printk(KERN_INFO "Next node exists\n");
 			cpu = iter;
 		}
 	}
