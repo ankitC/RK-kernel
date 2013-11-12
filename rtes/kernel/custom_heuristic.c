@@ -26,12 +26,15 @@ BIN_NODE* sub_pa_tail = NULL;
 static int total_nodes;
 int iter = 0;
 
+//Structure used to find the harmonic combinations that add to 1
 struct w{
 
 	unsigned long long weights;
 	int pid;
 };
 
+//Structure used to find the longest set of harmonic tasks of
+//the same period
 struct period_length{
 
 	unsigned long long period;
@@ -177,7 +180,7 @@ void delete_pa_node (struct task_struct *task)
 }
 
 /*
- * del_all_pa_nodes: Deletes all the nodes in the PA list
+ * del_all_pa_nodes: Deletes all the nodes in the PA list. Final Clean
  */
 void del_all_pa_nodes(void){
 
@@ -195,7 +198,8 @@ void del_all_pa_nodes(void){
 }
 
 /*
- * FrontBackSplit: finds the middle of the linked list
+ * FrontBackSplit: finds the middle of the linked list. Helper function in the
+ * merge sort
  */
 void FrontBackSplit(BIN_NODE* source, BIN_NODE** frontRef, BIN_NODE** backRef)
 {
@@ -203,7 +207,6 @@ void FrontBackSplit(BIN_NODE* source, BIN_NODE** frontRef, BIN_NODE** backRef)
 	BIN_NODE* slow;
 	if (source == NULL || source->next == NULL)
 	{
-		/* length < 2 cases */
 		*frontRef = source;
 		*backRef = NULL;
 	}
@@ -212,7 +215,6 @@ void FrontBackSplit(BIN_NODE* source, BIN_NODE** frontRef, BIN_NODE** backRef)
 		slow = source;
 		fast = source->next;
 
-		/* Advance 'fast' two nodes, and advance 'slow' one node */
 		while (fast != NULL)
 		{
 			fast = fast->next;
@@ -223,26 +225,24 @@ void FrontBackSplit(BIN_NODE* source, BIN_NODE** frontRef, BIN_NODE** backRef)
 			}
 		}
 
-		/* 'slow' is before the midpoint in the list, so split it in two
-		 *       at that point. */
 		*frontRef = source;
 		*backRef = slow->next;
 		slow->next = NULL;
 	}
 }
 
-/* SortedMerge: Merge Sort for the PA Linked List*/
+/*
+ * SortedMerge: Merge Sort for the PA Linked List. Helper function
+ */
 BIN_NODE* SortedMerge(BIN_NODE* a, BIN_NODE* b)
 {
 	BIN_NODE* result = NULL;
 
-	/* Base cases */
 	if (a == NULL)
 		return(b);
 	else if (b == NULL)
 		return(a);
 
-	/* Pick either a or b, and recur */
 	if (a->task->reserve_process.U >= b->task->reserve_process.U)
 	{
 		result = a;
@@ -256,27 +256,25 @@ BIN_NODE* SortedMerge(BIN_NODE* a, BIN_NODE* b)
 	return(result);
 }
 
-/* sorts the linked list by changing next pointers (not data) */
+/*
+ * MergeSort: sorts the linked list by changing next pointers
+ */
 void MergeSort(BIN_NODE** headRef)
 {
 	BIN_NODE* head = *headRef;
 	BIN_NODE* a;
 	BIN_NODE* b;
 
-	/* Base case -- length 0 or 1 */
 	if ((head == NULL) || (head->next == NULL))
 	{
 		return;
 	}
 
-	/* Split head into 'a' and 'b' sublists */
 	FrontBackSplit(head, &a, &b);
 
-	/* Recursively sort the sublists */
 	MergeSort(&a);
 	MergeSort(&b);
 
-	/* answer = merge the two sorted lists together */
 	*headRef = SortedMerge(a, b);
 }
 
@@ -295,7 +293,7 @@ void add_sub_pa_node(BIN_NODE* curr)
 }
 
 /*
- * del_all_sub_pa_nodes: Deletes all the nodes in the harmonic linked list
+ * del_all_sub_pa_nodes: Deletes all the nodes in the harmonic linked list. Final Clean.
  */
 void del_all_sub_pa_nodes(void){
 
@@ -420,7 +418,6 @@ int apply_custom_fit(void){
 		add_pa_node(make_pa_node(curr->task));
 		curr = curr->next;
 	}
-//	print_pa_list(pa_head);
 
 	pa_length = find_length(pa_head);
 
@@ -445,7 +442,6 @@ int apply_custom_fit(void){
 		base = base->next;
 	}
 
-	print_pa_list(sub_pa_head);
 	sub_pa_length = find_length(sub_pa_head);
 	retval = find_combinations(sub_pa_length);
 	return retval;
@@ -464,7 +460,6 @@ void assign_cpus(struct w A[], int size, int iter){
 	}
 }
 
-// prints subset found
 int printSubset(struct w A[], int size)
 {
 	int i = 0;
@@ -481,7 +476,7 @@ int printSubset(struct w A[], int size)
 	{
 		curr = find_pa_node_pid(A[i].pid);
 		if (!curr || comb_sum != 10000){
-			printk(KERN_INFO "Discarded Combination\n");
+			printk(KERN_INFO "Identical PIDs: Discarded Combination\n");
 			return 1;
 		}
 	}
@@ -527,14 +522,6 @@ void sort_util(struct w s[], int size){
 
 }
 
-// inputs
-// s            - set vector
-// t            - tuplet vector
-// s_size       - set size
-// t_size       - tuplet size so far
-// sum          - sum so far
-// ite          - nodes count
-// target_sum   - sum to be found
 int subset_sum(struct w s[], struct w t[],
 		int s_size, int t_size,
 		unsigned long long sum, unsigned long long ite,
@@ -546,22 +533,17 @@ int subset_sum(struct w s[], struct w t[],
 
 	if( target_sum == sum )
 	{
-		// We found sum
-		retval |= printSubset(t, t_size); // <--- Check if this returns -1
+		retval |= printSubset(t, t_size);
 
-		// constraint check
 		if( ite + 1 < s_size && sum - s[ite].weights + s[ite+1].weights <= target_sum )
 		{
-			// Exclude previous added item and consider next candidate
 			subset_sum(s, t, s_size, t_size-1, sum - s[ite].weights, ite + 1, target_sum);
 		}
 	}
 	else
 	{
-		// constraint check
 		if( ite < s_size && sum + s[ite].weights <= target_sum )
 		{
-			// generate nodes along the breadth
 			for(i = ite; i < s_size; i++ )
 			{
 				t[t_size].weights = s[i].weights;
@@ -569,7 +551,6 @@ int subset_sum(struct w s[], struct w t[],
 
 				if( sum + s[i].weights <= target_sum )
 				{
-					// consider next level node (along depth)
 					subset_sum(s, t, s_size, t_size + 1, sum + s[i].weights, i + 1, target_sum);
 				}
 			}
@@ -578,7 +559,6 @@ int subset_sum(struct w s[], struct w t[],
 	return retval;
 }
 
-// Wrapper that prints subsets that sum to target_sum
 int generateSubsets(struct w s[], int size, int target_sum)
 {
 	struct w *tuplet_vector = (struct w *)kzalloc(size * sizeof(struct w), GFP_KERNEL);
@@ -587,7 +567,6 @@ int generateSubsets(struct w s[], int size, int target_sum)
 	int i = 0;
 	int retval = 0;
 
-	// sort the set
 	sort_util(s, size);
 
 	for(i = 0; i < size; i++){
@@ -632,7 +611,7 @@ int find_combinations(int sub_pa_length){
 
 	del_all_sub_pa_nodes();
 	if (pa_head){
-		printk(KERN_INFO "Had to do a First Fit for some unfortunate nodes\n");
+		printk(KERN_INFO "Had to do a First Fit for the unfortunate nodes\n");
 		MergeSort(&pa_head);
 		retval_f = apply_first_fit_pa();
 	}
@@ -661,7 +640,6 @@ int ub_cpu_test_pa(BIN_NODE *curr1, int cpu)
 
 	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
 	{
-		printk(KERN_INFO "cpu bin head null\n");
 		add_cpu_node(make_cpu_node(curr1->task), cpu);
 		return 1;
 	}
@@ -739,7 +717,6 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
 		{
 			printk(KERN_INFO " RT Test failed a[%d] = %llu", i + 1, a[i]);
-			printk(KERN_INFO "T = %llu", timespec_to_ns(&stop->task->reserve_process.T));
 			return 0;
 		}
 
@@ -778,7 +755,6 @@ int rt_cpu_test_pa(BIN_NODE* foo, int cpu)
 
 	curr = cpu_bin_head[cpu];
 
-	/* Forwarding the linkedlist upto the position*/
 	for (k = 0; k < j; k++)
 		curr = curr->next;
 

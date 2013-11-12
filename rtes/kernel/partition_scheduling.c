@@ -64,8 +64,6 @@ int ub_test(struct task_struct *task)
 		i++;
 	}
 
-	printk(KERN_INFO "Complete Util: %llu\n", total_util);
-
 	if (total_util	> bounds_tasks[0])
 		return UNSCHEDULABLE;
 	if(total_util > bounds_tasks[i])
@@ -180,7 +178,6 @@ int rt_test(struct task_struct *task)
 			curr = curr->next;
 		}
 		else{
-		//	printk(KERN_INFO "End of Linked List\n");
 			return 0;
 		}
 	}
@@ -282,7 +279,6 @@ void set_cpu_for_task(struct task_struct *task)
 
 	if(task!= NULL){
 		pid_t pid = task->pid;
-		//printk(KERN_INFO "Before checking task->under_reservation\n");
 
 		if (task->under_reservation)
 		{
