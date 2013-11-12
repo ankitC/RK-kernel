@@ -416,13 +416,15 @@ int apply_best_fit(void)
 	printk(KERN_INFO "Best Fit\n");
 	while (curr && cpu < TOTAL_CORES)
 	{
+		printk(KERN_INFO "BF for Task %d, U = %llu\n", curr->task->pid, curr->task->reserve_process.U);
 		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
 		{
 			cpu++;
+			printk(KERN_INFO "Now testing for cpu %d\n", cpu);
 		}
 		else
 		{
-			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
+			printk(KERN_INFO "Setting cpu %d for Task %d", sorted_cpus[cpu], curr->task->pid);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
@@ -481,6 +483,7 @@ int apply_worst_fit(void)
 int apply_heuristic(char policy[2])
 {
 	int retval = 0;
+	int ret_custom = 0;
 
 	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
@@ -490,8 +493,15 @@ int apply_heuristic(char policy[2])
 		retval = apply_worst_fit();
 	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
-	if (strncmp(policy,"P", 1) == 0)
-		retval = apply_custom_fit();
+	if (strncmp(policy,"P", 1) == 0){
+		ret_custom = apply_custom_fit();
+		if (ret_custom == -1){
+			delete_all_cpu_nodes();
+			retval = apply_best_fit();
+		}
+		else
+			retval = ret_custom;
+	}
 
 	delete_all_cpu_nodes();
 
