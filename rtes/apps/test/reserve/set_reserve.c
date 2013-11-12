@@ -21,11 +21,13 @@ int main(int argc, char* argv[])
 	printf("In user pid=%u\n", pid);
 	struct timespec ctime;
 	ctime.tv_sec = atoll(argv[2]);
-	ctime.tv_nsec = 0; /*25ms*/
+	ctime.tv_nsec = atoll(argv[3]);
+
 
 	struct timespec ttime;
-	ttime.tv_sec = atoll(argv[3]);
-	ttime.tv_nsec = 0; /*100ms*/
+	ttime.tv_sec = atoll(argv[4]);
+	ttime.tv_nsec = atoll(argv[5]);
+
 
 	unsigned int prio = 120;
 	set_reserve( pid, ctime, ttime, prio );

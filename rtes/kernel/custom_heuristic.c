@@ -661,7 +661,7 @@ int ub_cpu_test_pa(BIN_NODE *curr1, int cpu)
 
 	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
 	{
-		printk(KERN_INFO "CPU BIN HEAD NULL\n");
+		printk(KERN_INFO "cpu bin head null\n");
 		add_cpu_node(make_cpu_node(curr1->task), cpu);
 		return 1;
 	}
@@ -763,7 +763,6 @@ int rt_cpu_test_pa(BIN_NODE* foo, int cpu)
 	BIN_NODE *curr = cpu_bin_head[cpu];
 	int j = 0;
 
-//	printk(KERN_INFO "RT Test\n");
 	add_cpu_node(make_cpu_node(foo->task), cpu);
 
 	while (curr)
@@ -839,8 +838,6 @@ int apply_first_fit_pa(void)
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
-			if (curr)
-				printk(KERN_INFO "Next node exists\n");
 			cpu = iter;
 		}
 	}
