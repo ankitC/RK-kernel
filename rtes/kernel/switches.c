@@ -97,12 +97,15 @@ static ssize_t switch_store(struct kobject *kobj, struct kobj_attribute *attr,
 			else
 			{
 				guarantee = var;
-				if (bin_head != NULL && retval)
+				if (uni_processor == 0)
 				{
-					if(migrate == 1)
-						migrate_and_start(current);
-					else
-						migrate_only();
+					if (bin_head != NULL && retval)
+					{
+						if(migrate == 1)
+							migrate_and_start(current);
+						else
+							migrate_only();
+					}
 				}
 			}
 		}

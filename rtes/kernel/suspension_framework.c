@@ -134,11 +134,10 @@ void migrate_and_start(struct task_struct *task)
 		printk(KERN_INFO "Migrating and waking up tasks.\n");
 
 		wakeup_tasks();
-
-		if (disable_cpus)
-		{
-			energy_savings();
-		}
+	}
+	if (disable_cpus)
+	{
+		energy_savings();
 	}
 }
 
