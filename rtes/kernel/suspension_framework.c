@@ -29,7 +29,6 @@ void wakeup_tasks(void)
 	BIN_NODE *curr = bin_head;
 
 	unsigned long flags = 0;
-	printk(KERN_INFO "Wkup\n");
 
 	while (curr)
 	{
@@ -45,7 +44,7 @@ void wakeup_tasks(void)
 		if (curr->task->reserve_process.deactivated == 1)
 		{
 
-			printk(KERN_INFO "Waking up %d\n", curr->task->pid);
+			printk(KERN_INFO "%d->Waking up.\n", curr->task->pid);
 			ktime = ktime_set(curr->task->reserve_process.C.tv_sec, curr->task->reserve_process.C.tv_nsec);
 			curr->task->reserve_process.spent_budget.tv_sec = 0;
 			curr->task->reserve_process.spent_budget.tv_nsec = 0;
@@ -61,7 +60,7 @@ void wakeup_tasks(void)
 
 	}
 	spin_unlock_irqrestore(&bin_spinlock, flags);
-	printk(KERN_INFO "Wake up task ends\n");
+	printk(KERN_INFO "All tasks migrated and woken up.\n");
 }
 
 /*
@@ -86,7 +85,6 @@ void migrate_and_start(struct task_struct *task)
 				curr->task->reserve_process.pending = 1;
 				set_tsk_need_resched(curr->task);
 				bypass = 0;
-				printk(KERN_INFO "In migrate and start %d\n", curr->task->pid);
 			}
 		}
 		curr = curr->next;
@@ -98,13 +96,13 @@ void migrate_and_start(struct task_struct *task)
 		mutex_lock(&suspend_mutex);
 		suspend_processes = 1;
 		mutex_unlock(&suspend_mutex);
-		printk(KERN_INFO "Just before while\n");
+		printk(KERN_INFO "Suspending all tasks.\n");
 
 		while (1)
 		{
 			send_wakeup_msg = 0;
 
-			curr = bin_head; 
+			curr = bin_head;
 
 			spin_lock_irqsave(&bin_spinlock, flags);
 			while(curr)
@@ -126,7 +124,6 @@ void migrate_and_start(struct task_struct *task)
 				mutex_lock(&suspend_mutex);
 				if(suspend_processes == 1)
 				{
-					printk(KERN_INFO "Woken up all processes\n");
 					suspend_processes = 0;
 					mutex_unlock(&suspend_mutex);
 					break;
@@ -134,7 +131,7 @@ void migrate_and_start(struct task_struct *task)
 				mutex_unlock(&suspend_mutex);
 			}
 		}
-		printk(KERN_INFO "Just after while\n");
+		printk(KERN_INFO "Migrating and waking up tasks.\n");
 
 		wakeup_tasks();
 
@@ -154,7 +151,6 @@ void migrate_only(void)
 	if (bin_head == NULL)
 		return;
 
-	printk(KERN_INFO "In migrate only\n");
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
@@ -168,7 +164,7 @@ void migrate_only(void)
 	suspend_all = 1;
 	mutex_unlock(&suspend_mutex);
 
-	printk(KERN_INFO "Set all to pending migrate\n");
+	printk(KERN_INFO "All tasks set to pending.\n");
 }
 
 static struct task_struct *find_process_by_pid(pid_t pid)
@@ -176,7 +172,7 @@ static struct task_struct *find_process_by_pid(pid_t pid)
 	return pid ? find_task_by_vpid(pid) : current;
 }
 
-
+/* Setting affinity to CPU */
 long reserve_sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
 {
 	cpumask_var_t cpus_allowed, new_mask;
@@ -206,7 +202,7 @@ long reserve_sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
 		goto out_free_cpus_allowed;
 	}
 	retval = -EPERM;
-	
+
 	cpuset_cpus_allowed(p, cpus_allowed);
 	cpumask_and(new_mask, in_mask, cpus_allowed);
 again:

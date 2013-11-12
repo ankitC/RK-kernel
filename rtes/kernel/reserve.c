@@ -17,7 +17,7 @@
 #include <linux/bin_linked_list.h>
 #include <linux/semaphore.h>
 
-#define DEBUG 0
+#define DEBUG
 
 extern int migrate;
 extern int guarantee;
