@@ -155,7 +155,6 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
 		{
 			printk(KERN_INFO " RT Test failed a[%d] = %llu", i + 1, a[i]);
-			printk(KERN_INFO "T = %llu", timespec_to_ns(&stop->task->reserve_process.T));
 			return 0;
 		}
 
@@ -179,7 +178,6 @@ int rt_cpu_test(BIN_NODE* foo, int cpu)
 	BIN_NODE *curr = cpu_bin_head[cpu];
 	int j = 0;
 
-//	printk(KERN_INFO "RT Test\n");
 	add_cpu_node(make_cpu_node(foo->task), cpu);
 
 	while (curr)
@@ -360,7 +358,6 @@ int apply_first_fit(void)
 		}
 		else
 		{
-			printk(KERN_INFO "Setting cpu %d", cpu);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = cpu;
 			curr = curr->next;
@@ -416,15 +413,12 @@ int apply_best_fit(void)
 	printk(KERN_INFO "Best Fit\n");
 	while (curr && cpu < TOTAL_CORES)
 	{
-		printk(KERN_INFO "BF for Task %d, U = %llu\n", curr->task->pid, curr->task->reserve_process.U);
 		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
 		{
 			cpu++;
-			printk(KERN_INFO "Now testing for cpu %d\n", cpu);
 		}
 		else
 		{
-			printk(KERN_INFO "Setting cpu %d for Task %d", sorted_cpus[cpu], curr->task->pid);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
@@ -457,7 +451,6 @@ int apply_worst_fit(void)
 		}
 		else
 		{
-			printk(KERN_INFO "Setting cpu %d", sorted_cpus[cpu]);
 			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
