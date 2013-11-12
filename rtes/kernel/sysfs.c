@@ -155,7 +155,6 @@ void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent
 
 		if (c_buffer->end == c_buffer->start)
 		{
-			printk(KERN_INFO "Overflow occured\n");
 			res_detail->buffer_overflow = 1;
 		}
 	}
@@ -236,7 +235,6 @@ void ctx_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budg
 	
 		if (c_buffer->end == c_buffer->start)
 		{
-			printk(KERN_INFO "Overflow occured\n");
 			res_detail->buffer_overflow = 1;
 		}
 	}

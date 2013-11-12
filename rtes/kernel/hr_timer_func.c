@@ -12,7 +12,6 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-//struct hrtimer *hr;
 /*
  * Callback function for C timer
  */
@@ -26,7 +25,8 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
-	printk(KERN_INFO "C_Timer Expired: %d ", reservation_detail->pid);
+	printk(KERN_INFO "PID:%d->C_Timer Expired.\n", reservation_detail->pid);
+
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
 	set_tsk_need_resched(reservation_detail->monitored_process);
@@ -42,7 +42,7 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 }
 
 /*
- * Callback function for hr timer
+ * Callback function for T timer
  */
 enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 {
@@ -58,6 +58,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	ktime = ktime_set(reservation_detail->C.tv_sec, reservation_detail->C.tv_nsec);
 	reservation_detail->remaining_C = ktime;
 
+	/* Book keeping in case the task is running while its callback happens */
 	if (reservation_detail->running)
 	{
 		temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
@@ -73,7 +74,6 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 		reservation_detail->C_timer.function = &C_timer_callback;
 		hrtimer_start(&reservation_detail->C_timer,\
 			   	reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
-		//printk(KERN_INFO "C Timer init\n");
 	}
 
 	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\
@@ -84,13 +84,14 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	reservation_detail->spent_budget.tv_sec = 0;
 	reservation_detail->spent_budget.tv_nsec = 0;
 
+	/* Waking the task up if it was deactivated due to overspent budget */
 	if (reservation_detail->need_resched && reservation_detail->monitored_process->state == TASK_UNINTERRUPTIBLE)
 	{
 		reservation_detail->need_resched = 0;
 		if(!wake_up_process(reservation_detail->monitored_process))
 			printk(KERN_INFO "Couldn't wake up process\n");
 		else
-			printk(KERN_INFO "Resuming Task:%d\n", reservation_detail->pid);
+			printk(KERN_INFO "PID:%d->Resuming Task.\n", reservation_detail->pid);
 	}
 
 	forward_time = ktime_set(reservation_detail->T.tv_sec\

@@ -10,7 +10,7 @@
 
 extern BIN_NODE* cpu_bin_head[4];
 /*
- * Making a bin node 
+ * Making a cpu node 
  */
 BIN_NODE* make_cpu_node(struct task_struct *task)
 {
@@ -21,7 +21,7 @@ BIN_NODE* make_cpu_node(struct task_struct *task)
 }
 
 /*
- *Adding a bin node
+ *Adding a cpu node
  */
 void add_cpu_node( BIN_NODE* curr1, int cpu)
 {
@@ -64,7 +64,7 @@ void add_cpu_node( BIN_NODE* curr1, int cpu)
 }
 
 /*
- * Delete a bin node
+ * Delete a cpu node
  */
 void delete_cpu_node (struct task_struct *task, int cpu)
 {

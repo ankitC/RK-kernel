@@ -13,6 +13,8 @@
 extern int guarantee;
 extern BIN_NODE* bin_head;
 
+/* Disabling unused CPUs for energy saving */
+
 void energy_savings(void)
 {
 	BIN_NODE* curr = bin_head;

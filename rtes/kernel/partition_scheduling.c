@@ -289,17 +289,17 @@ void set_cpu_for_task(struct task_struct *task)
 			cpu_up(host_cpu);
 			cpumask_clear(&af_mask);
 			cpumask_set_cpu(host_cpu, &af_mask);
-	
+
 			if (reserve_sched_setaffinity(pid, &af_mask))
 				printk(KERN_INFO "Couldn't set task affinity\n");
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
 
 
-			if (rt_priority_enable)	
+			if (rt_priority_enable)
 			{
 				printk(KERN_INFO "Pid %d Rt Prio %d\n", task->pid, task->reserve_process.rt_prio);
-				sched_setscheduler(task, SCHED_FIFO, &param);
+				sched_setscheduler_nocheck(task, SCHED_FIFO, &param);
 			}
 		}
 	}

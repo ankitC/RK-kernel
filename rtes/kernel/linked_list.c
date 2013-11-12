@@ -1,3 +1,6 @@
+/* Linked list of processes which is sorted according to
+ * reverse order of time period */
+
 #include <linux/kernel.h>
 #include <linux/linked_list.h>
 #include <linux/nodefuncs.h>
@@ -33,6 +36,7 @@ int find_proc_node(PROC_NODE* to_be_found)
 
 	return 0;
 }
+
 /*Addind a node*/
 void add_ll_node( PROC_NODE* curr1)
 {
@@ -53,8 +57,6 @@ void add_ll_node( PROC_NODE* curr1)
 	}
 	else
 	{
-		printk(KERN_INFO "curr2->T = %llu curr1->T = %llu\n", timespec_to_ns(&curr2->task->reserve_process.T) \
-				, timespec_to_ns(&curr1->task->reserve_process.T));
 		if (timespec_to_ns(&curr2->task->reserve_process.T) >
 				   	timespec_to_ns(&curr1->task->reserve_process.T))
 		{
