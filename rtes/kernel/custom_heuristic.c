@@ -46,7 +46,6 @@ void print_pa_list(BIN_NODE* head){
 	BIN_NODE* curr = head;
 	while (curr){
 
-		printk(KERN_INFO "Enters the print_pa_list function\n");
 		printk(KERN_INFO "C = %llu T = %llu", timespec_to_ns(&curr->task->reserve_process.C), timespec_to_ns(&curr->task->reserve_process.T));
 		printk(KERN_INFO "PID = %d U =%llu", curr->task->pid, curr->task->reserve_process.U);
 		curr = curr->next;
@@ -81,7 +80,6 @@ void add_pa_node(BIN_NODE* curr1)
 
 	if (pa_head == NULL)
 	{
-//		printk(KERN_INFO "PA Head Created");
 		pa_head = curr1;
 	}
 	else
@@ -340,27 +338,22 @@ void eratosthenes_sieve(struct period_length* p_len){
 		inner_curr = outer_curr;
 		base_period = timespec_to_ns(&inner_curr->task->reserve_process.T);
 		p_len[i].period = base_period;
-		printk(KERN_INFO "Period = %llu\n", p_len[i].period);
 
 		while (inner_curr){
 
 			*B_temp = base_period;
 			scaled_base_period = do_div(*B_temp, 10000);
 			*T_temp = timespec_to_ns(&inner_curr->task->reserve_process.T);
-			printk(KERN_INFO "Period of this node = %llu\n", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			temp_base = (uint32_t )*B_temp;
 			remainder = do_div(*T_temp, temp_base);
-			printk(KERN_INFO "Remainder = %d\n", remainder);
 
 			if(timespec_to_ns(&inner_curr->task->reserve_process.T) == base_period || remainder == 0){
-//				printk(KERN_INFO "Multiple was %llu\n",timespec_to_ns(&inner_curr->task->reserve_process.T));
 				p_len[i].length++;
 			}
 
 			inner_curr = inner_curr->next;
 		}
-		printk(KERN_INFO "The length of p_len[%d] is %d", i, p_len[i].length);
 		i++;
 		outer_curr = outer_curr->next;
 	}
@@ -375,7 +368,6 @@ struct period_length* find_max_p_length(struct period_length* p_len, int pa_leng
 	int i = 0;
 	int max_length = p_len[i].length;
 	struct period_length* result = p_len;
-	printk(KERN_INFO "PA LENGTH = %d\n", pa_length);
 
 	for (i = 1; i < pa_length; i++){
 
@@ -428,22 +420,19 @@ int apply_custom_fit(void){
 		add_pa_node(make_pa_node(curr->task));
 		curr = curr->next;
 	}
-	print_pa_list(pa_head);
+//	print_pa_list(pa_head);
 
 	pa_length = find_length(pa_head);
 
-	printk("Length of the List is %d\n", pa_length);
 	if (pa_length == 0)
 		return 1;
 
 	p_len = kzalloc(sizeof(struct period_length) * pa_length, GFP_KERNEL);
 	eratosthenes_sieve(p_len);
 	base_period = find_max_p_length(p_len, pa_length);
-	printk(KERN_INFO "Maximum Length of Task List = %d\n", base_period->length);
 	base = find_pa_node(base_period->period);
 
 	while (base){
-//		printk(KERN_INFO "Creating a second LL\n");
 		*B_temp = timespec_to_ns(&base->task->reserve_process.T);
 		scaled_base_period = do_div(*B_temp, 10000);
 		*T_temp = timespec_to_ns(&base->task->reserve_process.T);
@@ -458,7 +447,6 @@ int apply_custom_fit(void){
 
 	print_pa_list(sub_pa_head);
 	sub_pa_length = find_length(sub_pa_head);
-	printk("Length of the New List is %d\n", sub_pa_length);
 	retval = find_combinations(sub_pa_length);
 	return retval;
 }
@@ -472,26 +460,27 @@ void assign_cpus(struct w A[], int size, int iter){
 		curr = find_pa_node_pid(A[i].pid);
 		curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
 		curr->task->reserve_process.host_cpu = iter;
-		printk(KERN_INFO "PID %d goes to CPU %d\n", A[i].pid, iter);
 		delete_pa_node(curr->task);
 	}
 }
 
 // prints subset found
-//void printSubset(unsigned long long A[], unsigned long long size)
 int printSubset(struct w A[], int size)
 {
 	int i = 0;
+	int j = 0;
+	unsigned long long comb_sum = 0;
 
 	BIN_NODE* curr = NULL;
-	printk("Entered PrintSubset\n");
 
+	for (j = 0; j < size; j++){
+		printk(KERN_INFO "U = %llu, PID = %d\n", A[j].weights, A[j].pid);
+		comb_sum += A[j].weights;
+	}
 	for(i = 0; i < size; i++)
 	{
-		printk("%*llu", 5, A[i].weights);
-		printk("%*d", 5, A[i].pid);
 		curr = find_pa_node_pid(A[i].pid);
-		if (!curr){
+		if (!curr || comb_sum != 10000){
 			printk(KERN_INFO "Discarded Combination\n");
 			return 1;
 		}
@@ -510,7 +499,6 @@ int printSubset(struct w A[], int size)
 			return 1;
 		}
 		else{
-			printk(KERN_INFO "Need to return an error here\n");
 			return -1;
 		}
 	}
@@ -547,10 +535,6 @@ void sort_util(struct w s[], int size){
 // sum          - sum so far
 // ite          - nodes count
 // target_sum   - sum to be found
-/*void subset_sum(unsigned long long s[], unsigned long long t[],
-		int s_size, int t_size,
-		unsigned long long sum, unsigned long long ite,
-		unsigned long long const target_sum)*/
 int subset_sum(struct w s[], struct w t[],
 		int s_size, int t_size,
 		unsigned long long sum, unsigned long long ite,
@@ -566,46 +550,37 @@ int subset_sum(struct w s[], struct w t[],
 		retval |= printSubset(t, t_size); // <--- Check if this returns -1
 
 		// constraint check
-//		if( ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum )
 		if( ite + 1 < s_size && sum - s[ite].weights + s[ite+1].weights <= target_sum )
 		{
 			// Exclude previous added item and consider next candidate
-//			subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
 			subset_sum(s, t, s_size, t_size-1, sum - s[ite].weights, ite + 1, target_sum);
 		}
-//		return retval;
 	}
 	else
 	{
 		// constraint check
-//		if( ite < s_size && sum + s[ite] <= target_sum )
 		if( ite < s_size && sum + s[ite].weights <= target_sum )
 		{
 			// generate nodes along the breadth
 			for(i = ite; i < s_size; i++ )
 			{
-//				t[t_size] = s[i];
 				t[t_size].weights = s[i].weights;
 				t[t_size].pid = s[i].pid;
 
-//				if( sum + s[i] <= target_sum )
 				if( sum + s[i].weights <= target_sum )
 				{
 					// consider next level node (along depth)
-//					subset_sum(s, t, s_size, t_size + 1, sum + s[i], i + 1, target_sum);
 					subset_sum(s, t, s_size, t_size + 1, sum + s[i].weights, i + 1, target_sum);
 				}
 			}
 		}
 	}
-//	printk(KERN_INFO "subset sum returns %d\n", retval);
 	return retval;
 }
 
 // Wrapper that prints subsets that sum to target_sum
 int generateSubsets(struct w s[], int size, int target_sum)
 {
-//	unsigned long long *tuplet_vector = (unsigned long long *)kmalloc(size * sizeof(unsigned long long), GFP_KERNEL);
 	struct w *tuplet_vector = (struct w *)kzalloc(size * sizeof(struct w), GFP_KERNEL);
 
 	unsigned long long total = 0;
@@ -614,13 +589,6 @@ int generateSubsets(struct w s[], int size, int target_sum)
 
 	// sort the set
 	sort_util(s, size);
-	printk(KERN_INFO "Target = %d\n", target_sum);
-
-	for(i = 0; i < size; i++ )
-	{
-		printk(KERN_INFO "[%d] U = %llu", i, s[i].weights);
-		printk(KERN_INFO "[%d] PID = %d", i, s[i].pid);
-	}
 
 	for(i = 0; i < size; i++){
 
@@ -628,7 +596,6 @@ int generateSubsets(struct w s[], int size, int target_sum)
 
 	}
 
-//	if( s[0] <= target_sum && total >= target_sum )
 	if( s[0].weights <= target_sum && total >= target_sum )
 	{
 
@@ -637,13 +604,11 @@ int generateSubsets(struct w s[], int size, int target_sum)
 	}
 
 	kfree(tuplet_vector);
-	printk(KERN_INFO "generate Subsets returns %d\n", retval);
 	return retval;
 }
 
 int find_combinations(int sub_pa_length){
 	int i = 0;
-//	unsigned long long *weights;
 	struct w *wts;
 	unsigned long long target = 0;
 	int retval_p = 0;
@@ -651,44 +616,32 @@ int find_combinations(int sub_pa_length){
 	int size = 0;
 	BIN_NODE* curr = sub_pa_head;
 
-//	weights = (unsigned long long *)kmalloc(sizeof(unsigned long long)*sub_pa_length, GFP_KERNEL);
 	wts = (struct w *)kzalloc(sizeof(struct w)*sub_pa_length, GFP_KERNEL);
 
 	while(curr){
-//		weights[i] = curr->task->reserve_process.U;
 		wts[i].weights = curr->task->reserve_process.U;
 		wts[i].pid = curr->task->pid;
 		curr = curr->next;
 		i++;
 	}
 
-	for (i = 0; i < sub_pa_length; i++){
-		printk(KERN_INFO "Weight [%d] = %llu", i, wts[i].weights);
-		printk(KERN_INFO "PID [%d] = %d", i, wts[i].pid);
-	}
-
 	size = sub_pa_length;
 	i = 0;
 	target = 10000;
-//	generateSubsets(weights, size, target);
 	retval_p = generateSubsets(wts, size, target);
-	printk(KERN_INFO "find combinations returns %d\n", retval_p);
 
-	//Delete all nodes from sub_pa_list
 	del_all_sub_pa_nodes();
-	//Call Best Fit on the remaining nodes of pa_list
 	if (pa_head){
 		printk(KERN_INFO "Had to do a First Fit for some unfortunate nodes\n");
 		MergeSort(&pa_head);
 		retval_f = apply_first_fit_pa();
 	}
-	//Delete all nodes of pa_list
 	del_all_pa_nodes();
-	//Determine the return value
 	if ((retval_p == 1 && retval_f == 1) || (retval_p == 1 && retval_f == 0) || (retval_p == 0 && retval_f == 1))
 		return 1;
-	else
+	else{
 		return -1;
+	}
 }
 
 /*
@@ -761,8 +714,6 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 
 			*A_temp = a[i];
 			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
-			//printk(KERN_INFO "Before: *A_temp = %llu", *A_temp);
-			//printk(KERN_INFO "Before: *T_temp = %llu", *T_temp);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -771,10 +722,8 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 			if ((remainder = do_div(*A_temp, 10000)) > 0)
 			{
 				*A_temp = *A_temp + 1;
-				//	printk(KERN_INFO "After: *A_temp = %llu", *A_temp);
 
 			}
-			//	printk(KERN_INFO "After Scaling: *A_temp = %llu", *A_temp);
 
 			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
 			curr = curr->next;
@@ -837,11 +786,9 @@ int rt_cpu_test_pa(BIN_NODE* foo, int cpu)
 	while (curr)
 	{
 		if(check_cpu_schedulabilty_pa(curr, cpu)){
-//			printk(KERN_INFO "We have another task to run this test on\n");
 			curr = curr->next;
 		}
 		else{
-			printk(KERN_INFO "End of Linked List\n");
 			return 0;
 		}
 	}
@@ -894,7 +841,6 @@ int apply_first_fit_pa(void)
 			curr = curr->next;
 			if (curr)
 				printk(KERN_INFO "Next node exists\n");
-			//cpu = 0;
 			cpu = iter;
 		}
 	}

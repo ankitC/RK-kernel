@@ -16,6 +16,7 @@
 
 extern int guarantee;
 extern int rt_priority_enable;
+extern int uni_processor;
 extern int migrate;
 PROC_NODE *head = NULL;
 extern BIN_NODE *bin_head;
@@ -123,14 +124,13 @@ int check_schedulabilty(PROC_NODE *stop)
 		a[i + 1] += timespec_to_ns(&stop->task->reserve_process.C);
 
 		if ( a[i] == a[i + 1]){
-			printk(KERN_INFO "a[%d] = %llu", i, a[i]);
+			printk(KERN_INFO " RT Test Succeeds a[%d] = %llu", i, a[i]);
 			return 1;
 		}
 
 		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
 		{
-			printk(KERN_INFO "a[%d] = %llu", i + 1, a[i]);
-			printk(KERN_INFO "T = %llu", timespec_to_ns(&stop->task->reserve_process.T));
+			printk(KERN_INFO " RT Test Failed\n");
 			return 0;
 		}
 
@@ -218,7 +218,10 @@ int admission_test(struct task_struct *task)
 	/*
 	 * Admission test for one cpu
 	 */
-	if ((online_nodes == 1))
+
+	printk(KERN_INFO " uni_proc %d \n", uni_processor);
+
+	if ((uni_processor == 1) && (online_nodes == 1))
 	{
 		retval = ub_test(task);
 
@@ -292,10 +295,12 @@ void set_cpu_for_task(struct task_struct *task)
 			else
 				printk(KERN_INFO "Pid:%d Affinity set on %d\n", task->pid, host_cpu);
 
-			printk(KERN_INFO "Pid:%d Prio\n", task->reserve_process.rt_prio);
 
-			if (rt_priority_enable)
+			if (rt_priority_enable)	
+			{
+				printk(KERN_INFO "Pid %d Rt Prio %d\n", task->pid, task->reserve_process.rt_prio);
 				sched_setscheduler(task, SCHED_FIFO, &param);
+			}
 		}
 	}
 }
