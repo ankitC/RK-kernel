@@ -29,6 +29,7 @@ struct reserve_obj
 	int need_resched;
 	int buffer_overflow;
 	int ctx_overflow;
+	int energy_overflow;
 	int t_timer_started;
 	int pending;
 	int deactivated;
@@ -38,6 +39,7 @@ struct reserve_obj
 	unsigned int prev_cpu;
 	struct timespec C;
 	unsigned long long U;
+	unsigned long long energy_consumed;
 	struct timespec T;
 	struct timespec spent_budget;
 	struct hrtimer T_timer;
@@ -47,12 +49,13 @@ struct reserve_obj
 	struct kobj_attribute overflow_attr;
 	struct kobj_attribute tval_attr;
 	struct kobj_attribute ctx_attr;
+	struct kobj_attribute energy_attr;
 	struct kobject *pid_obj;
 	spinlock_t reserve_spinlock;
-	spinlock_t bin_spinlock;
-	struct attribute *attrs[5];
+	struct attribute *attrs[6];
 	circular_buffer c_buf;
 	circular_buffer ctx_buf;
+	circular_buffer energy_buf;
 };
 
 void ctx_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget, int ctx_in);
@@ -60,5 +63,9 @@ int ctx_buffer_read(struct reserve_obj* res_detail , char* buf);
 
 void circular_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
 int circular_buffer_read(struct reserve_obj* res_detail , char* buf);
+
+void energy_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget);
+int energy_buffer_read(struct reserve_obj* res_detail , char* buf);
+
 long do_calc(long first, long second, char operation);
 #endif /* RESERVE_FRAMEWORK_H */

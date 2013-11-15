@@ -118,6 +118,9 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.pid = task->pid;
 	task->reserve_process.monitored_process = task;
 	task->reserve_process.buffer_overflow = 0;
+	task->reserve_process.ctx_overflow = 0;
+	task->reserve_process.energy_overflow = 0;
+	task->reserve_process.energy_consumed = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.need_resched = 0;
 	task->reserve_process.t_timer_started = 0;
@@ -136,6 +139,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.read_count = 0;
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
+	task->reserve_process.energy_buf.start = 0;
+	task->reserve_process.energy_buf.read_count = 0;
+	task->reserve_process.energy_buf.buffer[0] = 0;
+	task->reserve_process.energy_buf.end = 0;
+
 
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
