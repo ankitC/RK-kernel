@@ -14,7 +14,6 @@ int cpu_power_table[17][2] = {
 	{1600000, 127}, {1700000, 137}
 };
 
-extern int energy;
 
 int get_cpu_energy(unsigned int freq)
 {
@@ -29,31 +28,4 @@ int get_cpu_energy(unsigned int freq)
 	printk(KERN_INFO "[%s] Cpu freq not found\n", __func__);
 	return 0;
 }
-
-/*
- *Implements energy energy functionality
- */
-void energy_accounting(struct task_struct* prev)
-{
-//	struct timespec ts;
-//	unsigned long long run_time = 0;
-//	unsigned int kappa = 4420, beta = 25720000;
-	uint64_t *energy_consumed = NULL;
-
-	if (energy)
-	{
-		if (prev->under_reservation)
-		{
-			printk(KERN_INFO "[%s] %u cpu freq\n", __func__, cpufreq_get(smp_processor_id()));
-			prev->reserve_process.energy_consumed += timespec_to_ns(&prev->reserve_process.spent_budget) * get_cpu_energy(cpufreq_get(smp_processor_id()));
-			energy_consumed = &prev->reserve_process.energy_consumed;
-			do_div(*energy_consumed, 1000000);
-			energy_buffer_write(&prev->reserve_process);
-		}
-
-		//		if (next->under_reservation)
-		//	energy_buffer_write(&next->reserve_process, ts, 1);
-	}
-}
-
 
