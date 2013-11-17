@@ -14,3 +14,4 @@ obj-y += cpu_linked_list.o
 obj-y += energy_saving.o
 obj-y += custom_heuristic.o
 obj-y += energy_tracking.o
+obj-y += sysclock.o
