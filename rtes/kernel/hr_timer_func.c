@@ -10,6 +10,7 @@
 #include <linux/sysfs_func.h>
 #include <linux/kernel.h>
 #include <linux/hrtimer.h>
+#include <linux/energy_tracking.h>
 #include <linux/ktime.h>
 
 /*
@@ -53,6 +54,8 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 
 	unsigned long flags;
 	unsigned long long temp;
+
+	energy_accounting(reservation_detail->monitored_process);
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
 	ktime = ktime_set(reservation_detail->C.tv_sec, reservation_detail->C.tv_nsec);

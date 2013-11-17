@@ -81,6 +81,7 @@
 #include <linux/partition_scheduling.h>
 #include <linux/bin_linked_list.h>
 #include <linux/bin_packing.h>
+#include <linux/energy_tracking.h>
 #include <linux/cpufreq.h>
 #ifdef CONFIG_PARAVIRT
 #include <asm/paravirt.h>
@@ -4261,30 +4262,6 @@ pick_next_task(struct rq *rq)
 extern int trace_ctx;
 extern int migrate;
 extern int guarantee;
-extern int energy;
-/*
- *Implements energy energy functionality
- */
-//TODO: Ask whether this calcualation can be done in T Timer call back
-inline void energy_accounting(struct task_struct* prev, struct task_struct *next)
-{
-//	struct timespec ts;
-//	unsigned long long run_time = 0;
-//	unsigned int kappa = 4420, beta = 25720000;
-
-	if (energy)
-	{
-		if (prev->under_reservation)
-		{
-			printk(KERN_INFO "%u cpu freq\n", cpufreq_get(smp_processor_id()));
-			//energy_buffer_write(&prev->reserve_process, ts);
-		}
-
-		//		if (next->under_reservation)
-		//	energy_buffer_write(&next->reserve_process, ts, 1);
-	}
-}
-
 /*
  *Implements instrumentation functionality
  */
@@ -4481,7 +4458,7 @@ need_resched:
 		{	
 			/* Write the context switch in and out time */
 			instrumentation(prev, next);
-			energy_accounting(prev, next);
+			//energy_accounting(prev);
 			if(prev->under_reservation && prev->reserve_process.deactivated == 0)
 				stop_C_timer(prev);
 			if(next->under_reservation && next->reserve_process.deactivated == 0)	

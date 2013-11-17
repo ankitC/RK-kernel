@@ -339,12 +339,13 @@ int ctx_buffer_read(struct reserve_obj* res_detail , char* buf)
 /*
  * Circular Buffer function where data is written to energy circular buffer
  */
-void energy_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget)
+void energy_buffer_write(struct reserve_obj* res_detail)
 {
 	circular_buffer *c_buffer = &res_detail->energy_buf;
 	char time_buffer[33];
 	int len = 0, i = 0;
 
+	sprintf(time_buffer, "%llu", res_detail->energy_consumed);
 	len = strlen(time_buffer) + 1;
 	while(len)
 	{
@@ -373,7 +374,7 @@ void energy_buffer_write(struct reserve_obj* res_detail, struct timespec spent_b
 	{
 		c_buffer->read_count = (c_buffer->end - 0)+ (PAGE_SIZE - 1 - c_buffer->start);
 	}
-	//printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
+	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
 	
 }
 /*
@@ -383,7 +384,7 @@ void energy_buffer_write(struct reserve_obj* res_detail, struct timespec spent_b
 int energy_buffer_read(struct reserve_obj* res_detail , char* buf)
 {
 	int len = 0, i = 0;
-	circular_buffer *c_buffer = &res_detail->ctx_buf;
+	circular_buffer *c_buffer = &res_detail->energy_buf;
 	
 	if (c_buffer->read_count <= 0)
 	{
