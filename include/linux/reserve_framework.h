@@ -39,6 +39,7 @@ struct reserve_obj
 	unsigned int prev_cpu;
 	struct timespec C;
 	unsigned long long U;
+	unsigned long long sysclk_freq;
 	unsigned long long energy_consumed;
 	struct timespec T;
 	struct timespec spent_budget;

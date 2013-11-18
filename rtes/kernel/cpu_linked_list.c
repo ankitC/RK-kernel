@@ -40,14 +40,14 @@ void add_cpu_node( BIN_NODE* curr1, int cpu)
 	else
 	{
 
-		if (timespec_to_ns(&curr2->task->reserve_process.T) < timespec_to_ns(&curr1->task->reserve_process.T))
+		if (timespec_to_ns(&curr2->task->reserve_process.T) > timespec_to_ns(&curr1->task->reserve_process.T))
 		{
 			curr1->next = curr2;
 			cpu_bin_head[cpu] = curr1;
 		}
 		else
 		{
-			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) >=
+			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <=
 				   	timespec_to_ns(&curr1->task->reserve_process.T)) )
 			{
 				temp = curr2;

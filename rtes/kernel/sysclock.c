@@ -40,6 +40,7 @@ static int cpufreq_set(struct cpufreq_policy *policy, unsigned int freq)
 
 static ssize_t show_speed(struct cpufreq_policy *policy, char *buf)
 {
+	printk(KERN_INFO "[%s] \n", __func__);
 	return sprintf(buf, "%u\n", per_cpu(cpu_cur_freq, policy->cpu));
 }
 

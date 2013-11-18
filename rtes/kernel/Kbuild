@@ -15,3 +15,4 @@ obj-y += energy_saving.o
 obj-y += custom_heuristic.o
 obj-y += energy_tracking.o
 obj-y += sysclock.o
+obj-y += sysclock_algorithm.o

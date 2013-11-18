@@ -9,6 +9,7 @@
 #include <linux/reserve_framework.h>
 #include <linux/partition_scheduling.h>
 #include <linux/custom_heuristic.h>
+#include <linux/sysclock_algorithm.h>
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
@@ -475,7 +476,7 @@ int apply_worst_fit(void)
  */
 int apply_heuristic(char policy[2])
 {
-	int retval = 0;
+	int retval = 0, i = 0;
 	int ret_custom = 0;
 
 	if (strncmp(policy,"N", 1) == 0)
@@ -486,9 +487,12 @@ int apply_heuristic(char policy[2])
 		retval = apply_worst_fit();
 	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
-	if (strncmp(policy,"P", 1) == 0){
+
+	if (strncmp(policy,"P", 1) == 0)
+	{
 		ret_custom = apply_custom_fit();
-		if (ret_custom == -1){
+		if (ret_custom == -1)
+		{
 			delete_all_cpu_nodes();
 			retval = apply_best_fit();
 		}
@@ -496,10 +500,17 @@ int apply_heuristic(char policy[2])
 			retval = ret_custom;
 	}
 
-	delete_all_cpu_nodes();
 
 	if (retval == 1)
+	{
+		for (i = 0; i < TOTAL_CORES; i++)
+		{
+			sysclock_calculation(i);
+		}
 		set_rt_prios();
+	}
+
+	delete_all_cpu_nodes();
 	printk(KERN_INFO "Apply Heuristic retval %d\n", retval);
 
 	return retval;
