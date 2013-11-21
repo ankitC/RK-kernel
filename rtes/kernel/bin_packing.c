@@ -236,10 +236,10 @@ int admission_test_for_cpu(BIN_NODE* curr, int cpu)
 	}
 }
 /*
- * sort_cpus_util_wf: Sorts cpus in descending order of utilization
+ * sort_cpus_util_ls: Sorts cpus in descending order of utilization
  */
 
-void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
+void sort_cpus_util_ls(int sorted_cpus[TOTAL_CORES])
 {
 
 	BIN_NODE* curr;
@@ -344,6 +344,75 @@ void sort_cpus_util_bf(int sorted_cpus[TOTAL_CORES])
 		sorted_cpus[i] = cpu_arr[i].cpu;
 	}
 }
+
+/*
+ * sort_cpus_util_wf: Sorts cpus in descending order of utilization
+ */
+
+void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
+{
+
+	BIN_NODE* curr;
+	int i = 0;
+	int j = 0;
+	int index = 0;
+
+	struct cpu{
+
+		int cpu;
+		int util;
+	};
+
+	struct cpu cpu_arr[TOTAL_CORES];
+
+	struct cpu temp;
+
+	for (i = 0; i < TOTAL_CORES; i++)
+	{
+		curr = cpu_bin_head[i];
+		cpu_arr[i].util = 0;
+		cpu_arr[i].cpu = i;
+
+		while(curr)
+		{
+			cpu_arr[i].util += curr->task->reserve_process.U;
+			curr = curr->next;
+		}
+	}
+
+	for(i = 0; i < TOTAL_CORES; i++)
+	{
+		for(j = i; j < TOTAL_CORES; j++)
+		{
+			if(cpu_arr[i].util > cpu_arr[j].util)
+			{
+				temp = cpu_arr[i];
+				cpu_arr[i] = cpu_arr[j];
+				cpu_arr[j] = temp;
+			}
+		}
+	}
+
+	for (i = 0; i < TOTAL_CORES - 1; i++)
+	{
+		if (cpu_arr[0].util == 0){
+
+			temp = cpu_arr[0];
+			for (j = 0; j < TOTAL_CORES - 1; j++){
+
+				cpu_arr[j] = cpu_arr[j + 1];
+			}
+			cpu_arr[j] = temp;
+		}
+	}
+
+	for (i = 0; i < TOTAL_CORES; i++){
+		sorted_cpus[i] = cpu_arr[i].cpu;
+		printk(KERN_INFO "Sorted_CPUS[%d] = %d\n", i, sorted_cpus[i]);
+	}
+
+}
+
 /*
  * First fit heuristic for bin packing
  */
@@ -436,12 +505,12 @@ int apply_best_fit(void)
 		return 1;
 }
 
-
 /*
- * Worst fit heuristic for bin packing
+ * Worst Fit heuristic for bin packing
  */
 int apply_worst_fit(void)
 {
+	int i = 0;
 	int cpu = 0;
 	BIN_NODE* curr = bin_head;
 	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
@@ -458,6 +527,39 @@ int apply_worst_fit(void)
 			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_wf(sorted_cpus);
+			cpu = 0;
+		}
+	}
+
+	if (cpu == TOTAL_CORES)
+	{
+		return -1;
+	}
+	else
+		return 1;
+}
+
+/*
+ * List Scheduling heuristic for bin packing
+ */
+int apply_list_scheduling(void)
+{
+	int cpu = 0;
+	BIN_NODE* curr = bin_head;
+	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
+	printk(KERN_INFO "List Scheduling\n");
+	while (curr && cpu < TOTAL_CORES)
+	{
+		if (admission_test_for_cpu(curr, sorted_cpus[cpu]) < 0)
+		{
+			cpu++;
+		}
+		else
+		{
+			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
+			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr = curr->next;
+			sort_cpus_util_ls(sorted_cpus);
 			cpu = 0;
 		}
 	}
@@ -488,6 +590,8 @@ int apply_heuristic(char policy[2])
 		retval = apply_best_fit();
 	if (strncmp(policy,"W", 1) == 0)
 		retval = apply_worst_fit();
+	if (strncmp(policy,"L", 1) == 0)
+		retval = apply_list_scheduling();
 	if (strncmp(policy,"F", 1) == 0)
 		retval = apply_first_fit();
 
@@ -506,7 +610,7 @@ int apply_heuristic(char policy[2])
 
 	if (retval == 1)
 	{
-		for (i = 0; i < TOTAL_CORES; i++)
+	/*	for (i = 0; i < TOTAL_CORES; i++)
 		{
 			freq_temp = sysclock_calculation(i);
 			if (sysclock_freq < freq_temp)
@@ -514,7 +618,7 @@ int apply_heuristic(char policy[2])
 		}
 		mutex_lock(&sysclock_mutex);
 		sysclock_scaling_factor = sysclock_freq;
-		mutex_unlock(&sysclock_mutex);
+		mutex_unlock(&sysclock_mutex);*/
 
 		set_rt_prios();
 	}

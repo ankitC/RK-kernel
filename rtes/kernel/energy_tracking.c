@@ -40,7 +40,7 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, unsigned int max_freq)
 	F_var = (uint64_t) max_freq * scaling_factor;
 	remainder = do_div(*F_temp , 100);
 
-	for (i = 0, i < 17; i++)
+	for (i = 0; i < 17; i++)
 	{
 		if (*F_temp < cpu_power_table[i][1])
 		{
