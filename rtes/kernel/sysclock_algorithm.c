@@ -130,13 +130,13 @@ unsigned long long energy_min_freq (BIN_NODE *node, int index)
 	return alpha;
 }
 
-void sysclock_calculation(int i)
+unsigned long long sysclock_calculation(int i)
 {
 	BIN_NODE* curr = cpu_bin_head[i];
 	unsigned long long alpha_ret = 0, temp = 0;
 
 	if (curr == NULL)
-		return;
+		return 0;
 
 	printk(KERN_INFO "[%s] Sysclock Calculation\n", __func__);
 	while (curr->next != NULL)
@@ -154,6 +154,6 @@ void sysclock_calculation(int i)
 	}
 
 	printk(KERN_INFO "[%s] Sysclock Calculation %llu sysclk freq\n", __func__, alpha_ret);
-
+	return alpha_ret;
 
 }

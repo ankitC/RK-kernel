@@ -18,6 +18,8 @@ BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
+unsigned int sysclock_scaling_factor = 0;
+extern struct mutex sysclock_mutex;
 /*
  * Deciding the real time priorities of a task based on period
  */
@@ -470,7 +472,7 @@ int apply_worst_fit(void)
 
 /*
  * Applies the heuristic for bin packing in the partition_policy
- * variable. 
+ * variable.
  * Returns 1 on success
  * Returns -1 on failure
  */
@@ -478,6 +480,7 @@ int apply_heuristic(char policy[2])
 {
 	int retval = 0, i = 0;
 	int ret_custom = 0;
+	unsigned long long sysclock_freq = 0, freq_temp = 0;
 
 	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
@@ -505,8 +508,14 @@ int apply_heuristic(char policy[2])
 	{
 		for (i = 0; i < TOTAL_CORES; i++)
 		{
-			sysclock_calculation(i);
+			freq_temp = sysclock_calculation(i);
+			if (sysclock_freq < freq_temp)
+				sysclock_freq = freq_temp;
 		}
+		mutex_lock(&sysclock_mutex);
+		sysclock_scaling_factor = sysclock_freq;
+		mutex_unlock(&sysclock_mutex);
+
 		set_rt_prios();
 	}
 
