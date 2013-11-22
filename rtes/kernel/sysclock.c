@@ -39,6 +39,7 @@ static DEFINE_PER_CPU(struct cpufreq_policy *, temp_policy);
 DEFINE_MUTEX(sysclock_mutex);
 static int cpus_using_sysclock_governor;
 extern unsigned int sysclock_scaling_factor;
+extern unsigned int global_sysclock_freq;
 
 /* keep track of frequency transitions */
 static int
@@ -67,6 +68,40 @@ static ssize_t show_speed(struct cpufreq_policy *policy, char *buf)
 	return sprintf(buf, "%u\n", per_cpu(cpu_cur_freq, policy->cpu));
 }
 
+/**
+ * cpufreq_set - set the CPU frequency
+ * @policy: pointer to policy struct where freq is being set
+ * @freq: target frequency in kHz
+ *
+ * Sets the CPU frequency to freq.
+ */
+int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int heuristic_flag)
+{
+	int ret = -EINVAL;
+
+	if (policy ==  NULL)
+	{
+		printk("[%s] Policy struct is null\n", __func__);
+	}
+	if (freq == 0 || (strcmp(policy->governor->name, "sysclock") != 0))
+	{
+		printk("[%s] returning without setting the sysclock %s\n", __func__,  policy->governor->name);
+		return 0;
+	}
+
+	printk("[%s] for cpu %u, freq %u kHz\n", __func__,  policy->cpu, freq);
+
+	per_cpu(cpu_set_freq, policy->cpu) = freq;
+
+	if (freq < per_cpu(cpu_min_freq, policy->cpu))
+		freq = per_cpu(cpu_min_freq, policy->cpu);
+	if (freq > per_cpu(cpu_max_freq, policy->cpu))
+		freq = per_cpu(cpu_max_freq, policy->cpu);
+
+		ret = __cpufreq_driver_target(policy, freq, CPUFREQ_RELATION_L);
+
+	return ret;
+}
 static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 				   unsigned int event)
 {
@@ -77,6 +112,9 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 	printk(KERN_INFO "[%s] policy cpu %d\n", __func__, policy->cpu);
 	printk(KERN_INFO "[%s] event %u\n", __func__, event);
 
+	//Setting sysclock calculated frequency
+	if (cpufreq_set_sysclock(policy, global_sysclock_freq, 0) < 0)
+		return -EINVAL;
 
 		switch (event) {
 	case CPUFREQ_GOV_START:
@@ -96,9 +134,6 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 		per_cpu(cpu_is_managed, cpu) = 1;
 		per_cpu(cpu_min_freq, cpu) = policy->min;
 		per_cpu(cpu_max_freq, cpu) = policy->max;
-		//Setting sysclock calculated frequency
-
-		policy->cur = sysclock_scaling_factor;
 		per_cpu(cpu_cur_freq, cpu) = policy->cur;
 		per_cpu(cpu_set_freq, cpu) = policy->cur;
 		pr_debug("managing cpu %u started "
@@ -116,7 +151,7 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 		if (cpus_using_sysclock_governor == 0) {
 			cpufreq_unregister_notifier(
 					&sysclock_cpufreq_notifier_block,
-					CPUFREQ_TRANSITION_NOTIFIER);
+					 CPUFREQ_TRANSITION_NOTIFIER);
 		}
 
 		per_cpu(cpu_is_managed, cpu) = 0;
@@ -157,7 +192,6 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 struct cpufreq_governor cpufreq_gov_sysclock = {
 	.name		= "sysclock",
 	.governor	= cpufreq_governor_sysclock,
-//	.store_setspeed	= cpufreq_set,
 	.store_setspeed = NULL,
 	.show_setspeed	= show_speed,
 	.owner		= THIS_MODULE,

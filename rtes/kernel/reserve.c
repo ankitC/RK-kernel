@@ -15,6 +15,7 @@
 #include <linux/suspension_framework.h>
 #include <linux/linked_list.h>
 #include <linux/bin_linked_list.h>
+#include <linux/energy_tracking.h>
 #include <linux/semaphore.h>
 
 #define DEBUG
@@ -22,6 +23,7 @@
 extern int migrate;
 extern int guarantee;
 extern int uni_processor;
+extern unsigned int global_sysclock_freq;
 /*
  * Introduces the process with the given pid in
  * the reservation framework
@@ -110,7 +112,6 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if(retval < 0)
 	{
 		printk(KERN_INFO "Reservation failed pid=%u\n", task->pid);
-
 		spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 		return 1;
 	}
@@ -169,6 +170,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 		add_bin_node(make_bin_node(task));
 	}
 	set_cpu_for_task(task);
+	cpufreq_set_sysclock(cpufreq_cpu_get(0), global_sysclock_freq, 1);
 	create_pid_dir_and_reserve_file (task);
 	printk(KERN_INFO "Reservation succeeded pid=%u\n", task->pid);
 	return 0;

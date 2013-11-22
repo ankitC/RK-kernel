@@ -10,6 +10,7 @@
 #include <linux/partition_scheduling.h>
 #include <linux/custom_heuristic.h>
 #include <linux/sysclock_algorithm.h>
+#include <linux/energy_tracking.h>
 #include <asm/div64.h>
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
@@ -18,7 +19,7 @@ BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
-unsigned int sysclock_scaling_factor = 0;
+unsigned int sysclock_scaling_factor = 0, global_sysclock_freq = 0;
 extern struct mutex sysclock_mutex;
 /*
  * Deciding the real time priorities of a task based on period
@@ -582,7 +583,7 @@ int apply_heuristic(char policy[2])
 {
 	int retval = 0, i = 0;
 	int ret_custom = 0;
-	unsigned long long sysclock_freq = 0, freq_temp = 0;
+	unsigned long long sysclock_freq_scale = 0, freq_temp_scale = 0;
 
 	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
@@ -610,15 +611,17 @@ int apply_heuristic(char policy[2])
 
 	if (retval == 1)
 	{
-	/*	for (i = 0; i < TOTAL_CORES; i++)
+		for (i = 0; i < TOTAL_CORES; i++)
 		{
-			freq_temp = sysclock_calculation(i);
-			if (sysclock_freq < freq_temp)
-				sysclock_freq = freq_temp;
+			freq_temp_scale = sysclock_calculation(i);
+			if (sysclock_freq_scale < freq_temp_scale)
+				sysclock_freq_scale = freq_temp_scale;
 		}
 		mutex_lock(&sysclock_mutex);
-		sysclock_scaling_factor = sysclock_freq;
-		mutex_unlock(&sysclock_mutex);*/
+		sysclock_scaling_factor = sysclock_freq_scale;
+		global_sysclock_freq = calculate_sys_clk_freq(sysclock_scaling_factor, cpufreq_cpu_get(0));
+		printk(KERN_INFO "Global sysclock freq %u\n", global_sysclock_freq);
+		mutex_unlock(&sysclock_mutex);
 
 		set_rt_prios();
 	}

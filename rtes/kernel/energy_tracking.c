@@ -29,22 +29,27 @@ int get_cpu_energy(unsigned int freq)
 	printk(KERN_INFO "[%s] Cpu freq not found\n", __func__);
 	return 0;
 }
-//TODO Check for extreme cases. Incomplete code.
-unsigned int calculate_sys_clk_freq(int scaling_factor, unsigned int max_freq)
+/*
+ *Calculate the sysclock frequency according to the scaling factor
+ */
+unsigned int calculate_sys_clk_freq(int scaling_factor, struct cpufreq_policy *policy)
 {
 	int remainder = 0, i = 0;
-	uint32_t new_freq = 0, prev_freq = 0;
+	uint32_t new_freq = 0;
+	int curr_freq = 0;
 	unsigned long long F_var = 0;
 	uint64_t *F_temp = &F_var;
+	uint32_t max_freq = policy->max, min_freq = policy->min = 0;
 
 	F_var = (uint64_t) max_freq * scaling_factor;
-	remainder = do_div(*F_temp , 100);
-
+	remainder = do_div(*F_temp, 100);
+	curr_freq = *F_temp;
+	printk(KERN_INFO "[%s] frequency calculated %llu found\n", __func__, *F_temp);
 	for (i = 0; i < 17; i++)
 	{
-		if (*F_temp < cpu_power_table[i][1])
+		if (curr_freq < cpu_power_table[i][0])
 		{
-			new_freq = cpu_power_table[i][1];
+			new_freq = cpu_power_table[i][0];
 			break;
 		}
 	}
@@ -54,5 +59,8 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, unsigned int max_freq)
 		new_freq = 340000;
 	}
 
+	if (new_freq < min_freq)
+		new_freq = min_freq;
+	printk(KERN_INFO "[%s] Cpu freq %u found\n", __func__, new_freq);
 	return new_freq;
 }
