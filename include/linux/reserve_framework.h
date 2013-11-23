@@ -37,6 +37,7 @@ struct reserve_obj
 	int rt_prio;
 	unsigned int host_cpu;
 	unsigned int prev_cpu;
+	unsigned int local_scaling_factor;
 	struct timespec C;
 	unsigned long long U;
 	unsigned long long sysclk_freq;

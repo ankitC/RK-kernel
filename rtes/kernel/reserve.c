@@ -124,6 +124,7 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.energy_consumed = 0;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.need_resched = 0;
+	task->reserve_process.local_scaling_factor = 100;
 	task->reserve_process.t_timer_started = 0;
 	task->reserve_process.remaining_C = ktime;
 	task->reserve_process.prev_setime = task->se.sum_exec_runtime;

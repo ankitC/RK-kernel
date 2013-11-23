@@ -13,6 +13,8 @@
 #include <linux/energy_tracking.h>
 #include <linux/ktime.h>
 
+extern struct mutex scaling_mutex;
+extern unsigned int global_scaling_factor;
 /*
  * Callback function for C timer
  */
@@ -54,6 +56,11 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 
 	unsigned long flags;
 	unsigned long long temp;
+	unsigned long long temp_remaining_C = 0;
+	uint64_t C_var = 0;
+	uint64_t* C_temp = &C_var;
+	uint32_t remainder = 0;
+
 
 	spin_lock_irqsave(&reservation_detail->reserve_spinlock, flags);
 
@@ -74,7 +81,16 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 		hrtimer_init( &reservation_detail->C_timer, \
 				CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 		reservation_detail->C_timer.function = &C_timer_callback;
-		hrtimer_start(&reservation_detail->C_timer,\
+		temp_remaining_C = ktime_to_ns(reservation_detail->remaining_C);
+		mutex_lock(&scaling_mutex);
+		reservation_detail->local_scaling_factor = global_scaling_factor;
+		C_var = temp_remaining_C * reservation_detail->local_scaling_factor;
+		mutex_unlock(&scaling_mutex);
+		remainder = do_div(*C_temp, 100);
+		hrtimer_start(&reservation_detail->C_timer, ktime_set(0, C_var), HRTIMER_MODE_REL_PINNED);
+
+
+		//hrtimer_start(&reservation_detail->C_timer,\
 			   	reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
 	}
 

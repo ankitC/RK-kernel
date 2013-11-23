@@ -21,6 +21,7 @@ extern char partition_policy[2];
 extern BIN_NODE* bin_head;
 unsigned int sysclock_scaling_factor = 0, global_sysclock_freq = 0;
 extern struct mutex sysclock_mutex;
+extern int sysclock_governor_selected;
 /*
  * Deciding the real time priorities of a task based on period
  */
@@ -619,8 +620,11 @@ int apply_heuristic(char policy[2])
 		}
 		mutex_lock(&sysclock_mutex);
 		sysclock_scaling_factor = sysclock_freq_scale;
-		global_sysclock_freq = calculate_sys_clk_freq(sysclock_scaling_factor, cpufreq_cpu_get(0));
-		printk(KERN_INFO "Global sysclock freq %u\n", global_sysclock_freq);
+		if (sysclock_governor_selected)
+		{
+			global_sysclock_freq = calculate_sys_clk_freq(sysclock_scaling_factor, cpufreq_cpu_get(0));
+			printk(KERN_INFO "Global sysclock freq %u\n", global_sysclock_freq);
+		}
 		mutex_unlock(&sysclock_mutex);
 
 		set_rt_prios();

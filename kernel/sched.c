@@ -4263,6 +4263,8 @@ extern int trace_ctx;
 extern int migrate;
 extern int guarantee;
 extern int energy;
+extern struct mutex scaling_mutex;
+extern unsigned int global_scaling_factor;
 /*
  *Implements energy energy functionality
  */
@@ -4326,10 +4328,21 @@ inline void stop_timers(struct task_struct* prev)
  */
 inline void stop_C_timer(struct task_struct* prev)
 {
+	uint64_t C_var = 0;
+	uint64_t* C_temp = &C_var;
+	uint32_t remainder = 0;
+	ktime_t ktime;
+	struct timespec temp;
 
 	if (prev->under_reservation && prev->reserve_process.t_timer_started && prev->reserve_process.running)
 	{
-		prev->reserve_process.remaining_C = hrtimer_get_remaining(&prev->reserve_process.C_timer);
+		ktime = hrtimer_get_remaining(&prev->reserve_process.C_timer);
+		temp = ktime_to_timespec(ktime);
+		C_var = timespec_to_ns(&temp);
+		remainder = do_div(*C_temp, prev->reserve_process.local_scaling_factor);
+		C_var *= 100;
+		prev->reserve_process.remaining_C = ns_to_ktime(C_var);
+//		prev->reserve_process.remaining_C *= 100;
 		hrtimer_cancel(&prev->reserve_process.C_timer);
 		prev->reserve_process.running = 0;
 	}
@@ -4344,6 +4357,10 @@ inline void stop_C_timer(struct task_struct* prev)
 inline void start_reservation_timers(struct task_struct *next)
 {
 	ktime_t ktime;
+	unsigned long long temp_remaining_C = 0;
+	uint64_t C_var = 0;
+	uint64_t* C_temp = &C_var;
+	uint32_t remainder = 0;
 	if (next->under_reservation && (smp_processor_id() == next->reserve_process.host_cpu))
 	{
 		if ((!next->reserve_process.t_timer_started))
@@ -4359,7 +4376,13 @@ inline void start_reservation_timers(struct task_struct *next)
 		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 
 		next->reserve_process.C_timer.function = &C_timer_callback;
-		hrtimer_start(&next->reserve_process.C_timer, next->reserve_process.remaining_C, HRTIMER_MODE_REL_PINNED);
+		temp_remaining_C = ktime_to_ns(next->reserve_process.remaining_C);
+		mutex_lock(&scaling_mutex);
+		next->reserve_process.local_scaling_factor = global_scaling_factor;
+		C_var = temp_remaining_C * next->reserve_process.local_scaling_factor;
+		mutex_unlock(&scaling_mutex);
+		remainder = do_div(*C_temp, 100);
+		hrtimer_start(&next->reserve_process.C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
 	}
 
 }
