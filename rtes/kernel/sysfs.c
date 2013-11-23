@@ -8,6 +8,7 @@
 #include <asm/current.h>
 #include <linux/sysfs_func.h>
 
+unsigned long long global_total_energy = 0;
 /*
  * Function called when a read is done on sysfs util file
  */
@@ -60,9 +61,10 @@ static ssize_t energy_show(struct kobject * kobj, struct kobj_attribute * attr, 
 {
 	struct reserve_obj* reservation_detail = container_of(attr, \
 			struct reserve_obj, energy_attr);
-	int len = energy_buffer_read(reservation_detail, buf);
+//	int len = energy_buffer_read(reservation_detail, buf);
 
-	return len;
+	return sprintf(buf, "%llu\n", reservation_detail->energy_consumed);
+//	return len;
 
 }
 
@@ -71,9 +73,7 @@ static ssize_t energy_show(struct kobject * kobj, struct kobj_attribute * attr, 
  */
 static ssize_t total_energy_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
-//	int len = energy_buffer_read(reservation_detail, buf);
- int len = 0;
-	return len;
+	return sprintf(buf, "%llu\n", global_total_energy);
 
 }
 
@@ -338,7 +338,7 @@ int ctx_buffer_read(struct reserve_obj* res_detail , char* buf)
 }
 /*
  * Circular Buffer function where data is written to energy circular buffer
- */
+ *
 void energy_buffer_write(struct reserve_obj* res_detail)
 {
 	circular_buffer *c_buffer = &res_detail->energy_buf;
@@ -377,9 +377,9 @@ void energy_buffer_write(struct reserve_obj* res_detail)
 	printk(KERN_INFO "WRITE --->Pid=%d len = %d Buffer %s Start %d  End %d read_count %d\n",res_detail->monitored_process->pid,  strlen(time_buffer)+1, time_buffer,c_buffer->start, c_buffer->end, c_buffer->read_count);
 	
 }
-/*
+
  * Circular Buffer function where data is read to energy circular buffer
- */
+ 
 
 int energy_buffer_read(struct reserve_obj* res_detail , char* buf)
 {
@@ -410,4 +410,4 @@ int energy_buffer_read(struct reserve_obj* res_detail , char* buf)
 
 	//printk(KERN_INFO "READ ---> Buffer %s Pid %d Start %d End %d Len of buffer %d read_count %d\n", buf, res_detail->monitored_process->pid, c_buffer->start, c_buffer->end, len, c_buffer->read_count);
 	return len;
-}
+}*/
