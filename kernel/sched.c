@@ -4285,8 +4285,9 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 			energy_consumed = &energy_consumed_var;
 			do_div(*energy_consumed, 1000000);
 			prev->reserve_process.energy_consumed += energy_consumed_var;
-			printk(KERN_INFO "[%s] %u %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, prev->reserve_process.energy_consumed);
+			//printk(KERN_INFO "[%s] %u %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, prev->reserve_process.energy_consumed);
 			global_total_energy += energy_consumed_var;
+			printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, global_total_energy);
 			//energy_buffer_write(&prev->reserve_process);
 		}
 	}

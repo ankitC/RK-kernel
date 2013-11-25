@@ -57,7 +57,6 @@ struct reserve_obj
 	struct attribute *attrs[6];
 	circular_buffer c_buf;
 	circular_buffer ctx_buf;
-	circular_buffer energy_buf;
 };
 
 void ctx_buffer_write(struct reserve_obj* res_detail, struct timespec spent_budget, int ctx_in);

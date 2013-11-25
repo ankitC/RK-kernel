@@ -141,11 +141,11 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	task->reserve_process.ctx_buf.read_count = 0;
 	task->reserve_process.ctx_buf.buffer[0] = 0;
 	task->reserve_process.ctx_buf.end = 0;
-	task->reserve_process.energy_buf.start = 0;
+	/*task->reserve_process.energy_buf.start = 0;
 	task->reserve_process.energy_buf.read_count = 0;
 	task->reserve_process.energy_buf.buffer[0] = 0;
 	task->reserve_process.energy_buf.end = 0;
-
+*/
 
 	spin_unlock_irqrestore(&task->reserve_process.reserve_spinlock, flags);
 
