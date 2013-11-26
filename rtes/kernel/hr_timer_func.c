@@ -13,7 +13,7 @@
 #include <linux/energy_tracking.h>
 #include <linux/ktime.h>
 
-extern struct mutex scaling_mutex;
+extern spinlock_t scaling_spinlock;
 extern unsigned int global_scaling_factor;
 /*
  * Callback function for C timer
@@ -82,10 +82,12 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 				CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 		reservation_detail->C_timer.function = &C_timer_callback;
 		temp_remaining_C = ktime_to_ns(reservation_detail->remaining_C);
-		mutex_lock(&scaling_mutex);
+		//mutex_lock(&scaling_mutex);
+		spin_lock_irqsave(&scaling_spinlock, flags);
 		reservation_detail->local_scaling_factor = global_scaling_factor;
 		C_var = temp_remaining_C * reservation_detail->local_scaling_factor;
-		mutex_unlock(&scaling_mutex);
+		spin_unlock_irqrestore(&scaling_spinlock, flags);
+		//mutex_unlock(&scaling_mutex);
 		remainder = do_div(*C_temp, 100);
 		hrtimer_start(&reservation_detail->C_timer, ktime_set(0, C_var), HRTIMER_MODE_REL_PINNED);
 

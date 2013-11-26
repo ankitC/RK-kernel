@@ -9,6 +9,7 @@
 #include <linux/sysfs_func.h>
 
 unsigned long long global_total_energy = 0;
+extern struct mutex energy_mutex;
 /*
  * Function called when a read is done on sysfs util file
  */
@@ -62,9 +63,13 @@ static ssize_t energy_show(struct kobject * kobj, struct kobj_attribute * attr, 
 	struct reserve_obj* reservation_detail = container_of(attr, \
 			struct reserve_obj, energy_attr);
 //	int len = energy_buffer_read(reservation_detail, buf);
+	unsigned long long energy_consumed = 0;
 
-	return sprintf(buf, "%llu\n", reservation_detail->energy_consumed);
-//	return len;
+//	mutex_lock(&reservation_detail->per_task_energy_mutex);
+   	energy_consumed = reservation_detail->energy_consumed;
+//	mutex_unlock(&reservation_detail->per_task_energy_mutex);
+
+	return sprintf(buf, "%llu\n", energy_consumed);
 
 }
 
@@ -73,8 +78,13 @@ static ssize_t energy_show(struct kobject * kobj, struct kobj_attribute * attr, 
  */
 static ssize_t total_energy_show(struct kobject * kobj, struct kobj_attribute * attr, char * buf)
 {
-	return sprintf(buf, "%llu\n", global_total_energy);
+	unsigned long long total_energy = 0;
 
+//	mutex_lock(&energy_mutex);
+	total_energy = global_total_energy;
+//	mutex_unlock(&energy_mutex);
+
+	return sprintf(buf, "%llu\n", total_energy);
 }
 
 struct kobject *tasks_kobj;

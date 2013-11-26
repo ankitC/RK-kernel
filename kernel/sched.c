@@ -83,6 +83,7 @@
 #include <linux/bin_packing.h>
 #include <linux/energy_tracking.h>
 #include <linux/cpufreq.h>
+#include <linux/spinlock.h>
 #ifdef CONFIG_PARAVIRT
 #include <asm/paravirt.h>
 #endif
@@ -4264,32 +4265,36 @@ extern int migrate;
 extern int guarantee;
 extern int energy;
 extern unsigned long long global_total_energy;
-extern struct mutex scaling_mutex;
+extern spinlock_t scaling_spinlock;
 extern unsigned int global_scaling_factor;
+DEFINE_SPINLOCK(energy_spinlock);
+#define SCALING_FACTOR 1000000
 /*
  *Implements energy energy functionality
  */
 inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 {
-//	struct timespec ts;
-//	unsigned long long run_time = 0;
-//	unsigned int kappa = 4420, beta = 25720000;
 	uint64_t *energy_consumed = NULL;
 	uint64_t energy_consumed_var = 0;
+	unsigned long flags = 0;
 
 	if (energy)
 	{
-		if (prev->under_reservation)
-		{
-			energy_consumed_var =  (time * get_cpu_energy(cpufreq_cpu_get(smp_processor_id())->cur));
-			energy_consumed = &energy_consumed_var;
-			do_div(*energy_consumed, 1000000);
-			prev->reserve_process.energy_consumed += energy_consumed_var;
-			//printk(KERN_INFO "[%s] %u %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, prev->reserve_process.energy_consumed);
-			global_total_energy += energy_consumed_var;
-			printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, global_total_energy);
-			//energy_buffer_write(&prev->reserve_process);
-		}
+		energy_consumed_var =  (time * get_cpu_energy(cpufreq_cpu_get(smp_processor_id())->cur));
+		energy_consumed = &energy_consumed_var;
+		do_div(*energy_consumed, SCALING_FACTOR);
+
+		/* Taking per process spinlock for tracking energy consumed */
+		spin_lock_irqsave(&prev->reserve_process.per_task_energy_spinlock, flags);
+		prev->reserve_process.energy_consumed += energy_consumed_var;
+		spin_unlock_irqrestore(&prev->reserve_process.per_task_energy_spinlock, flags);
+
+		/* Taking a global spinlock for tracking energy of all tasks */
+		spin_lock_irqsave(&energy_spinlock, flags);
+		global_total_energy += energy_consumed_var;
+		spin_unlock_irqrestore(&energy_spinlock, flags);
+
+		printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, global_total_energy);
 	}
 }
 
@@ -4345,7 +4350,6 @@ inline void stop_C_timer(struct task_struct* prev)
 		remainder = do_div(*C_temp, prev->reserve_process.local_scaling_factor);
 		C_var *= 100;
 		prev->reserve_process.remaining_C = ns_to_ktime(C_var);
-//		prev->reserve_process.remaining_C *= 100;
 		hrtimer_cancel(&prev->reserve_process.C_timer);
 		prev->reserve_process.running = 0;
 	}
@@ -4364,6 +4368,7 @@ inline void start_reservation_timers(struct task_struct *next)
 	uint64_t C_var = 0;
 	uint64_t* C_temp = &C_var;
 	uint32_t remainder = 0;
+	unsigned long flags = 0;
 	if (next->under_reservation && (smp_processor_id() == next->reserve_process.host_cpu))
 	{
 		if ((!next->reserve_process.t_timer_started))
@@ -4380,10 +4385,10 @@ inline void start_reservation_timers(struct task_struct *next)
 
 		next->reserve_process.C_timer.function = &C_timer_callback;
 		temp_remaining_C = ktime_to_ns(next->reserve_process.remaining_C);
-		mutex_lock(&scaling_mutex);
+		spin_lock_irqsave(&scaling_spinlock, flags);
 		next->reserve_process.local_scaling_factor = global_scaling_factor;
 		C_var = temp_remaining_C * next->reserve_process.local_scaling_factor;
-		mutex_unlock(&scaling_mutex);
+		spin_unlock_irqrestore(&scaling_spinlock, flags);
 		remainder = do_div(*C_temp, 100);
 		hrtimer_start(&next->reserve_process.C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
 	}
@@ -4391,7 +4396,6 @@ inline void start_reservation_timers(struct task_struct *next)
 }
 extern BIN_NODE* bin_head;
 extern spinlock_t bin_spinlock;
-extern struct mutex suspend_mutex;
 /*
  * function to check whether the spent_budget of the process 
  */

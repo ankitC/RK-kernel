@@ -2,14 +2,15 @@
 #include <linux/sched.h>
 #include <linux/cpufreq.h>
 #include <asm/div64.h>
-
+#define MAX_SCALING_FACTOR 100
 #define CRITICAL_FREQ 228321
+#define CRIT_FREQ_CORE 340000
 /*
  * Power in mW corresponding frequencies in the cpu_freq 
  * table.
  */
 int cpu_power_table[17][2] = {
-	{51000, 28}, {102000,  35}, {204000, 57}, {340000, 100}, {475000,  156},\
+/*	{51000, 28}, {102000,  35}, {204000, 57},*/ {340000, 100}, {475000,  156},\
 	{640000, 240}, {760000, 311}, {860000, 377}, {1000000, 478}, {1100000, 556},\
 	{1150000, 596}, {1200000, 638},{1300000, 726}, {1400000, 819}, {1500000, 915},\
 	{1600000, 1017}, {1700000, 1122}
@@ -42,9 +43,10 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, struct cpufreq_policy *p
 	uint32_t max_freq = policy->max, min_freq = policy->min = 0;
 
 	F_var = (uint64_t) max_freq * scaling_factor;
-	remainder = do_div(*F_temp, 100);
+	remainder = do_div(*F_temp, MAX_SCALING_FACTOR);
 	curr_freq = *F_temp;
 	printk(KERN_INFO "[%s] frequency calculated %llu found\n", __func__, *F_temp);
+
 	for (i = 0; i < 17; i++)
 	{
 		if (curr_freq < cpu_power_table[i][0])
@@ -56,7 +58,7 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, struct cpufreq_policy *p
 
 	if (*F_temp < CRITICAL_FREQ)
 	{
-		new_freq = 340000;
+		new_freq = CRIT_FREQ_CORE;
 	}
 
 	if (new_freq < min_freq)

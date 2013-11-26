@@ -26,6 +26,7 @@
 #include <linux/delay.h>
 #include <asm/uaccess.h>
 
+#define MAX_SCALING_FACTOR 100
 /**
  * A few values needed by the sysclock governor
  */
@@ -37,11 +38,11 @@ static DEFINE_PER_CPU(unsigned int, cpu_set_freq); /* CPU freq desired by
 static DEFINE_PER_CPU(unsigned int, cpu_is_managed);
 static DEFINE_PER_CPU(struct cpufreq_policy *, temp_policy);
 DEFINE_MUTEX(sysclock_mutex);
-DEFINE_MUTEX(scaling_mutex);
+DEFINE_SPINLOCK(scaling_spinlock);
 static int cpus_using_sysclock_governor;
 extern unsigned int sysclock_scaling_factor;
 extern unsigned int global_sysclock_freq;
-unsigned int global_scaling_factor = 100;
+unsigned int global_scaling_factor = MAX_SCALING_FACTOR;
 int sysclock_governor_selected = 0;
 
 /* keep track of frequency transitions */
@@ -84,6 +85,7 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 	uint32_t remainder = 0;
 	uint64_t S_var = 0;
 	uint64_t *S_temp = &S_var;
+	unsigned long flags = 0;
 	printk("[%s] %s\n", __func__,  policy->governor->name);
 
 	if (sysclock_governor_selected)
@@ -105,12 +107,14 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 
 		ret = __cpufreq_driver_target(policy, freq, CPUFREQ_RELATION_L);
 
-		mutex_lock(&scaling_mutex);
-		S_var = policy->max * 100;
+		//mutex_lock(&scaling_mutex);
+		spin_lock_irqsave(&scaling_spinlock, flags);
+		S_var = policy->max * MAX_SCALING_FACTOR;
 		remainder = do_div(*S_temp, freq);
 		global_scaling_factor = S_var;
 		printk("[%s] global_scaling_factor : %u\n", __func__, global_scaling_factor);
-		mutex_unlock(&scaling_mutex);
+		spin_unlock_irqrestore(&scaling_spinlock, flags);
+		//mutex_unlock(&scaling_mutex);
 	}
 	return ret;
 }
@@ -138,6 +142,8 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 						CPUFREQ_TRANSITION_NOTIFIER);
 			}
 			cpus_using_sysclock_governor++;
+
+			//Selecting the sysclock governor
 			sysclock_governor_selected = 1;
 			per_cpu(cpu_is_managed, cpu) = 1;
 			per_cpu(cpu_min_freq, cpu) = policy->min;
@@ -176,7 +182,7 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 			pr_debug("managing cpu %u stopped\n", cpu);
 			global_sysclock_freq = 0;
 			sysclock_governor_selected = 0;
-			global_scaling_factor = 100;
+			global_scaling_factor = MAX_SCALING_FACTOR;
 			mutex_unlock(&sysclock_mutex);
 			break;
 		case CPUFREQ_GOV_LIMITS:

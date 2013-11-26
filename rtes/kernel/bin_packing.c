@@ -584,7 +584,7 @@ int apply_heuristic(char policy[2])
 {
 	int retval = 0, i = 0;
 	int ret_custom = 0;
-	unsigned long long sysclock_freq_scale = 0, freq_temp_scale = 0;
+	unsigned long long sysclock_freq_scale = 100, freq_temp_scale = 100;
 
 	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
