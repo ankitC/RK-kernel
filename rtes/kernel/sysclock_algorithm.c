@@ -32,8 +32,8 @@ unsigned long long max_val (unsigned long long a, unsigned long long b){
 
 unsigned long long energy_min_freq (BIN_NODE *node, int index)
 {
-	unsigned long long C_i = timespec_to_ns(&node->task->reserve_process.C);
-    unsigned long long T_i = timespec_to_ns(&node->task->reserve_process.T);
+	unsigned long long C_i = timespec_to_ns(&node->task->reserve_process->C);
+    unsigned long long T_i = timespec_to_ns(&node->task->reserve_process->T);
 	unsigned long long D_i = T_i;
 	unsigned long long S = 0, I = 0, t = 0, beta = 0, temp_I = 0;
 	uint64_t omega_var = 0, B_var = 0, T_var = 0;
@@ -56,14 +56,14 @@ unsigned long long energy_min_freq (BIN_NODE *node, int index)
 			{
 				for (curr = head; curr != NULL; curr = curr->next)
 				{
-					T_var = timespec_to_ns(&curr->task->reserve_process.T);
+					T_var = timespec_to_ns(&curr->task->reserve_process->T);
 					printk(KERN_INFO "T_var = %llu", T_var);
 					remainder = do_div(*T_temp, 10000);
 					temp = *T_temp;
 					omega_var = omega;
 					remainder = do_div(*omega_temp ,temp);
 					remainder = do_div(*omega_temp, 10000);
-					beta_sum += (timespec_to_ns(&curr->task->reserve_process.C) * (omega_var + 1));
+					beta_sum += (timespec_to_ns(&curr->task->reserve_process->C) * (omega_var + 1));
 					printk(KERN_INFO "[%s] omega in 1 %llu\n", __func__, omega);
 				}
 				printk(KERN_INFO "[%s] beta_sum %llu\n", __func__, beta_sum);
@@ -80,7 +80,7 @@ unsigned long long energy_min_freq (BIN_NODE *node, int index)
 		{
 			for (curr = head; curr != NULL; curr = curr->next)
 			{
-				T_var = timespec_to_ns(&curr->task->reserve_process.T);
+				T_var = timespec_to_ns(&curr->task->reserve_process->T);
 
 				remainder = do_div(*T_temp, 10000);
 				temp = *T_temp;
@@ -88,8 +88,8 @@ unsigned long long energy_min_freq (BIN_NODE *node, int index)
 				remainder = do_div(*omega_temp ,temp);
 				if((remainder = do_div(*omega_temp, 10000)) > 0)
 					*omega_temp = *omega_temp + 1;
-				printk(KERN_INFO "Tj * omega/Tj = %llu", (timespec_to_ns(&curr->task->reserve_process.T) * omega_var));
-				temp_I = min_val (((timespec_to_ns(&curr->task->reserve_process.T) * omega_var) - omega), (D_i - omega));
+				printk(KERN_INFO "Tj * omega/Tj = %llu", (timespec_to_ns(&curr->task->reserve_process->T) * omega_var));
+				temp_I = min_val (((timespec_to_ns(&curr->task->reserve_process->T) * omega_var) - omega), (D_i - omega));
 
 				if (I != 0)
 				{
@@ -142,14 +142,14 @@ unsigned long long sysclock_calculation(int i)
 	while (curr->next != NULL)
 		curr = curr->next;
 
-	curr->task->reserve_process.sysclk_freq = energy_min_freq(curr, i);
+	curr->task->reserve_process->sysclk_freq = energy_min_freq(curr, i);
 
 	curr = cpu_bin_head[i];
 
 	while (curr)
 	{
-		if (alpha_ret < curr->task->reserve_process.sysclk_freq)
-			alpha_ret = curr->task->reserve_process.sysclk_freq;
+		if (alpha_ret < curr->task->reserve_process->sysclk_freq)
+			alpha_ret = curr->task->reserve_process->sysclk_freq;
 		curr = curr->next;
 	}
 

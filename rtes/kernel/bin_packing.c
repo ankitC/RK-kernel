@@ -34,7 +34,7 @@ void set_rt_prios(void)
 
 	while (curr)
 	{
-		curr->task->reserve_process.rt_prio = -1;
+		curr->task->reserve_process->rt_prio = -1;
 		curr = curr->next;
 		list_len++;
 	}
@@ -49,20 +49,20 @@ void set_rt_prios(void)
 
 		while (curr)
 		{
-			if (curr->task->reserve_process.rt_prio == -1)
+			if (curr->task->reserve_process->rt_prio == -1)
 			{
-				temp = timespec_to_ns(&curr->task->reserve_process.T);
+				temp = timespec_to_ns(&curr->task->reserve_process->T);
 
 				if (T_min > temp)
 				{
 					min_node = curr;
-					T_min = timespec_to_ns(&curr->task->reserve_process.T);
+					T_min = timespec_to_ns(&curr->task->reserve_process->T);
 				}
 			}
 			curr = curr->next;
 		}
 		if (min_node)
-			min_node->task->reserve_process.rt_prio = rt_prio--;
+			min_node->task->reserve_process->rt_prio = rt_prio--;
 		list_len--;
 	}
 }
@@ -79,9 +79,9 @@ int ub_cpu_test(BIN_NODE *curr1, int cpu)
 
 	BIN_NODE *curr = cpu_bin_head[cpu];
 	unsigned int i = 0;
-	unsigned long long total_util = curr1->task->reserve_process.U;
+	unsigned long long total_util = curr1->task->reserve_process->U;
 
-	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
+	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process->U < bounds_tasks[0])
 	{
 		add_cpu_node(make_cpu_node(curr1->task), cpu);
 		return 1;
@@ -90,7 +90,7 @@ int ub_cpu_test(BIN_NODE *curr1, int cpu)
 	while(curr)
 	{
 
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		curr = curr->next;
 		i++;
 	}
@@ -121,7 +121,7 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 
 	while (curr != stop->next)
 	{
-		a[0] += timespec_to_ns(&curr->task->reserve_process.C);
+		a[0] += timespec_to_ns(&curr->task->reserve_process->C);
 		curr = curr->next;
 	}
 
@@ -134,7 +134,7 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 		{
 
 			*A_temp = a[i];
-			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
+			*T_temp = timespec_to_ns(&curr->task->reserve_process->T);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -146,18 +146,18 @@ int check_cpu_schedulabilty(BIN_NODE *stop, int cpu)
 
 			}
 
-			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
+			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process->C);
 			curr = curr->next;
 		}
 
-		a[i + 1] += timespec_to_ns(&stop->task->reserve_process.C);
+		a[i + 1] += timespec_to_ns(&stop->task->reserve_process->C);
 
 		if ( a[i] == a[i + 1]){
 			printk(KERN_INFO "RT Test succeeds a[%d] = %llu", i, a[i]);
 			return 1;
 		}
 
-		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
+		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process->T))
 		{
 			printk(KERN_INFO " RT Test failed a[%d] = %llu", i + 1, a[i]);
 			return 0;
@@ -187,7 +187,7 @@ int rt_cpu_test(BIN_NODE* foo, int cpu)
 
 	while (curr)
 	{
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		if (total_util > bounds_tasks[j]){
 			break;
 		}
@@ -267,7 +267,7 @@ void sort_cpus_util_ls(int sorted_cpus[TOTAL_CORES])
 
 		while(curr)
 		{
-			cpu_arr[i].util += curr->task->reserve_process.U;
+			cpu_arr[i].util += curr->task->reserve_process->U;
 			curr = curr->next;
 		}
 	}
@@ -323,7 +323,7 @@ void sort_cpus_util_bf(int sorted_cpus[TOTAL_CORES])
 
 		while(curr)
 		{
-			cpu_arr[i].util += curr->task->reserve_process.U;
+			cpu_arr[i].util += curr->task->reserve_process->U;
 			curr = curr->next;
 		}
 	}
@@ -357,8 +357,7 @@ void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
 	BIN_NODE* curr;
 	int i = 0;
 	int j = 0;
-	int index = 0;
-
+	
 	struct cpu{
 
 		int cpu;
@@ -377,7 +376,7 @@ void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
 
 		while(curr)
 		{
-			cpu_arr[i].util += curr->task->reserve_process.U;
+			cpu_arr[i].util += curr->task->reserve_process->U;
 			curr = curr->next;
 		}
 	}
@@ -432,8 +431,8 @@ int apply_first_fit(void)
 		}
 		else
 		{
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-			curr->task->reserve_process.host_cpu = cpu;
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+			curr->task->reserve_process->host_cpu = cpu;
 			curr = curr->next;
 			cpu = 0;
 		}
@@ -461,9 +460,9 @@ int apply_next_fit(void)
 		}
 		else
 		{
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
 
-			curr->task->reserve_process.host_cpu = cpu;
+			curr->task->reserve_process->host_cpu = cpu;
 			curr = curr->next;
 		}
 	}
@@ -493,8 +492,8 @@ int apply_best_fit(void)
 		}
 		else
 		{
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+			curr->task->reserve_process->host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_bf(sorted_cpus);
 			cpu = 0;
@@ -512,7 +511,6 @@ int apply_best_fit(void)
  */
 int apply_worst_fit(void)
 {
-	int i = 0;
 	int cpu = 0;
 	BIN_NODE* curr = bin_head;
 	int sorted_cpus[TOTAL_CORES] = {0, 1, 2, 3};
@@ -525,8 +523,8 @@ int apply_worst_fit(void)
 		}
 		else
 		{
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+			curr->task->reserve_process->host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_wf(sorted_cpus);
 			cpu = 0;
@@ -558,8 +556,8 @@ int apply_list_scheduling(void)
 		}
 		else
 		{
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-			curr->task->reserve_process.host_cpu = sorted_cpus[cpu];
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+			curr->task->reserve_process->host_cpu = sorted_cpus[cpu];
 			curr = curr->next;
 			sort_cpus_util_ls(sorted_cpus);
 			cpu = 0;

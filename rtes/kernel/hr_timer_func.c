@@ -37,8 +37,8 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 			    reservation_detail->prev_setime;
 		reservation_detail->spent_budget = timespec_add\
 														(reservation_detail->spent_budget, ns_to_timespec(temp));
-	reservation_detail->monitored_process->reserve_process.prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
-
+	reservation_detail->monitored_process->reserve_process->prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
+//TODO reservation_detail->prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 
 	return HRTIMER_NORESTART;
@@ -92,8 +92,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 		hrtimer_start(&reservation_detail->C_timer, ktime_set(0, C_var), HRTIMER_MODE_REL_PINNED);
 
 
-		//hrtimer_start(&reservation_detail->C_timer,\
-			   	reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
+		//hrtimer_start(&reservation_detail->C_timer,reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
 	}
 
 	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\

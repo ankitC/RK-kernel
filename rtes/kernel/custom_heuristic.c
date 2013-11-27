@@ -49,8 +49,8 @@ void print_pa_list(BIN_NODE* head){
 	BIN_NODE* curr = head;
 	while (curr){
 
-		printk(KERN_INFO "C = %llu T = %llu", timespec_to_ns(&curr->task->reserve_process.C), timespec_to_ns(&curr->task->reserve_process.T));
-		printk(KERN_INFO "PID = %d U =%llu", curr->task->pid, curr->task->reserve_process.U);
+		printk(KERN_INFO "C = %llu T = %llu", timespec_to_ns(&curr->task->reserve_process->C), timespec_to_ns(&curr->task->reserve_process->T));
+		printk(KERN_INFO "PID = %d U =%llu", curr->task->pid, curr->task->reserve_process->U);
 		curr = curr->next;
 	}
 	printk("\n");
@@ -87,14 +87,14 @@ void add_pa_node(BIN_NODE* curr1)
 	}
 	else
 	{
-		if (timespec_to_ns(&curr2->task->reserve_process.T) > timespec_to_ns(&curr1->task->reserve_process.T))
+		if (timespec_to_ns(&curr2->task->reserve_process->T) > timespec_to_ns(&curr1->task->reserve_process->T))
 		{
 			curr1->next = curr2;
 			pa_head = curr1;
 		}
 		else
 		{
-			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process.T) <= timespec_to_ns(&curr1->task->reserve_process.T)))
+			while( curr2 && (timespec_to_ns(&curr2->task->reserve_process->T) <= timespec_to_ns(&curr1->task->reserve_process->T)))
 			{
 				temp = curr2;
 				curr2 = curr2->next;
@@ -116,10 +116,10 @@ BIN_NODE* find_pa_node (unsigned long long base_period){
 
 	BIN_NODE* curr = pa_head;
 
-	if (timespec_to_ns(&curr->task->reserve_process.T) == base_period)
+	if (timespec_to_ns(&curr->task->reserve_process->T) == base_period)
 		return curr;
 
-	while (curr && timespec_to_ns(&curr->task->reserve_process.T) != base_period){
+	while (curr && timespec_to_ns(&curr->task->reserve_process->T) != base_period){
 		curr =  curr->next;
 	}
 
@@ -243,7 +243,7 @@ BIN_NODE* SortedMerge(BIN_NODE* a, BIN_NODE* b)
 	else if (b == NULL)
 		return(a);
 
-	if (a->task->reserve_process.U >= b->task->reserve_process.U)
+	if (a->task->reserve_process->U >= b->task->reserve_process->U)
 	{
 		result = a;
 		result->next = SortedMerge(a->next, b);
@@ -334,19 +334,19 @@ void eratosthenes_sieve(struct period_length* p_len){
 	while (outer_curr){
 
 		inner_curr = outer_curr;
-		base_period = timespec_to_ns(&inner_curr->task->reserve_process.T);
+		base_period = timespec_to_ns(&inner_curr->task->reserve_process->T);
 		p_len[i].period = base_period;
 
 		while (inner_curr){
 
 			*B_temp = base_period;
 			scaled_base_period = do_div(*B_temp, 10000);
-			*T_temp = timespec_to_ns(&inner_curr->task->reserve_process.T);
+			*T_temp = timespec_to_ns(&inner_curr->task->reserve_process->T);
 			remainder = do_div(*T_temp, 10000);
 			temp_base = (uint32_t )*B_temp;
 			remainder = do_div(*T_temp, temp_base);
 
-			if(timespec_to_ns(&inner_curr->task->reserve_process.T) == base_period || remainder == 0){
+			if(timespec_to_ns(&inner_curr->task->reserve_process->T) == base_period || remainder == 0){
 				p_len[i].length++;
 			}
 
@@ -430,13 +430,13 @@ int apply_custom_fit(void){
 	base = find_pa_node(base_period->period);
 
 	while (base){
-		*B_temp = timespec_to_ns(&base->task->reserve_process.T);
+		*B_temp = timespec_to_ns(&base->task->reserve_process->T);
 		scaled_base_period = do_div(*B_temp, 10000);
-		*T_temp = timespec_to_ns(&base->task->reserve_process.T);
+		*T_temp = timespec_to_ns(&base->task->reserve_process->T);
 		temp_base = (uint32_t)*B_temp;
 		remainder = do_div(*T_temp, 10000);
 		remainder = do_div(*T_temp, temp_base);
-		if(timespec_to_ns(&base->task->reserve_process.T) == base_period->period || remainder == 0){
+		if(timespec_to_ns(&base->task->reserve_process->T) == base_period->period || remainder == 0){
 			add_sub_pa_node(make_pa_node(base->task));
 		}
 		base = base->next;
@@ -454,8 +454,8 @@ void assign_cpus(struct w A[], int size, int iter){
 
 	for (i = 0; i < size; i++){
 		curr = find_pa_node_pid(A[i].pid);
-		curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-		curr->task->reserve_process.host_cpu = iter;
+		curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+		curr->task->reserve_process->host_cpu = iter;
 		delete_pa_node(curr->task);
 	}
 }
@@ -598,7 +598,7 @@ int find_combinations(int sub_pa_length){
 	wts = (struct w *)kzalloc(sizeof(struct w)*sub_pa_length, GFP_KERNEL);
 
 	while(curr){
-		wts[i].weights = curr->task->reserve_process.U;
+		wts[i].weights = curr->task->reserve_process->U;
 		wts[i].pid = curr->task->pid;
 		curr = curr->next;
 		i++;
@@ -634,11 +634,11 @@ int ub_cpu_test_pa(BIN_NODE *curr1, int cpu)
 
 	BIN_NODE *curr = cpu_bin_head[cpu];
 	unsigned int i = 0;
-	unsigned long long total_util = curr1->task->reserve_process.U;
+	unsigned long long total_util = curr1->task->reserve_process->U;
 
-	printk(KERN_INFO "ub test: curr1 util %llu\n", curr1->task->reserve_process.U);
+	printk(KERN_INFO "ub test: curr1 util %llu\n", curr1->task->reserve_process->U);
 
-	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process.U < bounds_tasks[0])
+	if (cpu_bin_head[cpu] == NULL && curr1->task->reserve_process->U < bounds_tasks[0])
 	{
 		add_cpu_node(make_cpu_node(curr1->task), cpu);
 		return 1;
@@ -647,7 +647,7 @@ int ub_cpu_test_pa(BIN_NODE *curr1, int cpu)
 	while(curr)
 	{
 
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		curr = curr->next;
 		i++;
 	}
@@ -678,7 +678,7 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 
 	while (curr != stop->next)
 	{
-		a[0] += timespec_to_ns(&curr->task->reserve_process.C);
+		a[0] += timespec_to_ns(&curr->task->reserve_process->C);
 		curr = curr->next;
 	}
 
@@ -691,7 +691,7 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 		{
 
 			*A_temp = a[i];
-			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
+			*T_temp = timespec_to_ns(&curr->task->reserve_process->T);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -703,18 +703,18 @@ int check_cpu_schedulabilty_pa(BIN_NODE *stop, int cpu)
 
 			}
 
-			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
+			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process->C);
 			curr = curr->next;
 		}
 
-		a[i + 1] += timespec_to_ns(&stop->task->reserve_process.C);
+		a[i + 1] += timespec_to_ns(&stop->task->reserve_process->C);
 
 		if ( a[i] == a[i + 1]){
 			printk(KERN_INFO "RT Test succeeds a[%d] = %llu", i, a[i]);
 			return 1;
 		}
 
-		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
+		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process->T))
 		{
 			printk(KERN_INFO " RT Test failed a[%d] = %llu", i + 1, a[i]);
 			return 0;
@@ -744,7 +744,7 @@ int rt_cpu_test_pa(BIN_NODE* foo, int cpu)
 
 	while (curr)
 	{
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		if (total_util > bounds_tasks[j]){
 			break;
 		}
@@ -811,8 +811,8 @@ int apply_first_fit_pa(void)
 		else
 		{
 			printk(KERN_INFO "Setting cpu %d", cpu);
-			curr->task->reserve_process.prev_cpu = curr->task->reserve_process.host_cpu;
-			curr->task->reserve_process.host_cpu = cpu;
+			curr->task->reserve_process->prev_cpu = curr->task->reserve_process->host_cpu;
+			curr->task->reserve_process->host_cpu = cpu;
 			curr = curr->next;
 			cpu = iter;
 		}

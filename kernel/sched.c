@@ -4285,9 +4285,9 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 		do_div(*energy_consumed, SCALING_FACTOR);
 
 		/* Taking per process spinlock for tracking energy consumed */
-		spin_lock_irqsave(&prev->reserve_process.per_task_energy_spinlock, flags);
-		prev->reserve_process.energy_consumed += energy_consumed_var;
-		spin_unlock_irqrestore(&prev->reserve_process.per_task_energy_spinlock, flags);
+		spin_lock_irqsave(&prev->reserve_process->per_task_energy_spinlock, flags);
+		prev->reserve_process->energy_consumed += energy_consumed_var;
+		spin_unlock_irqrestore(&prev->reserve_process->per_task_energy_spinlock, flags);
 
 		/* Taking a global spinlock for tracking energy of all tasks */
 		spin_lock_irqsave(&energy_spinlock, flags);
@@ -4310,10 +4310,10 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
 	if (trace_ctx)
 	{
 		if (prev->under_reservation)
-			ctx_buffer_write(&prev->reserve_process, ts, 0);
+			ctx_buffer_write(prev->reserve_process, ts, 0);
 
 		if (next->under_reservation)
-			ctx_buffer_write(&next->reserve_process, ts, 1);
+			ctx_buffer_write(next->reserve_process, ts, 1);
 	}
 }
 /*
@@ -4321,12 +4321,12 @@ inline void instrumentation(struct task_struct* prev, struct task_struct *next)
  */
 inline void stop_timers(struct task_struct* prev)
 {
-	if (prev->under_reservation && prev->reserve_process.t_timer_started)
+	if (prev->under_reservation && prev->reserve_process->t_timer_started)
 	{
-		hrtimer_cancel(&prev->reserve_process.C_timer);
-		hrtimer_cancel(&prev->reserve_process.T_timer);
+		hrtimer_cancel(&prev->reserve_process->C_timer);
+		hrtimer_cancel(&prev->reserve_process->T_timer);
 	}
-	prev->reserve_process.running = 0;
+	prev->reserve_process->running = 0;
 }
 
 
@@ -4342,16 +4342,16 @@ inline void stop_C_timer(struct task_struct* prev)
 	ktime_t ktime;
 	struct timespec temp;
 
-	if (prev->under_reservation && prev->reserve_process.t_timer_started && prev->reserve_process.running)
+	if (prev->under_reservation && prev->reserve_process->t_timer_started && prev->reserve_process->running)
 	{
-		ktime = hrtimer_get_remaining(&prev->reserve_process.C_timer);
+		ktime = hrtimer_get_remaining(&prev->reserve_process->C_timer);
 		temp = ktime_to_timespec(ktime);
 		C_var = timespec_to_ns(&temp);
-		remainder = do_div(*C_temp, prev->reserve_process.local_scaling_factor);
+		remainder = do_div(*C_temp, prev->reserve_process->local_scaling_factor);
 		C_var *= 100;
-		prev->reserve_process.remaining_C = ns_to_ktime(C_var);
-		hrtimer_cancel(&prev->reserve_process.C_timer);
-		prev->reserve_process.running = 0;
+		prev->reserve_process->remaining_C = ns_to_ktime(C_var);
+		hrtimer_cancel(&prev->reserve_process->C_timer);
+		prev->reserve_process->running = 0;
 	}
 
 }
@@ -4369,28 +4369,28 @@ inline void start_reservation_timers(struct task_struct *next)
 	uint64_t* C_temp = &C_var;
 	uint32_t remainder = 0;
 	unsigned long flags = 0;
-	if (next->under_reservation && (smp_processor_id() == next->reserve_process.host_cpu))
+	if (next->under_reservation && (smp_processor_id() == next->reserve_process->host_cpu))
 	{
-		if ((!next->reserve_process.t_timer_started))
+		if ((!next->reserve_process->t_timer_started))
 		{
 			printk(KERN_INFO "T_timer init\n");
-			ktime = ktime_set( next->reserve_process.T.tv_sec, next->reserve_process.T.tv_nsec);
-			hrtimer_init( &next->reserve_process.T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
-			next->reserve_process.T_timer.function = &T_timer_callback;
-			hrtimer_start(&next->reserve_process.T_timer, ktime, HRTIMER_MODE_REL_PINNED);
-			next->reserve_process.t_timer_started = 1;
+			ktime = ktime_set( next->reserve_process->T.tv_sec, next->reserve_process->T.tv_nsec);
+			hrtimer_init( &next->reserve_process->T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
+			next->reserve_process->T_timer.function = &T_timer_callback;
+			hrtimer_start(&next->reserve_process->T_timer, ktime, HRTIMER_MODE_REL_PINNED);
+			next->reserve_process->t_timer_started = 1;
 		}
-		next->reserve_process.running = 1;
-		hrtimer_init( &next->reserve_process.C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
+		next->reserve_process->running = 1;
+		hrtimer_init( &next->reserve_process->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 
-		next->reserve_process.C_timer.function = &C_timer_callback;
-		temp_remaining_C = ktime_to_ns(next->reserve_process.remaining_C);
+		next->reserve_process->C_timer.function = &C_timer_callback;
+		temp_remaining_C = ktime_to_ns(next->reserve_process->remaining_C);
 		spin_lock_irqsave(&scaling_spinlock, flags);
-		next->reserve_process.local_scaling_factor = global_scaling_factor;
-		C_var = temp_remaining_C * next->reserve_process.local_scaling_factor;
+		next->reserve_process->local_scaling_factor = global_scaling_factor;
+		C_var = temp_remaining_C * next->reserve_process->local_scaling_factor;
 		spin_unlock_irqrestore(&scaling_spinlock, flags);
 		remainder = do_div(*C_temp, 100);
-		hrtimer_start(&next->reserve_process.C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
+		hrtimer_start(&next->reserve_process->C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
 	}
 
 }
@@ -4405,16 +4405,16 @@ inline void check_reservation(struct task_struct *prev)
 	unsigned long flags;
 	unsigned long long temp;
 
-	if (current_process->under_reservation && !current_process->reserve_process.need_resched && current_process->reserve_process.t_timer_started)
+	if (current_process->under_reservation && !current_process->reserve_process->need_resched && current_process->reserve_process->t_timer_started)
 	{
-		spin_lock_irqsave(&current_process->reserve_process.reserve_spinlock, flags);
+		spin_lock_irqsave(&current_process->reserve_process->reserve_spinlock, flags);
 		temp = prev->se.sum_exec_runtime - \
-			   prev->reserve_process.prev_setime;
+			   prev->reserve_process->prev_setime;
 		energy_accounting(prev, temp);
-		current_process->reserve_process.spent_budget = timespec_add\
-														(current_process->reserve_process.spent_budget, ns_to_timespec(temp));
-		prev->reserve_process.prev_setime = prev->se.sum_exec_runtime;
-		spin_unlock_irqrestore(&current_process->reserve_process.reserve_spinlock, flags);
+		current_process->reserve_process->spent_budget = timespec_add\
+														(current_process->reserve_process->spent_budget, ns_to_timespec(temp));
+		prev->reserve_process->prev_setime = prev->se.sum_exec_runtime;
+		spin_unlock_irqrestore(&current_process->reserve_process->reserve_spinlock, flags);
 	}
 }
 extern volatile int suspend_processes;
@@ -4446,7 +4446,8 @@ need_resched:
 
 	switch_count = &prev->nivcsw;
 
-	check_reservation(prev);
+	if(prev->under_reservation)
+		check_reservation(prev);
 
 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
 		if (unlikely(signal_pending_state(prev->state, prev))) {
@@ -4475,18 +4476,18 @@ need_resched:
 
 	if (prev->under_reservation && guarantee && (suspend_processes||suspend_all))
 	{
-		if(prev->reserve_process.pending == 1 && prev->reserve_process.deactivated == 0)
+		if(prev->reserve_process->pending == 1 && prev->reserve_process->deactivated == 0)
 		{
 			printk(KERN_INFO "Marking %d as pending.\n", prev->pid);
 			stop_timers(prev);
 			prev->state = TASK_UNINTERRUPTIBLE;
 			deactivate_task(rq, prev, 0);
 			prev->on_rq = 0;
-			prev->reserve_process.deactivated = 1;
+			prev->reserve_process->deactivated = 1;
 		}
 	}
 
-	if (prev->under_reservation && prev->reserve_process.need_resched && !prev->reserve_process.pending && (prev->reserve_process.deactivated == 0))
+	if (prev->under_reservation && prev->reserve_process->need_resched && !prev->reserve_process->pending && (prev->reserve_process->deactivated == 0))
 	{
 		printk(KERN_INFO "Deactivating:%d\n", prev->pid);
 		prev->state = TASK_UNINTERRUPTIBLE;
@@ -4516,9 +4517,9 @@ need_resched:
 		{
 			/* Write the context switch in and out time */
 			instrumentation(prev, next);
-			if(prev->under_reservation && prev->reserve_process.deactivated == 0)
+			if(prev->under_reservation && prev->reserve_process->deactivated == 0)
 				stop_C_timer(prev);
-			if(next->under_reservation && next->reserve_process.deactivated == 0)	
+			if(next->under_reservation && next->reserve_process->deactivated == 0)	
 				start_reservation_timers(next);
 		}
 

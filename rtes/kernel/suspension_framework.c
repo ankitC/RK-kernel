@@ -32,7 +32,7 @@ void wakeup_tasks(void)
 
 	while (curr)
 	{
-		if (curr->task->reserve_process.deactivated == 1)
+		if (curr->task->reserve_process->deactivated == 1)
 			set_cpu_for_task(curr->task);
 		curr = curr->next;
 	}
@@ -41,18 +41,18 @@ void wakeup_tasks(void)
 	curr = bin_head;
 	while (curr)
 	{
-		if (curr->task->reserve_process.deactivated == 1)
+		if (curr->task->reserve_process->deactivated == 1)
 		{
 
 			printk(KERN_INFO "%d->Waking up.\n", curr->task->pid);
-			ktime = ktime_set(curr->task->reserve_process.C.tv_sec, curr->task->reserve_process.C.tv_nsec);
-			curr->task->reserve_process.spent_budget.tv_sec = 0;
-			curr->task->reserve_process.spent_budget.tv_nsec = 0;
-			curr->task->reserve_process.remaining_C = ktime;
-			curr->task->reserve_process.t_timer_started = 0;
-			curr->task->reserve_process.deactivated = 0;
-			curr->task->reserve_process.need_resched = 0;
-			curr->task->reserve_process.pending = 0;
+			ktime = ktime_set(curr->task->reserve_process->C.tv_sec, curr->task->reserve_process->C.tv_nsec);
+			curr->task->reserve_process->spent_budget.tv_sec = 0;
+			curr->task->reserve_process->spent_budget.tv_nsec = 0;
+			curr->task->reserve_process->remaining_C = ktime;
+			curr->task->reserve_process->t_timer_started = 0;
+			curr->task->reserve_process->deactivated = 0;
+			curr->task->reserve_process->need_resched = 0;
+			curr->task->reserve_process->pending = 0;
 			if(!wake_up_process(curr->task))
 				printk(KERN_INFO "Couldn't wake up process %d\n", curr->task->pid);
 		}
@@ -80,9 +80,9 @@ void migrate_and_start(struct task_struct *task)
 
 		if (curr->task != task)
 		{
-			if (curr->task->reserve_process.host_cpu != curr->task->reserve_process.prev_cpu)
+			if (curr->task->reserve_process->host_cpu != curr->task->reserve_process->prev_cpu)
 			{
-				curr->task->reserve_process.pending = 1;
+				curr->task->reserve_process->pending = 1;
 				set_tsk_need_resched(curr->task);
 				bypass = 0;
 			}
@@ -109,9 +109,9 @@ void migrate_and_start(struct task_struct *task)
 			{
 				if (curr->task != task)
 				{
-					if (curr->task->reserve_process.pending == 1)
+					if (curr->task->reserve_process->pending == 1)
 					{
-						if (curr->task->reserve_process.deactivated != 1)
+						if (curr->task->reserve_process->deactivated != 1)
 							send_wakeup_msg++;
 					}
 				}
@@ -153,7 +153,7 @@ void migrate_only(void)
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
-		curr->task->reserve_process.pending = 1;
+		curr->task->reserve_process->pending = 1;
 		set_tsk_need_resched(curr->task);
 		curr = curr->next;
 	}

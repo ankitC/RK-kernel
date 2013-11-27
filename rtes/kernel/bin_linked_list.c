@@ -64,15 +64,15 @@ void add_bin_node( BIN_NODE* curr1)
 	else
 	{
 
-		if (curr2->task->reserve_process.U < curr1->task->reserve_process.U)
+		if (curr2->task->reserve_process->U < curr1->task->reserve_process->U)
 		{
 			curr1->next = curr2;
 			bin_head = curr1;
 		}
 		else
 		{
-			while( curr2 && (curr2->task->reserve_process.U >=
-				   	curr1->task->reserve_process.U) )
+			while( curr2 && (curr2->task->reserve_process->U >=
+				   	curr1->task->reserve_process->U) )
 			{
 				temp = curr2;
 				curr2 = curr2->next;

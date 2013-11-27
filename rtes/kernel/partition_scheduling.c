@@ -49,9 +49,9 @@ int ub_test(struct task_struct *task)
 
 	PROC_NODE *curr = head;
 	unsigned int i = 0;
-	unsigned long long total_util = task->reserve_process.U;
+	unsigned long long total_util = task->reserve_process->U;
 
-	if (head == NULL && task->reserve_process.U < bounds_tasks[0])
+	if (head == NULL && task->reserve_process->U < bounds_tasks[0])
 	{
 		add_ll_node(make_node(task));
 		return 1;
@@ -59,7 +59,7 @@ int ub_test(struct task_struct *task)
 
 	while(curr)
 	{
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		curr = curr->next;
 		i++;
 	}
@@ -91,7 +91,7 @@ int check_schedulabilty(PROC_NODE *stop)
 
 	while (curr != stop->next)
 	{
-		a[0] += timespec_to_ns(&curr->task->reserve_process.C);
+		a[0] += timespec_to_ns(&curr->task->reserve_process->C);
 		curr = curr->next;
 	}
 
@@ -104,7 +104,7 @@ int check_schedulabilty(PROC_NODE *stop)
 		{
 
 			*A_temp = a[i];
-			*T_temp = timespec_to_ns(&curr->task->reserve_process.T);
+			*T_temp = timespec_to_ns(&curr->task->reserve_process->T);
 			remainder = do_div(*T_temp, 10000);
 			t = (uint32_t) *T_temp;
 
@@ -115,18 +115,18 @@ int check_schedulabilty(PROC_NODE *stop)
 				*A_temp = *A_temp + 1;
 			}
 
-			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process.C);
+			a[i + 1] += *A_temp * timespec_to_ns(&curr->task->reserve_process->C);
 			curr = curr->next;
 		}
 
-		a[i + 1] += timespec_to_ns(&stop->task->reserve_process.C);
+		a[i + 1] += timespec_to_ns(&stop->task->reserve_process->C);
 
 		if ( a[i] == a[i + 1]){
 			printk(KERN_INFO " RT Test Succeeds a[%d] = %llu", i, a[i]);
 			return 1;
 		}
 
-		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process.T))
+		if (a[i + 1] > timespec_to_ns(&stop->task->reserve_process->T))
 		{
 			printk(KERN_INFO " RT Test Failed\n");
 			return 0;
@@ -157,7 +157,7 @@ int rt_test(struct task_struct *task)
 
 	while (curr)
 	{
-		total_util += curr->task->reserve_process.U;
+		total_util += curr->task->reserve_process->U;
 		if (total_util > bounds_tasks[j]){
 			break;
 		}
@@ -273,9 +273,9 @@ int admission_test(struct task_struct *task)
 void set_cpu_for_task(struct task_struct *task)
 {
 	struct cpumask af_mask;
-	int host_cpu  = task->reserve_process.host_cpu;
+	int host_cpu  = task->reserve_process->host_cpu;
 	struct sched_param param;
-	param.sched_priority = task->reserve_process.rt_prio;
+	param.sched_priority = task->reserve_process->rt_prio;
 
 	if(task!= NULL){
 		pid_t pid = task->pid;
@@ -294,7 +294,7 @@ void set_cpu_for_task(struct task_struct *task)
 
 			if (rt_priority_enable)
 			{
-				printk(KERN_INFO "Pid %d Rt Prio %d\n", task->pid, task->reserve_process.rt_prio);
+				printk(KERN_INFO "Pid %d Rt Prio %d\n", task->pid, task->reserve_process->rt_prio);
 				sched_setscheduler_nocheck(task, SCHED_FIFO, &param);
 			}
 		}

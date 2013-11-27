@@ -25,7 +25,7 @@ void energy_savings(void)
 	{
 		while (curr)
 		{
-			cpu_used[curr->task->reserve_process.host_cpu]++;
+			cpu_used[curr->task->reserve_process->host_cpu]++;
 			curr = curr->next;
 		}
 

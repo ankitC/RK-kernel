@@ -142,29 +142,29 @@ int create_pid_dir_and_reserve_file(struct task_struct *task)
 	struct kobj_attribute energy_attribute = __ATTR(energy, 0666, energy_show, NULL);
 
 	struct attribute_group attr_group = {
-		 .attrs = task->reserve_process.attrs,
+		 .attrs = task->reserve_process->attrs,
 	};
 
 	pid = task->pid;
 	sprintf(pid_directory,"%d", pid);
-	if(!(task->reserve_process.pid_obj = \
+	if(!(task->reserve_process->pid_obj = \
 				kobject_create_and_add(pid_directory, tasks_kobj)))
 		return -ENOMEM;
 
-	task->reserve_process.util_attr = util_attribute;
-	task->reserve_process.overflow_attr = overflow_attribute;
-	task->reserve_process.tval_attr = tval_attribute;
-	task->reserve_process.ctx_attr = ctx_attribute;
-	task->reserve_process.energy_attr = energy_attribute;
+	task->reserve_process->util_attr = util_attribute;
+	task->reserve_process->overflow_attr = overflow_attribute;
+	task->reserve_process->tval_attr = tval_attribute;
+	task->reserve_process->ctx_attr = ctx_attribute;
+	task->reserve_process->energy_attr = energy_attribute;
 
-	task->reserve_process.attrs[0] = &task->reserve_process.util_attr.attr;
-	task->reserve_process.attrs[1] = &task->reserve_process.overflow_attr.attr;
-	task->reserve_process.attrs[2] = &task->reserve_process.tval_attr.attr;
-	task->reserve_process.attrs[3] = &task->reserve_process.ctx_attr.attr;
-	task->reserve_process.attrs[4] = &task->reserve_process.energy_attr.attr;
-	task->reserve_process.attrs[5] = NULL;
+	task->reserve_process->attrs[0] = &task->reserve_process->util_attr.attr;
+	task->reserve_process->attrs[1] = &task->reserve_process->overflow_attr.attr;
+	task->reserve_process->attrs[2] = &task->reserve_process->tval_attr.attr;
+	task->reserve_process->attrs[3] = &task->reserve_process->ctx_attr.attr;
+	task->reserve_process->attrs[4] = &task->reserve_process->energy_attr.attr;
+	task->reserve_process->attrs[5] = NULL;
 
-	retval = sysfs_create_group(task->reserve_process.pid_obj, &attr_group);
+	retval = sysfs_create_group(task->reserve_process->pid_obj, &attr_group);
 
 	if(retval)
 		kobject_put(tasks_kobj);
@@ -179,12 +179,12 @@ void remove_pid_dir_and_reserve_file(struct task_struct *task)
 	char pid_directory[16];
 
 	struct attribute_group attr_group = {
-		 .attrs = task->reserve_process.attrs,
+		 .attrs = task->reserve_process->attrs,
 	};
 	sprintf(pid_directory,"%d", task->pid);
 
-	sysfs_remove_group(task->reserve_process.pid_obj, &attr_group);
-	kobject_put(task->reserve_process.pid_obj);
+	sysfs_remove_group(task->reserve_process->pid_obj, &attr_group);
+	kobject_put(task->reserve_process->pid_obj);
 	return;
 }
 
