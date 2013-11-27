@@ -39,6 +39,7 @@ struct reserve_obj
 	unsigned int prev_cpu;
 	unsigned int local_scaling_factor;
 	struct timespec C;
+	spinlock_t per_task_energy_spinlock;
 	unsigned long long U;
 	unsigned long long sysclk_freq;
 	unsigned long long energy_consumed;
