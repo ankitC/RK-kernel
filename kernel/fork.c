@@ -1168,18 +1168,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	p->utimescaled = cputime_zero;
 	p->stimescaled = cputime_zero;
 
+	/* Excluding the task from reservation framework by default */
 	p->under_reservation = 0;
-/*
-	spin_lock_init(&p->reserve_process.reserve_spinlock);
-	p->reserve_process.need_resched = 0;
-	p->reserve_process.prev_setime = 0;
-	p->reserve_process.spent_budget.tv_sec = 0;
-	p->reserve_process.spent_budget.tv_nsec = 0;
-	p->reserve_process.C.tv_sec = 0;
-	p->reserve_process.C.tv_nsec = 0;
-	p->reserve_process.deactivated = 0;
-	p->reserve_process.pending = 0;
-*/
+
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
 	p->prev_utime = cputime_zero;
 	p->prev_stime = cputime_zero;

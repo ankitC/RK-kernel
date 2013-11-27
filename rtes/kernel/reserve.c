@@ -89,16 +89,15 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 				printk(KERN_INFO "Couldn't wake up process %d\n", task->pid);
 	}
 	else
-	{
+	{	/* Allocating reserve_framework struct for book-keeping */
 		task->reserve_process = kzalloc(sizeof(struct reserve_obj), GFP_KERNEL);
 		spin_lock_init(&task->reserve_process->reserve_spinlock);
 	}
-//	task->reserve_process->prev_setime = task->se.sum_exec_runtime;
+
 	ktime = ktime_set(C.tv_sec, C.tv_nsec);
 	spin_lock_irqsave(&task->reserve_process->reserve_spinlock, flags);
 
 	/* Set running according to its current status */
-
 	if (task == current)
 		task->reserve_process->running = 1;
 	else
@@ -122,31 +121,10 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 
 	task->reserve_process->pid = task->pid;
 	task->reserve_process->monitored_process = task;
-//	task->reserve_process->buffer_overflow = 0;
-//	task->reserve_process->ctx_overflow = 0;
-//	task->reserve_process->energy_overflow = 0;
-//	task->reserve_process->energy_consumed = 0;
-//	task->reserve_process->t_timer_started = 0;
-//	task->reserve_process->need_resched = 0;
 	task->reserve_process->local_scaling_factor = 100;
 	task->reserve_process->remaining_C = ktime;
 	task->reserve_process->prev_setime = task->se.sum_exec_runtime;
-//	task->reserve_process->spent_budget.tv_sec = 0;
-//	task->reserve_process->spent_budget.tv_nsec = 0;
-//	task->reserve_process->deactivated = 0;
-//	task->reserve_process->pending = 0;
-
 	task->under_reservation = 1;
-
-	/* Sysfs params */
-//	task->reserve_process->c_buf.start = 0;
-//	task->reserve_process->c_buf.read_count = 0;
-//	task->reserve_process->c_buf.buffer[0] = 0;
-//	task->reserve_process->c_buf.end = 0;
-//	task->reserve_process->ctx_buf.start = 0;
-//	task->reserve_process->ctx_buf.read_count = 0;
-//	task->reserve_process->ctx_buf.buffer[0] = 0;
-//	task->reserve_process->ctx_buf.end = 0;
 
 	spin_unlock_irqrestore(&task->reserve_process->reserve_spinlock, flags);
 
