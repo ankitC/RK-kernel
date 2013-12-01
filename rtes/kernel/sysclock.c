@@ -126,6 +126,7 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 
 	printk(KERN_INFO "[%s] Governor Sysclock\n", __func__);
 	printk(KERN_INFO "[%s] policy cpu %d\n", __func__, policy->cpu);
+	printk(KERN_INFO "[%s] smp processor id %d\n", __func__, smp_processor_id());
 	printk(KERN_INFO "[%s] event %u\n", __func__, event);
 
 	switch (event) {
