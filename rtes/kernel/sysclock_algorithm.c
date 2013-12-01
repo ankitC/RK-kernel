@@ -14,6 +14,7 @@
 #include <linux/types.h>
 
 #define SYSCLOCK_SCALING_FACTOR 10000
+#define DEFAULT_FREQ_SCALING_FACTOR 100
 
 extern BIN_NODE* cpu_bin_head[4];
 

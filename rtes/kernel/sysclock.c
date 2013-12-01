@@ -157,12 +157,13 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 					per_cpu(cpu_max_freq, cpu),
 					per_cpu(cpu_cur_freq, cpu));
 
+			global_sysclock_freq = policy->max;
+
 			mutex_unlock(&sysclock_mutex);
 
 			//Setting sysclock calculated frequency
-			if (cpufreq_set_sysclock(policy, global_sysclock_freq, 0) < 0)
+			if (cpufreq_set_sysclock(policy, policy->max, 0) < 0)
 				return -EINVAL;
-
 
 			break;
 		case CPUFREQ_GOV_STOP:

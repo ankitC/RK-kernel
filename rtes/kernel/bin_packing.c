@@ -15,11 +15,12 @@
 #include <linux/types.h>
 #define UNSCHEDULABLE 2
 #define TOTAL_CORES 4
+#define DEFAULT_SCALE 100
 BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
-unsigned int sysclock_scaling_factor = 0, global_sysclock_freq = 0;
+unsigned int /*sysclock_scaling_factor = 0,*/ global_sysclock_freq = 0;
 extern struct mutex sysclock_mutex;
 extern int sysclock_governor_selected;
 /*
@@ -580,9 +581,9 @@ int apply_list_scheduling(void)
  */
 int apply_heuristic(char policy[2])
 {
-	int retval = 0, i = 0;
+	int retval = 0, i = 0, cpu_occupied = 0;
 	int ret_custom = 0;
-	unsigned long long sysclock_freq_scale = 100, freq_temp_scale = 100;
+	unsigned long long sysclock_freq_scale = 0, freq_temp_scale = 0;
 
 	if (strncmp(policy,"N", 1) == 0)
 		retval = apply_next_fit();
@@ -613,14 +614,24 @@ int apply_heuristic(char policy[2])
 		for (i = 0; i < TOTAL_CORES; i++)
 		{
 			freq_temp_scale = sysclock_calculation(i);
-			if (sysclock_freq_scale < freq_temp_scale)
+			if (sysclock_freq_scale < freq_temp_scale){
 				sysclock_freq_scale = freq_temp_scale;
+				printk(KERN_INFO "sysclock freq scale is %llu", sysclock_freq_scale);
+			}
+
+			if (cpu_bin_head[i] != NULL)
+				cpu_occupied++;
+
 		}
+
+		if (!cpu_occupied)
+			sysclock_freq_scale = DEFAULT_SCALE;
+
 		mutex_lock(&sysclock_mutex);
-		sysclock_scaling_factor = sysclock_freq_scale;
+		//sysclock_scaling_factor = sysclock_freq_scale;
 		if (sysclock_governor_selected)
 		{
-			global_sysclock_freq = calculate_sys_clk_freq(sysclock_scaling_factor, cpufreq_cpu_get(0));
+			global_sysclock_freq = calculate_sys_clk_freq(sysclock_freq_scale, cpufreq_cpu_get(0));
 			printk(KERN_INFO "Global sysclock freq %u\n", global_sysclock_freq);
 		}
 		mutex_unlock(&sysclock_mutex);
