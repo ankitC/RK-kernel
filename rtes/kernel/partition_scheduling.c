@@ -279,7 +279,7 @@ void set_cpu_for_task(struct task_struct *task)
 
 	if(task!= NULL){
 		pid_t pid = task->pid;
-
+		printk(KERN_INFO "[%s] Before CPU Up\n", __func__);
 		if (task->under_reservation)
 		{
 			cpu_up(host_cpu);
