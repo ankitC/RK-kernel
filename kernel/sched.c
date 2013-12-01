@@ -4280,7 +4280,7 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 
 	if (energy)
 	{
-		energy_consumed_var =  (time * get_cpu_energy(cpufreq_cpu_get(smp_processor_id())->cur));
+		energy_consumed_var =  (time * get_cpu_energy(cpufreq_cpu_get(0)->cur));
 		energy_consumed = &energy_consumed_var;
 		do_div(*energy_consumed, SCALING_FACTOR);
 
@@ -4294,7 +4294,7 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 		global_total_energy += energy_consumed_var;
 		spin_unlock_irqrestore(&energy_spinlock, flags);
 
-		printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(smp_processor_id())->cur, global_total_energy);
+	//	printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(0)->cur, global_total_energy);
 	}
 }
 
