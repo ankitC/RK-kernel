@@ -9,7 +9,9 @@
 #include <linux/semaphore.h>
 #include <linux/cpu.h>
 #include <linux/cpuset.h>
+#include <linux/cpufreq.h>
 #include <linux/energy_saving.h>
+#include <linux/energy_tracking.h>
 
 DEFINE_MUTEX (suspend_mutex);
 extern spinlock_t(bin_spinlock);
@@ -19,6 +21,8 @@ extern volatile int suspend_processes;
 extern int suspend_all;
 extern int disable_cpus;
 extern spinlock_t bin_spinlock;
+extern struct mutex sysclock_mutex;
+extern unsigned int global_sysclock_freq;
 /*
  * Waking up suspended tasks
  */
@@ -72,6 +76,7 @@ void migrate_and_start(struct task_struct *task)
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
 	int send_wakeup_msg = 0;
+	unsigned int local_sys_freq = 0;
 
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
@@ -131,6 +136,12 @@ void migrate_and_start(struct task_struct *task)
 		}
 	}
 	printk(KERN_INFO "Migrating and waking up tasks.\n");
+
+	mutex_lock(&sysclock_mutex);
+	local_sys_freq = global_sysclock_freq;
+	mutex_unlock(&sysclock_mutex);
+
+	cpufreq_set_sysclock(cpufreq_cpu_get(0), local_sys_freq, 1);
 
 	wakeup_tasks();
 

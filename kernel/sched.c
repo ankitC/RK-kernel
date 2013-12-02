@@ -4294,7 +4294,7 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 		global_total_energy += energy_consumed_var;
 		spin_unlock_irqrestore(&energy_spinlock, flags);
 
-		printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(0)->cur, global_total_energy);
+		//printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(0)->cur, global_total_energy);
 	}
 }
 
@@ -4387,6 +4387,7 @@ inline void start_reservation_timers(struct task_struct *next)
 		temp_remaining_C = ktime_to_ns(next->reserve_process->remaining_C);
 		spin_lock_irqsave(&scaling_spinlock, flags);
 		next->reserve_process->local_scaling_factor = global_scaling_factor;
+//		printk(KERN_INFO "global scaling factor %u", global_scaling_factor);
 		C_var = temp_remaining_C * next->reserve_process->local_scaling_factor;
 		spin_unlock_irqrestore(&scaling_spinlock, flags);
 		remainder = do_div(*C_temp, 100);

@@ -39,11 +39,10 @@ static DEFINE_PER_CPU(unsigned int, cpu_is_managed);
 static DEFINE_PER_CPU(struct cpufreq_policy *, temp_policy);
 DEFINE_MUTEX(sysclock_mutex);
 DEFINE_SPINLOCK(scaling_spinlock);
-static int cpus_using_sysclock_governor;
+int cpus_using_sysclock_governor;
 extern unsigned int sysclock_scaling_factor;
 extern unsigned int global_sysclock_freq;
 unsigned int global_scaling_factor = MAX_SCALING_FACTOR;
-int sysclock_governor_selected = 0;
 
 /* keep track of frequency transitions */
 	static int
@@ -88,7 +87,7 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 	unsigned long flags = 0;
 	printk("[%s] %s\n", __func__,  policy->governor->name);
 
-	if (sysclock_governor_selected)
+	if (cpus_using_sysclock_governor != 0)
 	{
 		if (freq == 0 || strcmp(policy->governor->name, "sysclock") != 0)
 		{
@@ -144,8 +143,6 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 			}
 			cpus_using_sysclock_governor++;
 
-			//Selecting the sysclock governor
-			sysclock_governor_selected = 1;
 			per_cpu(cpu_is_managed, cpu) = 1;
 			per_cpu(cpu_min_freq, cpu) = policy->min;
 			per_cpu(cpu_max_freq, cpu) = policy->max;
@@ -158,12 +155,10 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 					per_cpu(cpu_max_freq, cpu),
 					per_cpu(cpu_cur_freq, cpu));
 
-			global_sysclock_freq = policy->max;
-
 			mutex_unlock(&sysclock_mutex);
 
 			//Setting sysclock calculated frequency
-			if (cpufreq_set_sysclock(policy, policy->max, 0) < 0)
+			if (cpufreq_set_sysclock(policy, global_sysclock_freq, 0) < 0)
 				return -EINVAL;
 
 			break;
@@ -183,7 +178,7 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 			per_cpu(temp_policy, cpu) =NULL;
 			pr_debug("managing cpu %u stopped\n", cpu);
 			global_sysclock_freq = 0;
-			sysclock_governor_selected = 0;
+//			sysclock_governor_selected = 0;
 			global_scaling_factor = MAX_SCALING_FACTOR;
 			mutex_unlock(&sysclock_mutex);
 			break;
