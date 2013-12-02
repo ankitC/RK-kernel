@@ -71,70 +71,69 @@ void migrate_and_start(struct task_struct *task)
 {
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
-	unsigned int bypass = 1;
 	int send_wakeup_msg = 0;
 
 	spin_lock_irqsave(&bin_spinlock, flags);
 	while (curr)
 	{
 
-		if (curr->task != task)
+		if (curr->task->pid != task->pid)
 		{
-			if (curr->task->reserve_process->host_cpu != curr->task->reserve_process->prev_cpu)
-			{
-				curr->task->reserve_process->pending = 1;
-				set_tsk_need_resched(curr->task);
-				bypass = 0;
-			}
+			/*			if (curr->task->reserve_process->host_cpu != curr->task->reserve_process->prev_cpu)
+						{
+						curr->task->reserve_process->pending = 1;
+						set_tsk_need_resched(curr->task);
+						bypass = 0;
+						}*/
+			curr->task->reserve_process->pending = 1;
+			set_tsk_need_resched(curr->task);
 		}
 		curr = curr->next;
 	}
 	spin_unlock_irqrestore(&bin_spinlock, flags);
 
-	if(!bypass)
+	mutex_lock(&suspend_mutex);
+	suspend_processes = 1;
+	mutex_unlock(&suspend_mutex);
+	printk(KERN_INFO "Suspending all tasks.\n");
+
+	while (1)
 	{
-		mutex_lock(&suspend_mutex);
-		suspend_processes = 1;
-		mutex_unlock(&suspend_mutex);
-		printk(KERN_INFO "Suspending all tasks.\n");
+		send_wakeup_msg = 0;
 
-		while (1)
+		curr = bin_head;
+
+		spin_lock_irqsave(&bin_spinlock, flags);
+		while(curr)
 		{
-			send_wakeup_msg = 0;
-
-			curr = bin_head;
-
-			spin_lock_irqsave(&bin_spinlock, flags);
-			while(curr)
+			if (curr->task != task)
 			{
-				if (curr->task != task)
+				if (curr->task->reserve_process->pending == 1)
 				{
-					if (curr->task->reserve_process->pending == 1)
-					{
-						if (curr->task->reserve_process->deactivated != 1)
-							send_wakeup_msg++;
-					}
+					if (curr->task->reserve_process->deactivated != 1)
+						send_wakeup_msg++;
 				}
-				curr = curr->next;
 			}
-			spin_unlock_irqrestore(&bin_spinlock, flags);
-
-			if(send_wakeup_msg == 0)
-			{
-				mutex_lock(&suspend_mutex);
-				if(suspend_processes == 1)
-				{
-					suspend_processes = 0;
-					mutex_unlock(&suspend_mutex);
-					break;
-				}
-				mutex_unlock(&suspend_mutex);
-			}
+			curr = curr->next;
 		}
-		printk(KERN_INFO "Migrating and waking up tasks.\n");
+		spin_unlock_irqrestore(&bin_spinlock, flags);
 
-		wakeup_tasks();
+		if(send_wakeup_msg == 0)
+		{
+			mutex_lock(&suspend_mutex);
+			if(suspend_processes == 1)
+			{
+				suspend_processes = 0;
+				mutex_unlock(&suspend_mutex);
+				break;
+			}
+			mutex_unlock(&suspend_mutex);
+		}
 	}
+	printk(KERN_INFO "Migrating and waking up tasks.\n");
+
+	wakeup_tasks();
+
 	if (disable_cpus)
 	{
 		energy_savings();
