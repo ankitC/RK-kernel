@@ -33,14 +33,21 @@ unsigned long long max_val (unsigned long long a, unsigned long long b){
 		return a;
 }
 
-/* @params:
- * node - task under reservation 
- * TODO: Describe the variables.
+/*
+ * @params:
+ * node - task under reservation
+ * S - Slack
+ * I - Idle Duration
+ * t - end of an idle period
+ * beta - Total Preemption + Workload
+ * IN_BZP - Busy Period Flag
+ * alpha - frequencies among which, eta will be chosen
+ * delta, omega, omega_i - temporary variables
  */
 unsigned long long energy_min_freq (BIN_NODE *node, int cpu_no)
 {
 	unsigned long long C_i = timespec_to_ns(&node->task->reserve_process->C);
-    unsigned long long T_i = timespec_to_ns(&node->task->reserve_process->T);
+	unsigned long long T_i = timespec_to_ns(&node->task->reserve_process->T);
 	unsigned long long D_i = T_i;
 	unsigned long long S = 0, I = 0, t = 0, beta = 0, temp_I = 0;
 	uint64_t omega_var = 0, B_var = 0, T_var = 0;
@@ -52,50 +59,38 @@ unsigned long long energy_min_freq (BIN_NODE *node, int cpu_no)
 	unsigned long long alpha = 100, delta = 0, omega_p = 0, omega = C_i, beta_sum = 0;
 	BIN_NODE *head = cpu_bin_head[cpu_no], *curr = NULL;
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	printk(KERN_INFO "T of node = %llu", T_i);
-	#endif
+#endif
 	while (omega < D_i)
 	{
 		/* Calculations within the busy period */
 		if (IN_BZP)
 		{
 			delta = D_i - omega;
-			#ifdef DEBUG
-			printk(KERN_INFO "[%s] delta %llu\n", __func__, delta);
-			#endif
 			while ((omega < D_i) && (delta > 0))
 			{
 				for (curr = head; curr != node->next; curr = curr->next)
 				{
 					T_var = timespec_to_ns(&curr->task->reserve_process->T);
-					#ifdef DEBUG
-					printk(KERN_INFO "T_var = %llu", T_var);
-					#endif
 					remainder = do_div(*T_temp, SYSCLOCK_SCALING_FACTOR);
 					temp = *T_temp;
 					omega_var = omega;
 					remainder = do_div(*omega_temp ,temp);
 					remainder = do_div(*omega_temp, SYSCLOCK_SCALING_FACTOR);
 					beta_sum += (timespec_to_ns(&curr->task->reserve_process->C) * (omega_var + 1));
-					#ifdef DEBUG
-					printk(KERN_INFO "[%s] omega in 1 %llu\n", __func__, omega);
-					#endif
 				}
-				#ifdef DEBUG
+#ifdef DEBUG
 				printk(KERN_INFO "[%s] beta_sum %llu\n", __func__, beta_sum);
-				#endif
+#endif
 				omega_p = beta_sum + S;
 				beta_sum = 0;
 				delta = omega_p - omega;
 				omega = omega_p;
 			}
-			#ifdef DEBUG
+#ifdef DEBUG
 			printk(KERN_INFO "[%s] delta %llu\n", __func__, delta);
-			#endif
-			#ifdef DEBUG
-			printk(KERN_INFO "[%s] omega 1 %llu\n", __func__, omega);
-			#endif
+#endif
 			IN_BZP = 0;
 		}
 		else	/* Considering the Idle Time till the start of next busy time. */
@@ -110,9 +105,9 @@ unsigned long long energy_min_freq (BIN_NODE *node, int cpu_no)
 				remainder = do_div(*omega_temp ,temp);
 				if((remainder = do_div(*omega_temp, SYSCLOCK_SCALING_FACTOR)) > 0)
 					*omega_temp = *omega_temp + 1;
-				#ifdef DEBUG
+#ifdef DEBUG
 				printk(KERN_INFO "Tj * omega/Tj = %llu", (timespec_to_ns(&curr->task->reserve_process->T) * omega_var));
-				#endif
+#endif
 				temp_I = min_val (((timespec_to_ns(&curr->task->reserve_process->T) * omega_var) - omega), (D_i - omega));
 
 				if (I != 0)
@@ -121,30 +116,17 @@ unsigned long long energy_min_freq (BIN_NODE *node, int cpu_no)
 				}
 				else
 					I = temp_I;
-				#ifdef DEBUG
-				printk(KERN_INFO "[%s] omega in 2 %llu\n", __func__, omega);
-			#endif
 			}
 
-			#ifdef DEBUG
+#ifdef DEBUG
 			printk(KERN_INFO "[%s] Idle time %llu\n", __func__, I);
-			#endif
-			#ifdef DEBUG
-			printk(KERN_INFO "[%s] omega 2 %llu\n", __func__, omega);
-			#endif
+#endif
 			S += I;
 			omega += I;
 			t = omega;
 			beta = omega - S;
-
-			#ifdef DEBUG
-			printk(KERN_INFO "[%s] Outside if loop Beta %llu\n", __func__, beta);
-			#endif
 			if ((100 * beta) < (t * alpha))
 			{
-				#ifdef DEBUG
-				printk(KERN_INFO "[%s] Inside if loop Beta %llu\n", __func__, beta);
-				#endif
 				T_var = t;
 				remainder = do_div(*T_temp, SYSCLOCK_SCALING_FACTOR);
 				temp = *T_temp;
@@ -154,21 +136,21 @@ unsigned long long energy_min_freq (BIN_NODE *node, int cpu_no)
 				remainder = do_div(*B_temp, SYSCLOCK_SCALING_FACTOR);
 
 				alpha = *B_temp;
-				#ifdef DEBUG
-				printk(KERN_INFO "[%s] Inside if loop Alpha %llu\n", __func__, alpha);
-			#endif
 			}
 			IN_BZP = 1;
 		}
 	}
-	#ifdef DEBUG
+#ifdef DEBUG
 	printk(KERN_INFO "[%s] Sysclock Alpha %llu\n", __func__, alpha);
-	#endif
+#endif
 
 	/* Returning the minimum sysclock freq for the task */
 	return alpha;
 }
 
+/*
+ *sysclock_calculation: Calculating eta for a task-set
+ */
 
 unsigned long long sysclock_calculation(int cpu_no)
 {
@@ -178,9 +160,9 @@ unsigned long long sysclock_calculation(int cpu_no)
 	if (curr == NULL)
 		return 0;
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	printk(KERN_INFO "[%s] Sysclock Calculation\n", __func__);
-	#endif
+#endif
 	/* Finding the energy minimum frequency for each task */
 	while (curr != NULL)
 	{
@@ -197,9 +179,9 @@ unsigned long long sysclock_calculation(int cpu_no)
 		curr = curr->next;
 	}
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	printk(KERN_INFO "[%s] Sysclock Calculation %llu sysclk freq\n", __func__, cpu_sysclock_freq);
-	#endif
+#endif
 	return cpu_sysclock_freq;
 
 }

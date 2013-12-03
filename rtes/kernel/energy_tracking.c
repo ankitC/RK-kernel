@@ -8,7 +8,7 @@
 
 #define POWER_TABLE_ENTRIES 17
 /*
- * Power in mW corresponding frequencies in the cpu_freq 
+ * Power in mW corresponding frequencies (MHz) in the cpu_freq
  * table.
  */
 int cpu_power_table[POWER_TABLE_ENTRIES][2] = {
@@ -32,6 +32,7 @@ int get_cpu_energy(unsigned int freq)
 	printk(KERN_INFO "[%s] Cpu freq not found\n", __func__);
 	return 0;
 }
+
 /*
  *	Calculate the sysclock frequency according to the scaling factor
  */
@@ -44,12 +45,11 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, struct cpufreq_policy *p
 	uint64_t *F_temp = &F_var;
 	uint32_t max_freq = policy->max, min_freq = policy->min;
 
-	printk(KERN_INFO "[%s] scaling_factor = %d", __func__, scaling_factor);
 	F_var = (uint64_t) max_freq * scaling_factor;
 	remainder = do_div(*F_temp, MAX_SCALING_FACTOR);
 	curr_freq = *F_temp;
-	printk(KERN_INFO "[%s] frequency calculated %llu found\n", __func__, *F_temp);
 
+	//Pick Frequency based on available frequencies
 	for (i = 0; i < POWER_TABLE_ENTRIES; i++)
 	{
 		if (curr_freq <= cpu_power_table[i][0])
@@ -59,6 +59,7 @@ unsigned int calculate_sys_clk_freq(int scaling_factor, struct cpufreq_policy *p
 		}
 	}
 
+	//CPU Frequency not less than Critical Frequency
 	if (new_freq < CRITICAL_FREQ)
 	{
 		new_freq = CRIT_FREQ_CORE;
