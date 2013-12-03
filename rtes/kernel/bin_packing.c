@@ -410,7 +410,6 @@ void sort_cpus_util_wf(int sorted_cpus[TOTAL_CORES])
 
 	for (i = 0; i < TOTAL_CORES; i++){
 		sorted_cpus[i] = cpu_arr[i].cpu;
-		printk(KERN_INFO "Sorted_CPUS[%d] = %d\n", i, sorted_cpus[i]);
 	}
 
 }
@@ -616,7 +615,6 @@ int apply_heuristic(char policy[2])
 			freq_temp_scale = sysclock_calculation(i);
 			if (sysclock_freq_scale < freq_temp_scale){
 				sysclock_freq_scale = freq_temp_scale;
-				printk(KERN_INFO "sysclock freq scale is %llu", sysclock_freq_scale);
 			}
 
 			if (cpu_bin_head[i] != NULL)
@@ -630,11 +628,9 @@ int apply_heuristic(char policy[2])
 		}
 
 		mutex_lock(&sysclock_mutex);
-		//sysclock_scaling_factor = sysclock_freq_scale;
 		if (cpus_using_sysclock_governor)
 		{
 			global_sysclock_freq = calculate_sys_clk_freq(sysclock_freq_scale, cpufreq_cpu_get(0));
-			printk(KERN_INFO "Global sysclock freq %u\n", global_sysclock_freq);
 
 			if (!cpu_occupied)
 				global_sysclock_freq = cpufreq_cpu_get(0)->max;
