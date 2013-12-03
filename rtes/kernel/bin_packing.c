@@ -20,7 +20,7 @@ BIN_NODE* cpu_bin_head[TOTAL_CORES] = {0};
 extern const uint32_t bounds_tasks[62];
 extern char partition_policy[2]; 
 extern BIN_NODE* bin_head;
-unsigned int /*sysclock_scaling_factor = 0,*/ global_sysclock_freq = 0;
+volatile unsigned int global_sysclock_freq = 0;
 extern struct mutex sysclock_mutex;
 extern int cpus_using_sysclock_governor;
 /*

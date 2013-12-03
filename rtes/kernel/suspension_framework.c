@@ -75,7 +75,7 @@ void migrate_and_start(struct task_struct *task)
 {
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
-	int send_wakeup_msg = 0;
+	int send_wakeup_msg = 0, i = 0;
 	unsigned int local_sys_freq = 0;
 
 	spin_lock_irqsave(&bin_spinlock, flags);
@@ -140,6 +140,9 @@ void migrate_and_start(struct task_struct *task)
 	mutex_lock(&sysclock_mutex);
 	local_sys_freq = global_sysclock_freq;
 	mutex_unlock(&sysclock_mutex);
+
+	for (i = 1; i < 4; i++)
+		cpu_up(i);
 
 	cpufreq_set_sysclock(cpufreq_cpu_get(0), local_sys_freq, 1);
 
