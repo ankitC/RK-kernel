@@ -4269,6 +4269,7 @@ extern spinlock_t scaling_spinlock;
 extern unsigned int global_scaling_factor;
 DEFINE_SPINLOCK(energy_spinlock);
 #define SCALING_FACTOR 1000000
+#define DEFAULT_SCALE 100
 /*
  *Implements energy energy functionality
  */
@@ -4293,8 +4294,6 @@ inline void energy_accounting(struct task_struct* prev, unsigned long long time)
 		spin_lock_irqsave(&energy_spinlock, flags);
 		global_total_energy += energy_consumed_var;
 		spin_unlock_irqrestore(&energy_spinlock, flags);
-
-		//printk(KERN_INFO "[%s] %u total_energy %llu cpu freq\n", __func__, cpufreq_cpu_get(0)->cur, global_total_energy);
 	}
 }
 
@@ -4348,7 +4347,7 @@ inline void stop_C_timer(struct task_struct* prev)
 		temp = ktime_to_timespec(ktime);
 		C_var = timespec_to_ns(&temp);
 		remainder = do_div(*C_temp, prev->reserve_process->local_scaling_factor);
-		C_var *= 100;
+		C_var *= DEFAULT_SCALE;
 		prev->reserve_process->remaining_C = ns_to_ktime(C_var);
 		hrtimer_cancel(&prev->reserve_process->C_timer);
 		prev->reserve_process->running = 0;
@@ -4373,7 +4372,7 @@ inline void start_reservation_timers(struct task_struct *next)
 	{
 		if ((!next->reserve_process->t_timer_started))
 		{
-			printk(KERN_INFO "T_timer init\n");
+			printk(KERN_INFO "PID:%d:T_timer init\n"next->pid);
 			ktime = ktime_set( next->reserve_process->T.tv_sec, next->reserve_process->T.tv_nsec);
 			hrtimer_init( &next->reserve_process->T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 			next->reserve_process->T_timer.function = &T_timer_callback;
@@ -4383,14 +4382,16 @@ inline void start_reservation_timers(struct task_struct *next)
 		next->reserve_process->running = 1;
 		hrtimer_init( &next->reserve_process->C_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 
+		/* Scaling the execution time as per frequency calculation */
 		next->reserve_process->C_timer.function = &C_timer_callback;
 		temp_remaining_C = ktime_to_ns(next->reserve_process->remaining_C);
+		
 		spin_lock_irqsave(&scaling_spinlock, flags);
 		next->reserve_process->local_scaling_factor = global_scaling_factor;
-//		printk(KERN_INFO "global scaling factor %u", global_scaling_factor);
 		C_var = temp_remaining_C * next->reserve_process->local_scaling_factor;
 		spin_unlock_irqrestore(&scaling_spinlock, flags);
-		remainder = do_div(*C_temp, 100);
+		
+		remainder = do_div(*C_temp, DEFAULT_SCALE);
 		hrtimer_start(&next->reserve_process->C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
 	}
 
@@ -4409,11 +4410,10 @@ inline void check_reservation(struct task_struct *prev)
 	if (current_process->under_reservation && !current_process->reserve_process->need_resched && current_process->reserve_process->t_timer_started)
 	{
 		spin_lock_irqsave(&current_process->reserve_process->reserve_spinlock, flags);
-		temp = prev->se.sum_exec_runtime - \
-			   prev->reserve_process->prev_setime;
+		temp = prev->se.sum_exec_runtime - prev->reserve_process->prev_setime;
 		energy_accounting(prev, temp);
 		current_process->reserve_process->spent_budget = timespec_add\
-														(current_process->reserve_process->spent_budget, ns_to_timespec(temp));
+							(current_process->reserve_process->spent_budget, ns_to_timespec(temp));
 		prev->reserve_process->prev_setime = prev->se.sum_exec_runtime;
 		spin_unlock_irqrestore(&current_process->reserve_process->reserve_spinlock, flags);
 	}

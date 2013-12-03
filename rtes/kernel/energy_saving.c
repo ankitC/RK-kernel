@@ -13,8 +13,8 @@
 extern int guarantee;
 extern BIN_NODE* bin_head;
 extern spinlock_t bin_spinlock;
-/* Disabling unused CPUs for energy saving */
 
+/* Disabling unused CPUs for energy saving */
 void energy_savings(void)
 {
 

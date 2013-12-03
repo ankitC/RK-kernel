@@ -84,12 +84,6 @@ void migrate_and_start(struct task_struct *task)
 
 		if (curr->task->pid != task->pid)
 		{
-			/*			if (curr->task->reserve_process->host_cpu != curr->task->reserve_process->prev_cpu)
-						{
-						curr->task->reserve_process->pending = 1;
-						set_tsk_need_resched(curr->task);
-						bypass = 0;
-						}*/
 			curr->task->reserve_process->pending = 1;
 			set_tsk_need_resched(curr->task);
 		}
@@ -141,9 +135,7 @@ void migrate_and_start(struct task_struct *task)
 	local_sys_freq = global_sysclock_freq;
 	mutex_unlock(&sysclock_mutex);
 
-	for (i = 1; i < 4; i++)
-		cpu_up(i);
-
+	/* Setting the CPU frequency to the calculated sysclock freq */
 	cpufreq_set_sysclock(cpufreq_cpu_get(0), local_sys_freq, 1);
 
 	wakeup_tasks();

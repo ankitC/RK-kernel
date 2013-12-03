@@ -1,14 +1,5 @@
-
 /*
- *  linux/drivers/cpufreq/cpufreq_sysclock.c
- *
- *  Copyright (C)  2001 Russell King
- *            (C)  2002 - 2004 Dominik Brodowski <linux@brodo.de>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
+	Sysclock Governor for Kernel.
  */
 
 #include <linux/kernel.h>
@@ -30,16 +21,10 @@
 /**
  * A few values needed by the sysclock governor
  */
-static DEFINE_PER_CPU(unsigned int, cpu_max_freq);
-static DEFINE_PER_CPU(unsigned int, cpu_min_freq);
-static DEFINE_PER_CPU(unsigned int, cpu_cur_freq); /* current CPU freq */
-static DEFINE_PER_CPU(unsigned int, cpu_set_freq); /* CPU freq desired by
-													  sysclock */
-static DEFINE_PER_CPU(unsigned int, cpu_is_managed);
-static DEFINE_PER_CPU(struct cpufreq_policy *, temp_policy);
+
 DEFINE_MUTEX(sysclock_mutex);
 DEFINE_SPINLOCK(scaling_spinlock);
-int cpus_using_sysclock_governor;
+int cpus_using_sysclock_governor = 0;
 extern unsigned int sysclock_scaling_factor;
 extern unsigned int global_sysclock_freq;
 unsigned int global_scaling_factor = MAX_SCALING_FACTOR;
@@ -64,34 +49,17 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 	uint64_t S_var = 0;
 	uint64_t *S_temp = &S_var;
 	unsigned long flags = 0;
-	printk("[%s] %s\n", __func__,  policy->governor->name);
-
+	
+	/* Setting Frequency of system as per sysclock */
+	mutex_lock(&sysclock_mutex);
 	if (cpus_using_sysclock_governor != 0)
 	{
+		mutex_unlock(&sysclock_mutex);
 		if (freq == 0 || strcmp(policy->governor->name, "sysclock") != 0)
 		{
 			printk("[%s] returning without setting the sysclock %s\n", __func__,  policy->governor->name);
 			return 0;
 		}
-
-//		printk("[%s] for cpu %u, freq %u kHz\n", __func__,  policy->cpu, freq);
-
-/*		per_cpu(cpu_set_freq, policy->cpu) = freq;
-
-		if (freq < per_cpu(cpu_min_freq, policy->cpu))
-			freq = per_cpu(cpu_min_freq, policy->cpu);
-		if (freq > per_cpu(cpu_max_freq, policy->cpu))
-			freq = per_cpu(cpu_max_freq, policy->cpu);*/
-		/*per_cpu(cpu_set_freq, 0) = freq;
-
-		if (freq < per_cpu(cpu_min_freq, 0))
-			freq = per_cpu(cpu_min_freq, 0);
-		if (freq > per_cpu(cpu_max_freq, 0))
-			freq = per_cpu(cpu_max_freq, 0);
-
-		printk("[%s] min %u kHz\n", __func__, policy->min);
-		printk("[%s] max %u kHz\n", __func__, policy->max);
-	`	printk("[%s] freq %u kHz\n", __func__, freq);*/
 
 		printk("[%s] freq %u kHz\n", __func__, freq);
 
@@ -100,63 +68,35 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 		if (ret < 0)
 			printk("[%s] Setting freq failed\n", __func__);
 
-		//mutex_lock(&scaling_mutex);
+		
 		spin_lock_irqsave(&scaling_spinlock, flags);
 		S_var = policy->max * MAX_SCALING_FACTOR;
 		remainder = do_div(*S_temp, freq);
 		global_scaling_factor = S_var;
 		printk("[%s] global_scaling_factor : %u\n", __func__, global_scaling_factor);
 		spin_unlock_irqrestore(&scaling_spinlock, flags);
-
-/*		policy->cur = freq;
-		per_cpu(cpu_cur_freq, policy->cpu) = policy->cur;
-		per_cpu(cpu_set_freq, policy->cpu) = policy->cur;*/
-		printk(KERN_INFO "[%s] CPU_FREQ_SET policy->cur %u", __func__, policy->cur);
-		//mutex_unlock(&scaling_mutex);
+		return ret;
 	}
+	mutex_unlock(&sysclock_mutex);
 	return ret;
 }
-static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
-		unsigned int event)
+
+/* Handling callbacks from processor for the Sysclock Governor */
+static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,unsigned int event)
 {
 	unsigned int cpu = policy->cpu;
 	unsigned int local_sys_freq = 0;
 	int rc = 0;
 
-	printk(KERN_INFO "[%s] Governor Sysclock\n", __func__);
-	printk(KERN_INFO "[%s] policy cpu %d\n", __func__, policy->cpu);
-	printk(KERN_INFO "[%s] smp processor id %d\n", __func__, smp_processor_id());
-	printk(KERN_INFO "[%s] event %u\n", __func__, event);
-
 	switch (event) {
 		case CPUFREQ_GOV_START:
+
 			if (!cpu_online(cpu))
 				return -EINVAL;
-/*			per_cpu(temp_policy, cpu) = policy;
-			BUG_ON(!policy->cur);*/
-			mutex_lock(&sysclock_mutex);
-/*
-			if (cpus_using_sysclock_governor == 0) {
-				cpufreq_register_notifier(
-						&sysclock_cpufreq_notifier_block,
-						CPUFREQ_TRANSITION_NOTIFIER);
-			}*/
-			cpus_using_sysclock_governor++;
 
+			mutex_lock(&sysclock_mutex);
+			cpus_using_sysclock_governor++;
 			local_sys_freq = global_sysclock_freq;
-/*			policy->cur = local_sys_freq;
-			per_cpu(cpu_is_managed, cpu) = 1;
-			per_cpu(cpu_min_freq, cpu) = policy->min;
-			per_cpu(cpu_max_freq, cpu) = policy->max;
-			per_cpu(cpu_cur_freq, cpu) = policy->cur;
-			per_cpu(cpu_set_freq, cpu) = policy->cur;
-			pr_debug("managing cpu %u started "
-					"(%u - %u kHz, currently %u kHz)\n",
-					cpu,
-					per_cpu(cpu_min_freq, cpu),
-					per_cpu(cpu_max_freq, cpu),
-					per_cpu(cpu_cur_freq, cpu));
-*/
 			mutex_unlock(&sysclock_mutex);
 
 			//Setting sysclock calculated frequency
@@ -164,23 +104,12 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 				return -EINVAL;
 			printk(KERN_INFO "[%s] START policy->cur %u", __func__, policy->cur);
 			break;
+		
 		case CPUFREQ_GOV_STOP:
+			/* Decrease number of CPUs running at sysclock when a CPU shuts down */
 			mutex_lock(&sysclock_mutex);
 			cpus_using_sysclock_governor--;
-/*			if (cpus_using_sysclock_governor == 0) {
-				cpufreq_unregister_notifier(
-						&sysclock_cpufreq_notifier_block,
-						CPUFREQ_TRANSITION_NOTIFIER);
-			}
 
-			per_cpu(cpu_is_managed, cpu) = 0;
-			per_cpu(cpu_min_freq, cpu) = 0;
-			per_cpu(cpu_max_freq, cpu) = 0;
-			per_cpu(cpu_set_freq, cpu) = 0;
-			per_cpu(temp_policy, cpu) =NULL;
-			pr_debug("managing cpu %u stopped\n", cpu);
-
-*/
 			// Make the global sysclock values default when changing the governor
 			if (!cpus_using_sysclock_governor)
 			{
@@ -188,47 +117,12 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,
 				global_scaling_factor = MAX_SCALING_FACTOR;
 			}
 			mutex_unlock(&sysclock_mutex);
-			printk(KERN_INFO "[%s] STOP policy->cur %u\n", __func__, policy->cur);
+			
 			break;
+
 		case CPUFREQ_GOV_LIMITS:
-/*			mutex_lock(&sysclock_mutex);
-			pr_debug("limit event for cpu %u: %u - %u kHz, "
-					"currently %u kHz, last set to %u kHz\n",
-					cpu, policy->min, policy->max,
-					per_cpu(cpu_cur_freq, cpu),
-					per_cpu(cpu_set_freq, cpu));
-			if (policy->max < per_cpu(cpu_set_freq, cpu)) {
-				__cpufreq_driver_target(policy, policy->max,
-						CPUFREQ_RELATION_H);
-
-			printk(KERN_INFO "[%s] limit max %u\n", __func__, policy->max);
-			} els if (policy->min > ) {
-				__cpufreq_driver_target(policy, policy->min,
-						CPUFREQ_RELATION_L);
-				
-			printk(KERN_INFO "[%s] limit min %u\n", __func__, policy->min);
-			}
-*/
-		__cpufreq_driver_target(policy, policy->min,
-						CPUFREQ_RELATION_L);
-   	/*else {
-				__cpufreq_driver_target(policy,
-						per_cpu(cpu_set_freq, cpu),
-						CPUFREQ_RELATION_L);
-
-			printk(KERN_INFO "[%s] limit otherwise %u\n", __func__, per_cpu(cpu_set_freq, cpu));
-			}
-			per_cpu(cpu_min_freq, cpu) = policy->min;
-			per_cpu(cpu_max_freq, cpu) = policy->max;
-			policy->cur = global_sysclock_freq;
-			per_cpu(cpu_cur_freq, cpu) = policy->cur;
-			per_cpu(cpu_set_freq, cpu) = policy->cur;
-			mutex_unlock(&sysclock_mutex);
-			//Setting sysclock calculated frequency
-	//		if (cpufreq_set_sysclock(policy, policy->cur, 0) < 0)
-	//			return -EINVAL;
-
-			printk(KERN_INFO "[%s] LIMIT policy->cur %u", __func__, policy->cur);*/
+		/* Setting the min limit in for the policy */
+		__cpufreq_driver_target(policy, policy->min,CPUFREQ_RELATION_L);
 			break;
 	}
 	return rc;

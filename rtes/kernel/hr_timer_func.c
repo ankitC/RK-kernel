@@ -34,13 +34,15 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
 
 	/*Asking for reschedule since budget is exhausted*/
 	reservation_detail->need_resched = 1;
+	
 	set_tsk_need_resched(reservation_detail->monitored_process);
-		temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
+	temp = reservation_detail->monitored_process->se.sum_exec_runtime - \
 			    reservation_detail->prev_setime;
-		reservation_detail->spent_budget = timespec_add\
-														(reservation_detail->spent_budget, ns_to_timespec(temp));
-	reservation_detail->monitored_process->reserve_process->prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
-//TODO reservation_detail->prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
+	
+	reservation_detail->spent_budget = timespec_add\
+				(reservation_detail->spent_budget, ns_to_timespec(temp));
+	
+	reservation_detail->prev_setime =  reservation_detail->monitored_process->se.sum_exec_runtime;
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 
 	return HRTIMER_NORESTART;
@@ -51,7 +53,7 @@ enum hrtimer_restart C_timer_callback( struct hrtimer *C_timer )
  */
 enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 {
-//	printk(KERN_INFO "HR T TIMER CALL BACK");
+
 	struct reserve_obj* reservation_detail=container_of(T_timer,\
 			struct reserve_obj, T_timer);
 	ktime_t ktime, forward_time, curr_time;
@@ -84,17 +86,16 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 				CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 		reservation_detail->C_timer.function = &C_timer_callback;
 		temp_remaining_C = ktime_to_ns(reservation_detail->remaining_C);
-		//mutex_lock(&scaling_mutex);
+	
+	/* Scaling the budget timer in accordance to sysclock freq */
 		spin_lock_irqsave(&scaling_spinlock, flags);
 		reservation_detail->local_scaling_factor = global_scaling_factor;
 		C_var = temp_remaining_C * reservation_detail->local_scaling_factor;
 		spin_unlock_irqrestore(&scaling_spinlock, flags);
-		//mutex_unlock(&scaling_mutex);
+	
+	
 		remainder = do_div(*C_temp, 100);
 		hrtimer_start(&reservation_detail->C_timer, timespec_to_ktime(ns_to_timespec(C_var)), HRTIMER_MODE_REL_PINNED);
-
-
-		//hrtimer_start(&reservation_detail->C_timer,reservation_detail->remaining_C, HRTIMER_MODE_REL_PINNED);
 	}
 
 	printk(KERN_INFO "PID:%d->Budget spent:%llu", reservation_detail->pid, timespec_to_ns\
@@ -122,9 +123,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	hrtimer_forward(T_timer, curr_time, forward_time);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	
-
-		printk(KERN_INFO "[%s] PID:%d %u total_energy %llu cpu freq\n", __func__, reservation_detail->pid, cpufreq_cpu_get(0)->cur, global_total_energy);
-
+	printk(KERN_INFO "[%s] PID:%d %u total_energy %llu cpu freq\n", __func__, reservation_detail->pid, cpufreq_cpu_get(0)->cur, global_total_energy);
 	return HRTIMER_RESTART;
 }
 
