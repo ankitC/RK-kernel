@@ -29,12 +29,6 @@ extern unsigned int sysclock_scaling_factor;
 extern unsigned int global_sysclock_freq;
 unsigned int global_scaling_factor = MAX_SCALING_FACTOR;
 
-static ssize_t show_speed(struct cpufreq_policy *policy, char *buf)
-{
-	printk(KERN_INFO "[%s] \n", __func__);
-	return sprintf(buf, "%u\n", per_cpu(cpu_cur_freq, policy->cpu));
-}
-
 /**
  * cpufreq_set - set the CPU frequency
  * @policy: pointer to policy struct where freq is being set
@@ -49,7 +43,7 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 	uint64_t S_var = 0;
 	uint64_t *S_temp = &S_var;
 	unsigned long flags = 0;
-	
+
 	/* Setting Frequency of system as per sysclock */
 	mutex_lock(&sysclock_mutex);
 	if (cpus_using_sysclock_governor != 0)
@@ -57,7 +51,7 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 		mutex_unlock(&sysclock_mutex);
 		if (freq == 0 || strcmp(policy->governor->name, "sysclock") != 0)
 		{
-			printk("[%s] returning without setting the sysclock %s\n", __func__,  policy->governor->name);
+			printk("[%s] returning without setting the sysclock %s %u\n", __func__,  policy->governor->name, freq);
 			return 0;
 		}
 
@@ -68,7 +62,6 @@ int cpufreq_set_sysclock(struct cpufreq_policy *policy, unsigned int freq, int h
 		if (ret < 0)
 			printk("[%s] Setting freq failed\n", __func__);
 
-		
 		spin_lock_irqsave(&scaling_spinlock, flags);
 		S_var = policy->max * MAX_SCALING_FACTOR;
 		remainder = do_div(*S_temp, freq);
@@ -104,7 +97,7 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,unsigned int 
 				return -EINVAL;
 			printk(KERN_INFO "[%s] START policy->cur %u", __func__, policy->cur);
 			break;
-		
+
 		case CPUFREQ_GOV_STOP:
 			/* Decrease number of CPUs running at sysclock when a CPU shuts down */
 			mutex_lock(&sysclock_mutex);
@@ -112,18 +105,25 @@ static int cpufreq_governor_sysclock(struct cpufreq_policy *policy,unsigned int 
 
 			// Make the global sysclock values default when changing the governor
 			if (!cpus_using_sysclock_governor)
-			{
-				global_sysclock_freq = 0;
 				global_scaling_factor = MAX_SCALING_FACTOR;
-			}
 			mutex_unlock(&sysclock_mutex);
-			
+
 			break;
 
 		case CPUFREQ_GOV_LIMITS:
 		/* Setting the min limit in for the policy */
-		__cpufreq_driver_target(policy, policy->min,CPUFREQ_RELATION_L);
-			break;
+
+			mutex_lock(&sysclock_mutex);
+			local_sys_freq = global_sysclock_freq;
+			mutex_unlock(&sysclock_mutex);
+
+			if (!local_sys_freq)
+
+			__cpufreq_driver_target(policy, policy->min,CPUFREQ_RELATION_L);
+				else if (cpufreq_set_sysclock(policy, local_sys_freq, 0) < 0)
+				return -EINVAL;
+
+		break;
 	}
 	return rc;
 }
@@ -132,7 +132,7 @@ struct cpufreq_governor cpufreq_gov_sysclock = {
 	.name		= "sysclock",
 	.governor	= cpufreq_governor_sysclock,
 	.store_setspeed = NULL,
-	.show_setspeed	= show_speed,
+	.show_setspeed	= NULL,
 	.owner		= THIS_MODULE,
 };
 
