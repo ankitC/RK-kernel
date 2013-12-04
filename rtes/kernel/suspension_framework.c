@@ -75,7 +75,7 @@ void migrate_and_start(struct task_struct *task)
 {
 	BIN_NODE* curr = bin_head;
 	unsigned long flags = 0;
-	int send_wakeup_msg = 0, i = 0;
+	int send_wakeup_msg = 0;
 	unsigned int local_sys_freq = 0;
 
 	spin_lock_irqsave(&bin_spinlock, flags);

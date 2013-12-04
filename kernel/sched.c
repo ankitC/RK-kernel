@@ -4372,7 +4372,7 @@ inline void start_reservation_timers(struct task_struct *next)
 	{
 		if ((!next->reserve_process->t_timer_started))
 		{
-			printk(KERN_INFO "PID:%d:T_timer init\n"next->pid);
+			printk(KERN_INFO "[%s]PID:%d:T_timer init\n",__func__,next->pid);
 			ktime = ktime_set( next->reserve_process->T.tv_sec, next->reserve_process->T.tv_nsec);
 			hrtimer_init( &next->reserve_process->T_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED );
 			next->reserve_process->T_timer.function = &T_timer_callback;
