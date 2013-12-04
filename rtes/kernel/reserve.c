@@ -85,6 +85,8 @@ unsigned int do_set_reserve(pid_t pid, struct timespec C, struct timespec T,\
 	if (task->under_reservation)
 	{
 		cleanup_hrtimer(&task->reserve_process->T_timer);
+		task->reserve_process->t_timer_started = 0;
+		task->reserve_process->spent_budget = ns_to_timespec(0);
 		if(task->state == TASK_UNINTERRUPTIBLE && !wake_up_process(task))
 				printk(KERN_INFO "Couldn't wake up process %d\n", task->pid);
 	}
