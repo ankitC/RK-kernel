@@ -123,7 +123,7 @@ enum hrtimer_restart T_timer_callback( struct hrtimer *T_timer )
 	hrtimer_forward(T_timer, curr_time, forward_time);
 	spin_unlock_irqrestore(&reservation_detail->reserve_spinlock, flags);
 	
-//	printk(KERN_INFO "[%s] PID:%d %u total_energy %llu cpu freq\n", __func__, reservation_detail->pid, cpufreq_cpu_get(0)->cur, global_total_energy);
+	//printk(KERN_INFO "[%s] PID:%d %u total_energy %llu cpu freq\n", __func__, reservation_detail->pid, cpufreq_cpu_get(0)->cur, global_total_energy);
 	return HRTIMER_RESTART;
 }
 

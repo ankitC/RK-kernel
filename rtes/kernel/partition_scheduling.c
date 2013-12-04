@@ -215,9 +215,6 @@ int admission_test(struct task_struct *task)
 	/*
 	 * Admission test for one cpu
 	 */
-
-	printk(KERN_INFO " uni_proc %d \n", uni_processor);
-
 	if ((uni_processor == 1) && (online_nodes == 1))
 	{
 		retval = ub_test(task);
@@ -279,7 +276,6 @@ void set_cpu_for_task(struct task_struct *task)
 
 	if(task!= NULL){
 		pid_t pid = task->pid;
-		printk(KERN_INFO "[%s] Before CPU Up\n", __func__);
 		if (task->under_reservation)
 		{
 			cpu_up(host_cpu);
